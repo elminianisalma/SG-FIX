@@ -1,8 +1,8 @@
-import { Incident } from '../utils/TypeIncident';
-import { getStatusStyle } from '../utils/IncidentStatus';
-import { getPriorityStyle, IncidentPriority } from '../utils/IncidentPriority';
-import { getImpactStyle, IncidentImpact } from '../utils/IncidentImpact';
-import { getUrgencyStyle, IncidentUrgency } from '../utils/IncidentUrgency';
+import { Incident } from '../../utils/TypeIncident';
+import { getStatusStyle } from '../../utils/IncidentStatus';
+import { getPriorityStyle, IncidentPriority } from '../../utils/IncidentPriority';
+import { getImpactStyle, IncidentImpact } from '../../utils/IncidentImpact';
+import { getUrgencyStyle, IncidentUrgency } from '../../utils/IncidentUrgency';
 
  type IncidentDetailsProps = {
    incident: Incident | null;

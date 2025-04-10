@@ -1,9 +1,9 @@
 import { useState } from 'react';  
-import { Incident } from '../utils/TypeIncident';
-import { getStatusStyle } from '../utils/IncidentStatus';
-import IncidentDetails from './IncidentDetail'; 
-import { getPriorityStyle, IncidentPriority } from '../utils/IncidentPriority';
-import { getImpactStyle, IncidentImpact } from '../utils/IncidentImpact';
+import { Incident } from '../../utils/TypeIncident';
+import { getStatusStyle } from '../../utils/IncidentStatus';
+import IncidentDetails from './IncidentDetail';
+import { getPriorityStyle, IncidentPriority } from '../../utils/IncidentPriority';
+import { getImpactStyle, IncidentImpact } from '../../utils/IncidentImpact';
 
 type IncidentTableProps = {
   incidents: Incident[];
@@ -17,8 +17,8 @@ export default function IncidentTable({ incidents }: IncidentTableProps) {
   };
 
   return (
-    <div className={`relative ${selectedIncident ? 'backdrop-blur-md' : ''}`}>
-      <div className="bg-white p-4 rounded-lg shadow-lg z-10 relative">
+    <div className={`relative ${selectedIncident ? 'backdrop-blur-md' : ''} pl-6`}>
+      <div className="bg-white p-4 rounded-lg shadow-lg z-10 relative ">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b bg-gray-100">
