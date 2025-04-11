@@ -45,7 +45,7 @@ const SignInForm = () => {
 
         if (email === testEmail && password === testPassword) {
             toast.success("Connexion réussie!");
-            router.push('/incident-list');
+            router.push('/core/incident-list');
         } else {
             toast.error("Email ou mot de passe incorrect");
         }
