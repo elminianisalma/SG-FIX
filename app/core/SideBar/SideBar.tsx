@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-    FaSearch, FaTh, FaHeart, FaShoppingBag, FaShieldAlt,
+    FaSearch, FaTh, FaHeart, FaShoppingBag, FaShieldAlt,FaBell,
     FaDatabase, FaChartLine, FaCog, FaUser, FaQuestionCircle
 } from 'react-icons/fa';
 import Image from 'next/image';
@@ -32,8 +32,9 @@ export default function Sidebar() {
                 >
                     <FaTh size={24} />
                 </div>
-                <div className="flex items-center justify-center text-white cursor-pointer">
-                    <FaShieldAlt size={24} />
+                <div     onClick={() => router.push('/core/notification-page')}
+                         className="flex items-center justify-center text-white cursor-pointer">
+                    <FaBell size={24} />
                 </div>
                 <div className="flex items-center justify-center text-white cursor-pointer">
                     <FaDatabase size={24} />
