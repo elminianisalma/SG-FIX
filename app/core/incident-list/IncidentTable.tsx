@@ -4,7 +4,6 @@ import { getStatusStyle } from '../../utils/IncidentStatus';
 import IncidentDetails from './IncidentDetail';
 import { getPriorityStyle, IncidentPriority } from '../../utils/IncidentPriority';
 import { getImpactStyle, IncidentImpact } from '../../utils/IncidentImpact';
-
 type IncidentTableProps = {
   incidents: Incident[];
 };

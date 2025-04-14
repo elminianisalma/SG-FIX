@@ -23,7 +23,8 @@ export default function Sidebar() {
             </div>
 
             <nav className="flex flex-col space-y-6">
-                <div className="flex items-center justify-center text-white cursor-pointer">
+                <div  onClick={() => router.push('/core/incident-details')}
+                         className="flex items-center justify-center text-white cursor-pointer">
                     <FaSearch size={24} />
                 </div>
                 <div
