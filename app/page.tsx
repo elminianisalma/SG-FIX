@@ -4,10 +4,11 @@ import Dashboard from "@/app/core/incident-list/IncidentList";
 import IncidentListPage from "@/app/core/incident-list/page";
 import DetailedIncidentInfo from "@/app/core/Incident-details/DetailedIncidentInfo";
 import DetailedDashboards from "@/app/core/Dashboards/DetailedDashboards";
+import AdminUserProfiles from "@/app/core/employees-dashboard/employeesDashboard";
 export default function Home() {
     return (
         <div>
-            <DetailedDashboards/>
+            <AdminUserProfiles/>
         </div>
     );
 }
