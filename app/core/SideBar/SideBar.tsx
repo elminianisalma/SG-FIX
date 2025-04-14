@@ -38,7 +38,8 @@ export default function Sidebar() {
                 <div className="flex items-center justify-center text-white cursor-pointer">
                     <FaDatabase size={24} />
                 </div>
-                <div className="flex items-center justify-center text-white cursor-pointer">
+                <div   onClick={() => router.push('/core/Dashboards')}
+                       className="flex items-center justify-center text-white cursor-pointer">
                     <FaChartLine size={24} />
                 </div>
                 <div className="flex items-center justify-center text-white cursor-pointer">
