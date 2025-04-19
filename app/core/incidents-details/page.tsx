@@ -1,6 +1,5 @@
 "use client";
-
-import DetailedIncidentInfo from "@/app/core/incident-details/DetailedIncidentInfo";
+import DetailedIncidentInfo from "./DetailedIncidentInfo";
 
 export default function Page() {
     return (

@@ -1,8 +1,8 @@
 export enum IncidentUrgency {
-    LOW = "Low",
-    MEDIUM = "Medium",
-    HIGH = "High",
-    IMMEDIATE = "Immediate",
+    LOW = "FAIBLE",
+    MEDIUM = "MOYEN",
+    HIGH = "ÉLEVÉE",
+    IMMEDIATE = "IMMEDIATE",
   }
   export const getUrgencyStyle = (urgency: IncidentUrgency): string => {
     switch (urgency) {

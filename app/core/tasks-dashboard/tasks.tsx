@@ -44,11 +44,11 @@ export type Incident = {
 const getTabIcon = (tab: string) => {
     switch (tab) {
         case "List":
-            return <ListIcon className="w-5 h-5 inline-block mr-2" />;
+            return <ListIcon className="w-6 h-6 inline-block mr-2" />;
         case "Table":
-            return <TableIcon className="w-5 h-5 inline-block mr-2" />;
+            return <TableIcon className="w-6 h-6 inline-block mr-2" />;
         case "Timeline":
-            return <TimerIcon className="w-5 h-5 inline-block mr-2" />;
+            return <TimerIcon className="w-6 h-6 inline-block mr-2" />;
         default:
             return null;
     }
@@ -119,66 +119,59 @@ const incidents: Record<string, Incident[]> = {
 };
 
 const IncidentCard = ({ incident }: { incident: Incident }) => (
-    <div className="bg-white rounded-xl shadow-md border p-5 w-full max-w-md">
-        {/* Status */}
+    <div className="bg-white rounded-xl shadow-md border p-6 w-full max-w-md">
         <div className="flex justify-between items-start">
-            <span
-                className={`text-xs font-medium text-white ${statusColors[incident.status]} px-2 py-1 rounded-full`}
-            >
+            <span className={`text-sm font-semibold text-white ${statusColors[incident.status]} px-3 py-1 rounded-full`}>
                 {incident.status}
             </span>
-            <button className="text-gray-400 hover:text-gray-600 text-lg">⋯</button>
+            <button className="text-gray-400 hover:text-gray-600 text-2xl">⋯</button>
         </div>
-
-        {/* Title and Description */}
-        <div className="mt-3">
-            <h3 className="text-lg font-semibold text-gray-800">
+        <div className="mt-4">
+            <h3 className="text-2xl font-bold text-gray-800">
                 {incident.title}
             </h3>
-            <p className="text-sm text-gray-500 mt-1">
+            <p className="text-lg text-gray-600 mt-2">
                 {incident.description || "No description available"}
             </p>
         </div>
 
-        {/* Assignees */}
-        <div className="mt-4 text-sm text-gray-500">
-            <p className="mb-1">Assignees :</p>
-            <div className="flex items-center space-x-2">
+        <div className="mt-5 text-lg text-gray-600">
+            <p className="mb-2 font-medium inline">Assignees: </p>
+            <div className="flex items-center space-x-3 inline">
                 <img
                     src={incident.profileImage}
                     alt={incident.assignedTo}
-                    className="w-6 h-6 rounded-full"
+                    className="w-8 h-8 rounded-full"
                 />
                 <span>{incident.assignedTo}</span>
             </div>
         </div>
 
-        {/* Date and Priority */}
-        <div className="mt-4 flex justify-between items-center text-sm text-gray-500">
-            <div className="flex items-center space-x-1">
+
+        <div className="mt-5 flex justify-between items-center text-lg text-gray-600">
+            <div className="flex items-center space-x-2">
                 <span>📅</span>
                 <span>{incident.createdAt}</span>
             </div>
             <span
-                className={`text-xs font-semibold text-white ${priorityColors[incident.priority || "Low"]} px-2 py-1 rounded-full`}
+                className={`text-sm font-semibold text-white ${priorityColors[incident.priority || "Low"]} px-3 py-1 rounded-full`}
             >
                 {incident.priority}
             </span>
         </div>
 
-        {/* Footer */}
-        <div className="mt-4 flex items-center justify-between text-sm text-gray-500 border-t pt-3">
-            <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-1">
-                    <MessageCircle className="w-4 h-4" />
+        <div className="mt-5 flex items-center justify-between text-lg text-gray-500 border-t pt-4">
+            <div className="flex items-center space-x-5">
+                <div className="flex items-center space-x-2">
+                    <MessageCircle className="w-5 h-5" />
                     <span>12 Comments</span>
                 </div>
-                <div className="flex items-center space-x-1">
-                    <Link className="w-4 h-4" />
+                <div className="flex items-center space-x-2">
+                    <Link className="w-5 h-5" />
                     <span>1 Links</span>
                 </div>
-                <div className="flex items-center space-x-1">
-                    <FileText className="w-4 h-4" />
+                <div className="flex items-center space-x-2">
+                    <FileText className="w-5 h-5" />
                     <span>0/3</span>
                 </div>
             </div>
@@ -195,20 +188,19 @@ export default function IncidentBoard() {
             <div className="w-64 bg-gray-100 border-r">
                 <Sidebar />
             </div>
-
-            <div className="flex-1 p-10">
-                <h1 className="text-5xl font-bold mb-4">Incidents</h1>
-                <p className="text-gray-600 mb-10 text-2xl">
+            <div className="flex-1 p-12">
+                <h1 className="text-6xl font-bold mb-6">Incidents</h1>
+                <p className="text-gray-600 mb-12 text-2xl">
                     Overview of ongoing and resolved incidents
                 </p>
 
-                <div className="flex items-center justify-between border-b mb-10 pb-4">
-                    <div className="flex space-x-6">
+                <div className="flex items-center justify-between border-b mb-12 pb-6">
+                    <div className="flex space-x-8">
                         {tabs.map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`pb-2 border-b-2 text-xl font-medium flex items-center ${
+                                className={`pb-3 border-b-2 text-2xl font-semibold flex items-center ${
                                     activeTab === tab
                                         ? "border-purple-600 text-purple-600"
                                         : "border-transparent text-gray-500 hover:text-purple-600"
@@ -219,17 +211,17 @@ export default function IncidentBoard() {
                             </button>
                         ))}
                     </div>
-                    <div className="flex items-center space-x-6 text-xl text-gray-500">
+                    <div className="flex items-center space-x-8 text-2xl text-gray-500">
                         <button className="flex items-center hover:text-gray-800">
-                            <FilterIcon className="w-5 h-5 mr-1" />
+                            <FilterIcon className="w-6 h-6 mr-2" />
                             Filter
                         </button>
                         <button className="flex items-center hover:text-gray-800">
-                            <LayersIcon className="w-5 h-5 mr-1" />
+                            <LayersIcon className="w-6 h-6 mr-2" />
                             Group by
                         </button>
                         <button className="flex items-center hover:text-gray-800">
-                            <SortAscIcon className="w-5 h-5 mr-1" />
+                            <SortAscIcon className="w-6 h-6 mr-2" />
                             Sort
                         </button>
                     </div>
@@ -241,16 +233,15 @@ export default function IncidentBoard() {
 
                 {activeTab === "Board" && (
                     <div className="flex justify-center">
-                        <div className="flex gap-10 overflow-x-auto">
+                        <div className="flex gap-12 overflow-x-auto text-center">
                             {Object.entries(incidents).map(([column, items]) => (
                                 <div key={column} className="w-[400px]">
-                                    <h3 className="text-3xl font-semibold mb-4">
-                                        {column}{" "}
-                                        <span className="text-gray-400 text-xl">
-                                            ({items.length})
-                                        </span>
-                                    </h3>
-                                    <div className="space-y-6">
+                                    {/* Augmentation de la taille du texte à text-lg */}
+                                    <h2 className="text-base-100 font-semibold mb-4">
+                                        {column}
+                                        <span className="text-gray-400 text-sm ml-1">({items.length})</span>
+                                    </h2>
+                                    <div className="space-y-8">
                                         {items.map((incident) => (
                                             <IncidentCard key={incident.id} incident={incident} />
                                         ))}
@@ -262,7 +253,7 @@ export default function IncidentBoard() {
                 )}
 
                 {activeTab !== "Board" && activeTab !== "List" && (
-                    <div className="text-gray-400 italic text-xl">
+                    <div className="text-gray-400 italic text-2xl">
                         Contenu de l’onglet à venir...
                     </div>
                 )}

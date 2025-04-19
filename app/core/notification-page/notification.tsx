@@ -6,6 +6,7 @@ import { SignalIcon } from "lucide-react";
 import Sidebar from "@/app/core/SideBar/SideBar";
 import ReassignModal from "./ReaffectModal";
 import { useRouter } from 'next/navigation';
+import {getPriorityStyle, IncidentPriority} from "@/app/utils/IncidentPriority";
 
 export default function IncidentNotificationPage() {
     const [showReassignDialog, setShowReassignDialog] = useState(false);
@@ -13,11 +14,7 @@ export default function IncidentNotificationPage() {
     const [removedIncidents, setRemovedIncidents] = useState<number[]>([]);
     const route = useRouter();
 
-    const priorityLevels = {
-        Low: { label: "Low", color: "text-gray-500", bg: "bg-gray-100" },
-        Medium: { label: "Medium", color: "text-yellow-500", bg: "bg-yellow-100" },
-        High: { label: "High", color: "text-red-600", bg: "bg-red-100" },
-    };
+
 
     const [incidents, setIncidents] = useState([
         {
@@ -26,7 +23,7 @@ export default function IncidentNotificationPage() {
             description: "Une fuite de gaz a été détectée au bâtiment B - 3ème étage.",
             reportedBy: "Ahmed Yassine",
             date: "10 Avril 2025 - 14h32",
-            priority: "High",
+            priority: "HIGH",
             status: "Non traité",
         },
         {
@@ -35,7 +32,7 @@ export default function IncidentNotificationPage() {
             description: "Problème de climatisation au bureau C - 2ème étage.",
             reportedBy: "Sabrina L.",
             date: "10 Avril 2025 - 15h05",
-            priority: "Low",
+            priority: "LOW",
             status: "Non traité",
         },
         {
@@ -44,7 +41,7 @@ export default function IncidentNotificationPage() {
             description: "Une erreur de connexion à la base a été détectée sur le serveur principal.",
             reportedBy: "Youssef H.",
             date: "10 Avril 2025 - 16h20",
-            priority: "Medium",
+            priority: "MEDIUM",
             status: "Non traité",
         },
         {
@@ -53,7 +50,7 @@ export default function IncidentNotificationPage() {
             description: "L’application mobile se ferme immédiatement après le lancement.",
             reportedBy: "Sarah B.",
             date: "11 Avril 2025 - 09h14",
-            priority: "High",
+            priority: "HIGH",
             status: "Non traité",
         }
     ]);
@@ -86,7 +83,7 @@ export default function IncidentNotificationPage() {
     return (
         <div className="p-6 space-y-6 max-w-4xl mx-auto">
             <Sidebar />
-            <h2 className="text-3xl font-bold mb-4">Incidents Signalés</h2>
+            <h2 className="text-3xl font-bold mb-4">Incidents à traiter</h2>
 
             {incidents.map((incident) => (
                 <Card
@@ -95,7 +92,7 @@ export default function IncidentNotificationPage() {
                         removedIncidents.includes(incident.id) ? "opacity-0 scale-95" : "opacity-100 scale-100"
                     }`}
                 >
-                    <CardContent className="space-y-5 p-5">
+                <CardContent className="space-y-5 p-5">
                         <div className="flex gap-4 items-start">
                             <Avatar>
                                 <img
@@ -104,16 +101,14 @@ export default function IncidentNotificationPage() {
                                     className="w-12 h-12 rounded-full"
                                 />
                             </Avatar>
-
                             <div className="flex-1">
                                 <div className="flex justify-between items-center">
                                     <p className="text-xl font-semibold">{incident.title}</p>
-                                    <div className={`flex items-center px-2 py-1 rounded-md ${priorityLevels[incident.priority].bg}`}>
-                                        <SignalIcon className={`w-5 h-5 ${priorityLevels[incident.priority].color} mr-1`} />
-                                        <span className={`text-base font-semibold ${priorityLevels[incident.priority].color}`}>
-                                            {priorityLevels[incident.priority].label}
-                                        </span>
+                                    <div className={`flex items-center px-2 py-1 rounded-md ${getPriorityStyle(incident.priority as IncidentPriority)}`}>
+                                        <span className="text-base font-bold">{incident.priority}
+                                          </span>
                                     </div>
+
                                 </div>
 
                                 <p className="mt-2 text-base text-gray-700">{incident.description}</p>
@@ -126,9 +121,8 @@ export default function IncidentNotificationPage() {
                                     </span>
                                 </div>
 
-                                <div className="flex gap-4 mt-4">
-                                    <Button size="lg" variant="outline">Voir Détails</Button>
-                                    <Button size="lg" variant="secondary" onClick={handleReassign}>Réaffecter</Button>
+                                <div className="flex gap-4 mt-4 align-content-center">
+                                    <Button size="lg" variant="outline" className="text-center">Voir Détails</Button>
                                     <Button
                                         size="lg"
                                         variant="default"

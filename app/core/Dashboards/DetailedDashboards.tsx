@@ -54,6 +54,7 @@ const barChartData = {
             backgroundColor: "rgba(54, 162, 235, 0.6)",
             borderColor: "rgba(54, 162, 235, 1)",
             borderWidth: 1,
+
         },
     ],
 };
@@ -337,12 +338,12 @@ export default function DetailedDashboards() {
                     <div className="flex items-center justify-start space-x-4">
                         {/* Filtre par période */}
                         <div className="flex items-center">
-                            <label htmlFor="filterPeriod" className="mr-2 text-sm text-gray-700">Période:</label>
+                            <label htmlFor="filterPeriod" className="mr-2 text-lg text-gray-700 ">Période:</label>
                             <select
                                 id="filterPeriod"
                                 value={timePeriod}
                                 onChange={handleTimePeriodChange}
-                                className="px-2 py-1 border rounded-md text-sm"
+                                className="px-4 py-2 border rounded-md text-lg"
                             >
                                 <option value="jour">Jour</option>
                                 <option value="semaine">Semaine</option>
@@ -352,12 +353,12 @@ export default function DetailedDashboards() {
 
                         {/* Filtre par date */}
                         <div className="relative">
-                            <label htmlFor="startDate" className="mr-2 text-sm text-gray-700">Date:</label>
+                            <label htmlFor="startDate" className="mr-2 text-lg text-gray-700">Date:</label>
                             <input
                                 type="text"
                                 value={startDate ? (endDate ? `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}` : startDate.toLocaleDateString()) : 'Sélectionner une date'}
                                 onClick={toggleCalendar}
-                                className="px-2 py-1 border rounded-md text-sm cursor-pointer"
+                                className="px-4 py-2 border rounded-md text-lg cursor-pointer"
                                 readOnly
                             />
                             {showCalendar && (
@@ -377,12 +378,12 @@ export default function DetailedDashboards() {
 
                         {/* Filtre par personne */}
                         <div className="flex items-center">
-                            <label htmlFor="personFilter" className="mr-2 text-sm text-gray-700">Personne:</label>
+                            <label htmlFor="personFilter" className="mr-2 text-lg text-gray-700">Personne:</label>
                             <select
                                 id="personFilter"
                                 value={personFilter}
                                 onChange={handlePersonFilterChange}
-                                className="px-2 py-1 border rounded-md text-sm"
+                                className="px-4 py-2 border rounded-md text-lg"
                             >
                                 <option value="">Toutes les personnes</option>
                                 {peopleList.map((person) => (
@@ -395,10 +396,10 @@ export default function DetailedDashboards() {
                         <div className="flex items-center flex-grow justify-end">
                             <input
                                 type="text"
-                                placeholder="Rechercher globalement..."
+                                placeholder="Rechercher ..."
                                 value={searchQuery}
                                 onChange={handleSearchChange}
-                                className="px-2 py-1 border rounded-md text-sm w-64"
+                                className="px-4 py-2 border rounded-md text-lg w-64"
                             />
                             <FaSearch className="ml-2 text-gray-600" />
                         </div>
@@ -455,29 +456,21 @@ export default function DetailedDashboards() {
                         <div className="bg-white rounded-lg shadow-md p-6">
                             <h3 className="text-lg font-semibold text-gray-900 mb-3">KPI de Gestion des Incidents</h3>
                             <div className="grid grid-cols-2 gap-6">
-                                <div className="bg-blue-100 p-4 rounded-lg shadow-md flex items-center space-x-4">
-                                    <FaTachometerAlt className="text-2xl text-blue-700" />
-                                    <div>
-                                        <h4 className="text-sm font-semibold text-gray-700">Total des Incidents</h4>
-                                        <div className="text-xl font-bold text-gray-900">{kpiData.totalIncidents}</div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                                    <div className="bg-white border border-gray-300 rounded-xl shadow-sm p-6">
+                                        <h2 className="text-lg font-semibold text-gray-800 mb-2">Total des Incidents</h2>
+                                        <p className="text-2xl font-bold text-blue-600">{kpiData.totalIncidents}</p>
+                                    </div>
+                                    <div className="bg-white border border-gray-300 rounded-xl shadow-sm p-6">
+                                        <h2 className="text-lg font-semibold text-gray-800 mb-2">Incidents Résolus</h2>
+                                        <p className="text-2xl font-bold text-green-600">{kpiData.totalResolved}</p>
+                                    </div>
+                                    <div className="bg-white border border-gray-300 rounded-xl shadow-sm p-6">
+                                        <h2 className="text-lg font-semibold text-gray-800 mb-2">Incidents Escaladés</h2>
+                                        <p className="text-2xl font-bold text-red-500">{kpiData.totalEscalated}</p>
                                     </div>
                                 </div>
 
-                                <div className="bg-green-100 p-4 rounded-lg shadow-md flex items-center space-x-4">
-                                    <FaCheckCircle className="text-2xl text-green-700" />
-                                    <div>
-                                        <h4 className="text-sm font-semibold text-gray-700">Incidents Résolus</h4>
-                                        <div className="text-xl font-bold text-gray-900">{kpiData.totalResolved}</div>
-                                    </div>
-                                </div>
-
-                                <div className="bg-yellow-100 p-4 rounded-lg shadow-md flex items-center space-x-4">
-                                    <FaExclamationTriangle className="text-2xl text-yellow-700" />
-                                    <div>
-                                        <h4 className="text-sm font-semibold text-gray-700">Incidents Escaladés</h4>
-                                        <div className="text-xl font-bold text-gray-900">{kpiData.totalEscalated}</div>
-                                    </div>
-                                </div>
 
                                 <div className="bg-purple-100 p-4 rounded-lg shadow-md flex items-center space-x-4">
                                     <FaClock className="text-2xl text-purple-700" />

@@ -13,53 +13,53 @@ export default function IncidentList() {
   const [incidents, setIncidents] = useState<Incident[]>([
     {
       id: 'ID1238957',
-      title: 'Security Issue',
+      title: 'Problème de sécurité',
       status: IncidentStatus.PENDING,
-      service: "IT Security",
-      assignedTo: "John Doe",
+      service: "Interop",
+      assignedTo: "Mahmoud IDRISSI",
       profileImage: "/images/john.jpeg",
       createdAt: "2025-04-01",
-      priority: "High",
-      impact: "Critical",
-      urgency: "Medium",
-      sla: "4 Hours",
-      description: "Unauthorized access detected in the security system.",
+      priority: "HAUTE",
+      impact: "CRITIQUE",
+      urgency: "MOYENNE",
+      sla: "4 Heures",
+      description: "Accès non autorisé détecté dans le système de sécurité.",
       customerName: "XYZ Corp",
       lastUpdatedBy: "Admin",
       lastUpdatedAt: "2025-04-02 10:30"
     },
     {
       id: 'ID1238958',
-      title: 'Network Down',
+      title: 'Panne de réseau',
       status: IncidentStatus.COMPLETED,
-      service: "Network Team",
-      assignedTo: "Jane Smith",
+      service: "OpenR",
+      assignedTo: "Mehdi BOUHLAOUI",
       profileImage: "/images/jane.jpeg",
       createdAt: "2025-03-30",
-      priority: "Medium",
-      impact: "High",
-      urgency: "High",
-      sla: "8 Hours",
-      description: "Internet connectivity lost in multiple offices.",
+      priority: "MOYEN",
+      impact: "ÉLEVÉ",
+      urgency: "ÉLEVÉE",
+      sla: "8 Heures",
+      description: "Connexion Internet perdue dans plusieurs bureaux.",
       customerName: "ABC Ltd.",
-      lastUpdatedBy: "Network Admin",
+      lastUpdatedBy: "Admin Réseau",
       lastUpdatedAt: "2025-03-31 15:45"
     },
     {
       id: 'ID1238959',
-      title: 'Database Failure',
+      title: 'Défaillance de la base de données',
       status: IncidentStatus.CANCELLED,
-      service: "Infrastructure",
-      assignedTo: "Emily Davis",
-      profileImage: "/images/emily.jpeg",
+      service: "Paiement des factures",
+      assignedTo: "Keba",
+      profileImage: "/images/michael.jpeg",
       createdAt: "2025-03-28",
-      priority: "Low",
-      impact: "Medium",
-      urgency: "Low",
-      sla: "24 Hours",
-      description: "Database server went offline but is no longer needed.",
+      priority: "FAIBLE",
+      impact: "MOYEN",
+      urgency: "FAIBLE",
+      sla: "24 Heures",
+      description: "Le serveur de base de données est tombé en panne mais n'est plus nécessaire.",
       customerName: "DEF Inc.",
-      lastUpdatedBy: "Database Engineer",
+      lastUpdatedBy: "Ingénieur Base de Données",
       lastUpdatedAt: "2025-03-29 12:00"
     }
   ]);
@@ -81,11 +81,11 @@ export default function IncidentList() {
   return (
       <div className="flex min-h-screen bg-gray-50">
 
-        {/* Main content area */}
-        <div className="flex-1 p-8 pl-16"> {/* Added padding-left to adjust position of content */}
-          <h1 className="text-3xl font-bold mb-6 text-gray-800 text-center">List of Incidents</h1>
+        {/* Zone principale */}
+        <div className="flex-1 p-8 pl-16">
+          <h1 className="text-5xl font-extrabold mb-10 text-gray-800 text-center">Liste des incidents</h1>
 
-          <div className="mb-6 pl-6"> {/* Added padding-left for KpiDashboard */}
+          <div className="mb-10 pl-6">
             <KpiDashboard
                 incidentsCount={incidentsCount}
                 pendingCount={pendingCount}
@@ -94,41 +94,38 @@ export default function IncidentList() {
             />
           </div>
 
-          {/* Filter & Search Section */}
-          <div className="flex items-center justify-between mb-6 flex-wrap gap-4 pl-20">
+          {/* Section de filtre et recherche */}
+          <div className="flex items-center justify-between mb-10 flex-wrap gap-4 pl-20">
             <div className="flex items-center gap-2">
-              <span className="text-gray-700 text-lg font-bold ">Filters</span>
-              <Settings className="text-gray-500" size={18}  />
+              <span className="text-gray-700 text-2xl font-semibold">Filtres</span>
+              <Settings className="text-gray-500" size={24} />
             </div>
 
-            {/* Search input */}
-            <div className="relative w-full max-w-lg h-11 flex items-center">
-              <Search className="absolute left-30 text-gray-400 pointer-events-none font-bold text-lg" size={20} />
+            {/* Champ de recherche */}
+            <div className="relative w-full max-w-lg h-14 flex items-center">
+              <Search className="absolute left-3 text-gray-400 pointer-events-none" size={24} />
               <input
                   type="text"
-                  placeholder="Search incidents..."
-                  className="w-full h-full pl-10 pr-4 rounded-xl border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Rechercher un incident..."
+                  className="w-full h-full pl-12 pr-4 text-xl rounded-xl border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            {/* Create Button */}
+            {/* Bouton de création */}
             <button
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-black text-white shadow hover:bg-blue-700 transition duration-200"
+                className="flex items-center gap-3 px-6 py-3 text-xl rounded-xl bg-black text-white shadow hover:bg-blue-700 transition duration-200"
                 onClick={() => router.push('/core/create-incident')}
             >
-              <PlusCircle size={20} />
-
-              <span>Create incident</span>
+              <PlusCircle size={24} />
+              <span>Créer un incident</span>
             </button>
           </div>
 
-          {/* Incidents Table */}
           <IncidentTable incidents={filteredIncidents} />
         </div>
 
-        {/* Sidebar */}
         <div className="fixed top-0 right-0 h-full">
           <Sidebar />
         </div>

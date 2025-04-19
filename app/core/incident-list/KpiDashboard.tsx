@@ -9,8 +9,8 @@ interface KpiDashboardProps {
 
 export default function KpiDashboard({ incidentsCount, pendingCount, completedCount, cancelledCount }: KpiDashboardProps) {
     const data = [
-        { name: "Pending", value: pendingCount, color: "#f5cb5c" },
-        { name: "Completed", value: completedCount, color: "#7aa95c" },
+        { name: "Pending", value: pendingCount, color: "#f1e887" },
+        { name: "Completed", value: completedCount, color: "#81dfa1" },
         { name: "Cancelled", value: cancelledCount, color: "#df2b4b" }
     ];
 

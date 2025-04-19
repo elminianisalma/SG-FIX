@@ -15,35 +15,34 @@ interface Question {
 }
 
 const IncidentForm = () => {
-    const [step, setStep] = useState(1);
-    const [answers, setAnswers] = useState<{ [key: string]: string }>({});
+    const [étape, setÉtape] = useState(1);
+    const [réponses, setRéponses] = useState<{ [key: string]: string }>({});
     const [sla, setSla] = useState<string>("");
-    const [showPopup, setShowPopup] = useState(false);
-    const [reportDate] = useState(new Date().toLocaleString());
+    const [afficherPopup, setAfficherPopup] = useState(false);
+    const [dateRapport] = useState(new Date().toLocaleString());
 
-    const handleAnswerChange = (id: string, value: string) => {
-        setAnswers((prev) => {
-            const updated = { ...prev, [id]: value };
+    const gérerChangementRéponse = (id: string, valeur: string) => {
+        setRéponses((précédent) => {
+            const misÀJour = { ...précédent, [id]: valeur };
             if (id === "severity") {
-                updated["sla"] = value === "High" ? "2 hours" : value === "Medium" ? "8 hours" : "24 hours";
-                setSla(updated["sla"]);
+                misÀJour["sla"] = valeur === "High" ? "2 heures" : valeur === "Medium" ? "8 heures" : "24 heures";
+                setSla(misÀJour["sla"]);
             }
-            return updated;
+            return misÀJour;
         });
     };
 
-
-
-    const assignIncident = () => {
-        alert(`Incident assigned to ${answers.assignee || "Unknown"} with SLA: ${sla}`);
+    const assignerIncident = () => {
+        alert(`Incident assigné à ${réponses.assignee || "Inconnu"} avec SLA : ${sla}`);
     };
-    const incidentQuestions:Question[] = [
-        { id: "ClientName", text: "Which Client are you?", type: "select", options: ["Bill Payment", "Bankup", "Interop", "OpenR"] },
-        { id: "environment", text: "Which environment is affected?", type: "radio", options: ["Dev", "HF", "HT"] },
-        { id: "severity", text: "What is the severity of the incident?", type: "radio", options: ["Low", "Medium", "High"] },
-        { id: "shortDescription", text: "Short Description", type: "text", placeholder: "Summarize the issue briefly..." },
-        { id: "details", text: "Detailed Description", type: "textarea", placeholder: "Explain the issue in detail..." },
-        { id: "attachments", text: "Add attachments if any", type: "file" },
+
+    const questionsIncident: Question[] = [
+        { id: "ClientName", text: "Quel client êtes-vous ?", type: "select", options: ["Bill Payment", "Bankup", "Interop", "OpenR"] },
+        { id: "environment", text: "Quel environnement est affecté ?", type: "radio", options: ["Dev", "HF", "HT"] },
+        { id: "severity", text: "Quel est le niveau de gravité de l’incident ?", type: "radio", options: ["Low", "Medium", "High"] },
+        { id: "shortDescription", text: "Brève description", type: "text", placeholder: "Résumez brièvement le problème..." },
+        { id: "details", text: "Description détaillée", type: "textarea", placeholder: "Expliquez le problème en détail..." },
+        { id: "attachments", text: "Ajouter des pièces jointes si nécessaire", type: "file" },
     ];
 
     return (
@@ -51,55 +50,55 @@ const IncidentForm = () => {
             <Sidebar />
             <div className="flex-1 flex justify-center items-start p-10">
                 <div className="w-full max-w-5xl space-y-6">
-                    <IncidentHeader step={step} />
+                    <IncidentHeader step={étape} />
 
                     <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-lg p-8">
-                        {step === 2 ? (
+                        {étape === 2 ? (
                             <>
                                 <AssignIncident
-                                    answers={answers}
-                                    onAnswerChange={handleAnswerChange}
-                                    onAssign={assignIncident}
+                                    answers={réponses}
+                                    onAnswerChange={gérerChangementRéponse}
+                                    onAssign={assignerIncident}
                                 />
                                 <div className="mt-6 text-center">
                                     <button
-                                        onClick={() => setShowPopup(true)}
-                                        className="bg-green-500 text-white px-6 py-3 rounded-lg shadow hover:bg-green-600 transition "
+                                        onClick={() => setAfficherPopup(true)}
+                                        className="bg-green-500 text-white px-6 py-3 rounded-lg shadow hover:bg-green-600 transition"
                                     >
-                                        ✅ Finish
+                                        ✅ Terminer
                                     </button>
                                 </div>
                             </>
                         ) : (
                             <>
                                 <IncidentQuestions
-                                    questions={incidentQuestions}
-                                    answers={answers}
-                                    onAnswerChange={handleAnswerChange}
+                                    questions={questionsIncident}
+                                    answers={réponses}
+                                    onAnswerChange={gérerChangementRéponse}
                                 />
                                 {sla && (
                                     <div className="text-right text-sm text-gray-600 font-medium mt-4">
-                                        ⏱️ Assigned SLA: <span className="text-black font-bold">{sla}</span>
+                                        ⏱️ SLA attribué : <span className="text-black font-bold">{sla}</span>
                                     </div>
                                 )}
                             </>
                         )}
 
                         <div className="flex justify-between mt-8">
-                            {step > 1 && (
+                            {étape > 1 && (
                                 <button
-                                    onClick={() => setStep(step - 1)}
+                                    onClick={() => setÉtape(étape - 1)}
                                     className="bg-gray-200 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition"
                                 >
-                                    ← Back
+                                    ← Retour
                                 </button>
                             )}
-                            {step < 2 && (
+                            {étape < 2 && (
                                 <button
-                                    onClick={() => setStep(step + 1)}
+                                    onClick={() => setÉtape(étape + 1)}
                                     className="ml-auto bg-red-500 text-white px-6 py-2 rounded-lg shadow hover:bg-red-600 transition"
                                 >
-                                    Next →
+                                    Suivant →
                                 </button>
                             )}
                         </div>
@@ -108,11 +107,11 @@ const IncidentForm = () => {
             </div>
 
             <IncidentSummaryPopup
-                visible={showPopup}
-                onClose={() => setShowPopup(false)}
-                answers={answers}
+                visible={afficherPopup}
+                onClose={() => setAfficherPopup(false)}
+                answers={réponses}
                 sla={sla}
-                reportDate={reportDate}
+                reportDate={dateRapport}
             />
         </div>
     );
