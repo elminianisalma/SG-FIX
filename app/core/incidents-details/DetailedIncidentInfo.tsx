@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Sidebar from "@/app/core/SideBar/SideBar";
+import Sidebar from '../SideBar/Sidebar';
 import { FaArrowDown, FaArrowUp, FaFileImage, FaRegCircle } from "react-icons/fa";
 
 const currentIncident = {

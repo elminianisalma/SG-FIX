@@ -1,12 +1,12 @@
 'use client';
 
+import React from 'react'; // Import React ici
 import { useState } from 'react';
 import { Search, Filter, PlusCircle, Settings } from 'lucide-react';
-import Sidebar from '@/app/core/SideBar/SideBar';
+import Sidebar from '@/app/core/SideBar/Sidebar';
 import IncidentTable from './IncidentTable';
 import KpiDashboard from './KpiDashboard';
-import { Incident } from '../../utils/TypeIncident';
-import { IncidentStatus } from '../../utils/IncidentStatus';
+import { Incident, IncidentStatus } from '../../utils/TypeIncident';
 import { useRouter } from 'next/navigation';
 
 export default function IncidentList() {
@@ -66,7 +66,7 @@ export default function IncidentList() {
 
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState('');
+  const [filterStatus, setFilterStatus] = useState<IncidentStatus | ''>(''); // Allow empty string for no filter
 
   const filteredIncidents = incidents.filter(incident =>
       incident.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
@@ -77,56 +77,85 @@ export default function IncidentList() {
   const pendingCount = filteredIncidents.filter(incident => incident.status === IncidentStatus.PENDING).length;
   const completedCount = filteredIncidents.filter(incident => incident.status === IncidentStatus.COMPLETED).length;
   const cancelledCount = filteredIncidents.filter(incident => incident.status === IncidentStatus.CANCELLED).length;
+  const resolvedCount = filteredIncidents.filter(incident => incident.status === IncidentStatus.RESOLVED).length;
+  const inProgressCount = filteredIncidents.filter(incident => incident.status === IncidentStatus.IN_PROGRESS).length;
 
   return (
       <div className="flex min-h-screen bg-gray-50">
+        {/* Sidebar à gauche (fixed) */}
+        <div className="fixed top-0 left-0 h-full z-10">
+          <Sidebar />
+        </div>
 
-        {/* Zone principale */}
-        <div className="flex-1 p-8 pl-16">
-          <h1 className="text-5xl font-extrabold mb-10 text-gray-800 text-center">Liste des incidents</h1>
+        {/* Zone principale (décalée à droite) */}
+        <div className="flex-1 p-8 sm:pl-64"> {/* Adjust left padding for sidebar */}
+          <h1 className="text-3xl font-extrabold mb-6 text-gray-800 text-center sm:text-left">Liste des incidents</h1> {/* Reduced font size and aligned left on larger screens */}
 
-          <div className="mb-10 pl-6">
+          <div className="mb-8">
             <KpiDashboard
                 incidentsCount={incidentsCount}
                 pendingCount={pendingCount}
                 completedCount={completedCount}
                 cancelledCount={cancelledCount}
+                resolvedCount={resolvedCount}
+                inProgressCount={inProgressCount}
             />
           </div>
 
-          {/* Section de filtre et recherche */}
-          <div className="flex items-center justify-between mb-10 flex-wrap gap-4 pl-20">
+          {/* Section de filtre et recherche (alignée à gauche sur les grands écrans) */}
+          <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
             <div className="flex items-center gap-2">
-              <span className="text-gray-700 text-2xl font-semibold">Filtres</span>
-              <Settings className="text-gray-500" size={24} />
+              <span className="text-gray-700 text-lg font-semibold">Filtres</span> {/* Reduced font size */}
+              <Settings className="text-gray-500" size={20} /> {/* Reduced icon size */}
             </div>
 
-            {/* Champ de recherche */}
-            <div className="relative w-full max-w-lg h-14 flex items-center">
-              <Search className="absolute left-3 text-gray-400 pointer-events-none" size={24} />
+            {/* Champ de recherche (width ajustée pour les grands écrans) */}
+            <div className="relative w-full sm:max-w-md h-12 flex items-center"> {/* Reduced height and max-width */}
+              <Search className="absolute left-3 text-gray-400 pointer-events-none" size={20} /> {/* Reduced icon size */}
               <input
                   type="text"
                   placeholder="Rechercher un incident..."
-                  className="w-full h-full pl-12 pr-4 text-xl rounded-xl border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full h-full pl-10 pr-3 text-lg rounded-md border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
 
-            {/* Bouton de création */}
+            {/* Filtre par statut */}
+            <div className="relative">
+              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
+              <select
+                  className="w-full h-12 pl-10 pr-3 text-lg rounded-md border border-gray-200 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value as IncidentStatus | '')}
+              >
+                <option value="">Tous les statuts</option>
+                <option value={IncidentStatus.PENDING}>En attente</option>
+                <option value={IncidentStatus.COMPLETED}>Terminé</option>
+                <option value={IncidentStatus.CANCELLED}>Annulé</option>
+                <option value={IncidentStatus.RESOLVED}>Résolu</option>
+                <option value={IncidentStatus.IN_PROGRESS}>En cours</option>
+              </select>
+            </div>
+
+            {/* Bouton de création (taille ajustée) */}
             <button
-                className="flex items-center gap-3 px-6 py-3 text-xl rounded-xl bg-black text-white shadow hover:bg-blue-700 transition duration-200"
+                className="flex items-center gap-2 px-4 py-2 text-lg rounded-md bg-black text-white shadow hover:bg-blue-700 transition duration-200"
                 onClick={() => router.push('/core/create-incident')}
             >
-              <PlusCircle size={24} />
-              <span>Créer un incident</span>
+              <PlusCircle size={20} /> {/* Reduced icon size */}
+              <span>Créer</span> {/* Shorter text */}
             </button>
           </div>
 
-          <IncidentTable incidents={filteredIncidents} />
+          {/* Tableau des incidents */}
+          <div className="overflow-x-auto"> {/* Make table scrollable on smaller screens */}
+            <IncidentTable incidents={filteredIncidents} />
+          </div>
         </div>
 
-        <div className="fixed top-0 right-0 h-full">
+        {/* Sidebar à droite (fixed) */}
+        <div className="fixed top-0 right-0 h-full z-10">
           <Sidebar />
         </div>
       </div>
