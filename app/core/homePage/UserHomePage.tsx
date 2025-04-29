@@ -8,44 +8,44 @@ import logoImage from '@/public/images/logoImage.png';
 
 export default function UserHomePage() {
     const router = useRouter();
-    const hasNotification = true; // changer à false si aucune notif
+    const hasNotification = true;
 
     const actions = [
         {
             title: 'Créer un incident',
             description: 'Signalez un nouveau problème.',
             icon: <PlusCircle className="h-10 w-10 mb-2 text-red-500" />,
-            action: () => router.push('/core/create-incident'), // ✅ Existe
+            action: () => router.push('/core/create-incident'),
         },
         {
             title: 'Incidents en cours',
             description: 'Consultez vos incidents ouverts.',
             icon: <Clock className="h-10 w-10 mb-2 text-gray-600" />,
-            action: () => router.push('/core/incident-list?filter=open'), // ✅ Existe
+            action: () => router.push('/core/incident-en-cours'),
         },
         {
             title: 'Historique incidents',
             description: 'Vos incidents résolus.',
             icon: <CheckCircle className="h-10 w-10 mb-2 text-red-500" />,
-            action: () => router.push('/core/incident-list?filter=resolved'), // ✅ Existe
+            action: () => router.push('/core/historique-incident'),
         },
         {
             title: 'Notifications',
             description: 'Mises à jour récentes.',
             icon: <Bell className="h-10 w-10 mb-2 text-gray-600" />,
-            action: () => router.push('/core/notification-page'), // ✅ Existe
+            action: () => router.push('/core/notification-user'),
         },
         {
             title: 'FAQ',
-            description: 'Incidents fréquents et solution.',
+            description: 'Incidents fréquents et solutions.',
             icon: <FileText className="h-10 w-10 mb-2 text-red-500" />,
-            action: () => router.push('/core/faq'), // ❌ À créer
+            action: () => router.push('/core/faq'),
         },
         {
             title: 'Paramètres',
             description: 'Gérez votre compte.',
             icon: <Settings className="h-10 w-10 mb-2 text-gray-600" />,
-            action: () => router.push('/core/settings'), // ❌ À créer
+            action: () => router.push('/core/parametres-user'),
         },
     ];
 
@@ -54,20 +54,19 @@ export default function UserHomePage() {
             <Sidebar />
 
             <div className="flex-1 flex flex-col">
-
                 {/* HEADER */}
                 <header className="bg-white shadow-md px-6 py-4 flex items-center justify-between">
-                    {/* Espace vide gauche */}
                     <div className="w-1/3"></div>
 
-                    {/* Logo centré */}
                     <div className="flex justify-center w-1/3">
                         <Image src={logoImage} alt="Logo SG-FIX" width={220} height={70} />
                     </div>
 
-                    {/* Cloche à droite */}
                     <div className="flex justify-end w-1/3">
-                        <div className="relative cursor-pointer" onClick={() => router.push('/core/notification-page')}>
+                        <div
+                            className="relative cursor-pointer"
+                            onClick={() => router.push('/core/notification-user')}
+                        >
                             <Bell className="h-7 w-7 text-gray-600" />
                             {hasNotification && (
                                 <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500 border-2 border-white" />
