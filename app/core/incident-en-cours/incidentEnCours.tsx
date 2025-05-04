@@ -1,104 +1,138 @@
-// app/core/incident-en-cours/incidentEnCours.tsx
 'use client';
 
+import React, { useState, useMemo } from 'react';
 import Sidebar from '@/app/core/SideBar/Sidebar';
-import { Bell, User, CalendarDays, AlertTriangle } from 'lucide-react';
-import Image from 'next/image';
-import logoImage from '@/public/images/logoImage.png';
+import HeaderBar from '@/app/core/components/HeaderBar';
+import { Search } from 'lucide-react';
 
-const incidents = [
-    {
-        id: 'ID1238957',
-        title: 'Problème de sécurité',
-        status: 'EN_COURS',
-        assignedTo: 'Mahmoud IDRISSI',
-        createdAt: '2025-04-01',
-        priority: 'HAUTE'
-    },
-    {
-        id: 'ID1238958',
-        title: 'Blocage sur API Auth',
-        status: 'EN_COURS',
-        assignedTo: 'Mahmoud IDRISSI',
-        createdAt: '2025-04-01',
-        priority: 'HAUTE'
-    },
-    {
-        id: 'ID7239174',
-        title: "Erreur d'authentification SSO",
-        status: 'EN_COURS',
-        assignedTo: 'Khalid Benyahia',
-        createdAt: '2025-04-03',
-        priority: 'CRITIQUE'
-    }
+interface Incident {
+    id: string;
+    title: string;
+    createdAt: string;
+    status: string;
+    priority: string;
+    assignedTo?: string;
+    handledBy?: string;
+}
+
+const allIncidents: Incident[] = [
+    { id: 'INC100', title: 'Analyse API lente', createdAt: '2025-05-01', status: 'IN_ANALYSIS', priority: 'CRITIQUE' },
+    { id: 'INC101', title: 'Erreur intermittente', createdAt: '2025-05-02', status: 'IN_ANALYSIS', priority: 'HAUTE' },
+    { id: 'INC102', title: 'Blocage JSON', createdAt: '2025-05-03', status: 'IN_ANALYSIS', priority: 'MOYENNE' },
 ];
 
 const getPriorityStyle = (priority: string) => {
-    switch (priority?.toUpperCase()) {
-        case 'CRITIQUE':
-            return 'bg-red-100 text-red-800 border border-red-300';
-        case 'HAUTE':
-            return 'bg-orange-100 text-orange-800 border border-orange-300';
-        case 'MOYENNE':
-            return 'bg-yellow-100 text-yellow-800 border border-yellow-300';
-        case 'BASSE':
-            return 'bg-green-100 text-green-800 border border-green-300';
-        default:
-            return 'bg-gray-200 text-gray-700 border border-gray-300';
-    }
+    const styleMap = {
+        CRITIQUE: 'bg-red-100 text-red-700',
+        HAUTE: 'bg-orange-100 text-orange-700',
+        MOYENNE: 'bg-yellow-100 text-yellow-700',
+        BASSE: 'bg-green-100 text-green-700'
+    };
+    return styleMap[priority] || 'bg-gray-100 text-gray-700';
+};
+
+const statusLabels: Record<string, string> = {
+    IN_ANALYSIS: 'En cours d’analyse',
 };
 
 export default function IncidentEnCours() {
-    return (
-        <div className="min-h-screen flex bg-gray-100">
-            <Sidebar />
+    const [searchTerm, setSearchTerm] = useState('');
+    const [priorityFilter, setPriorityFilter] = useState<string>('');
+    const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
 
+    const incidentsFiltrés = useMemo(() => {
+        return allIncidents.filter((incident) => {
+            const matchSearch = incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                incident.id.toLowerCase().includes(searchTerm.toLowerCase());
+
+            const matchPriority = !priorityFilter || incident.priority === priorityFilter;
+
+            return incident.status === 'IN_ANALYSIS' && matchSearch && matchPriority;
+        });
+    }, [searchTerm, priorityFilter]);
+
+    return (
+        <div className="flex bg-gray-50 min-h-screen text-[17px]">
+            <Sidebar />
             <div className="flex-1 flex flex-col">
-                {/* Header */}
-                <header className="bg-white shadow-md px-6 py-4 flex items-center justify-between">
-                    <div className="w-1/3"></div>
-                    <div className="flex justify-center w-1/3">
-                        <Image src={logoImage} alt="Logo SG-FIX" width={220} height={70} />
-                    </div>
-                    <div className="flex justify-end w-1/3">
-                        <div className="relative cursor-pointer">
-                            <Bell className="h-7 w-7 text-gray-600" />
-                            <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500 border-2 border-white" />
+                <HeaderBar />
+                <main className="p-6 max-w-7xl mx-auto w-full">
+                    <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
+                        Incidents en cours d’analyse
+                    </h1>
+
+                    <div className="flex items-center justify-between mb-6 gap-4">
+                        <div className="flex gap-4 items-center">
+                            <select
+                                value={priorityFilter}
+                                onChange={(e) => setPriorityFilter(e.target.value)}
+                                className="border border-gray-300 rounded-md px-3 py-2"
+                            >
+                                <option value="">Toutes les priorités</option>
+                                <option value="CRITIQUE">Critique</option>
+                                <option value="HAUTE">Haute</option>
+                                <option value="MOYENNE">Moyenne</option>
+                                <option value="BASSE">Basse</option>
+                            </select>
+
+                            <button
+                                onClick={() => {
+                                    setPriorityFilter('');
+                                    setSearchTerm('');
+                                }}
+                                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                            >
+                                Réinitialiser
+                            </button>
+                        </div>
+
+                        <div className="relative w-full max-w-md">
+                            <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+                            <input
+                                type="text"
+                                placeholder="Rechercher par titre ou ID..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md"
+                            />
                         </div>
                     </div>
-                </header>
 
-                {/* Content */}
-                <main className="flex-1 p-8 flex flex-col items-center">
-                    <div className="w-full max-w-4xl">
-                        <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Incidents en cours</h1>
-                        <div className="grid gap-6">
-                            {incidents.map((incident) => (
-                                <div
+                    <div className="bg-white rounded-xl shadow overflow-x-auto">
+                        <table className="min-w-full text-left text-gray-700 text-[16px]">
+                            <thead className="bg-gray-100 text-sm uppercase">
+                            <tr>
+                                <th className="px-6 py-3">ID</th>
+                                <th className="px-6 py-3">Titre</th>
+                                <th className="px-6 py-3">Statut</th>
+                                <th className="px-6 py-3">Priorité</th>
+                                <th className="px-6 py-3">Créé le</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {incidentsFiltrés.map((incident) => (
+                                <tr
                                     key={incident.id}
-                                    className="bg-white rounded-2xl shadow-md p-6 border-l-4 border-red-500 hover:shadow-lg transition"
+                                    className="hover:bg-gray-50 cursor-pointer border-b"
+                                    onClick={() => setSelectedIncident(incident)}
                                 >
-                                    <h2 className="text-2xl font-semibold text-red-600 mb-4">{incident.title}</h2>
-                                    <div className="text-lg text-gray-700 space-y-2">
-                                        <p className="flex items-center gap-2">
-                                            <User className="h-5 w-5 text-gray-500" />
-                                            <span className="font-medium">Affecté à :</span> {incident.assignedTo}
-                                        </p>
-                                        <p className="flex items-center gap-2">
-                                            <CalendarDays className="h-5 w-5 text-gray-500" />
-                                            <span className="font-medium">Date :</span> {incident.createdAt}
-                                        </p>
-                                        <p className="flex items-center gap-2">
-                                            <AlertTriangle className="h-5 w-5 text-gray-500" />
-                                            <span className="font-medium">Priorité :</span>
-                                            <span className={`px-2 py-1 rounded text-sm font-semibold ${getPriorityStyle(incident.priority)}`}>
+                                    <td className="px-6 py-4 font-medium">{incident.id}</td>
+                                    <td className="px-6 py-4">{incident.title}</td>
+                                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-gray-200 text-sm font-medium text-gray-800">
+                        ● {statusLabels[incident.status]}
+                      </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 text-sm font-medium rounded-full ${getPriorityStyle(incident.priority)}`}>
                         {incident.priority}
                       </span>
-                                        </p>
-                                    </div>
-                                </div>
+                                    </td>
+                                    <td className="px-6 py-4">{incident.createdAt}</td>
+                                </tr>
                             ))}
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
                 </main>
             </div>

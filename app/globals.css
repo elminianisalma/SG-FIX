@@ -19,3 +19,35 @@
 body {
   color: rgb(var(--foreground-rgb));
 }
+
+/* Animations personnalisées */
+@layer utilities {
+  .animate-spin-slow {
+    animation: spin 2.5s linear infinite;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-6px); }
+    75% { transform: translateX(6px); }
+  }
+
+  .animate-shake {
+    animation: shake 0.3s ease-in-out;
+  }
+
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.3s ease-out both;
+  }
+}

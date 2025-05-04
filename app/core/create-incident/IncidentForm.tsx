@@ -1,10 +1,15 @@
 "use client";
-import { useState } from "react";
-import Sidebar from "@/app/core/SideBar/SideBar";
-import AssignIncident from "@/app/core/create-incident/AssignIncident";
-import IncidentHeader from "./IncidentHeader";
-import IncidentQuestions from "./IncidentQuestions";
-import IncidentSummaryPopup from "./IncidentSummaryPopup";
+
+import React, { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+import IncidentSummaryPopup from "@/app/core/create-incident/IncidentSummaryPopup";
+import IncidentQuestions from "@/app/core/create-incident/IncidentQuestions";
+import IncidentHeader from "@/app/core/create-incident/IncidentHeader";
+import HeaderBar from "@/app/core/components/HeaderBar";
+import Sidebar from "@/app/core/SideBar/Sidebar";
 
 interface Question {
     id: string;
@@ -15,104 +20,210 @@ interface Question {
 }
 
 const IncidentForm = () => {
+    const router = useRouter();
     const [étape, setÉtape] = useState(1);
-    const [réponses, setRéponses] = useState<{ [key: string]: string }>({});
+    const [réponses, setRéponses] = useState<{ [key: string]: string | FileList | null }>({});
     const [sla, setSla] = useState<string>("");
+    const [priorité, setPriorité] = useState<string>("");
     const [afficherPopup, setAfficherPopup] = useState(false);
+    const [champErreur, setChampErreur] = useState<string[]>([]);
     const [dateRapport] = useState(new Date().toLocaleString());
 
-    const gérerChangementRéponse = (id: string, valeur: string) => {
-        setRéponses((précédent) => {
-            const misÀJour = { ...précédent, [id]: valeur };
-            if (id === "severity") {
-                misÀJour["sla"] = valeur === "High" ? "2 heures" : valeur === "Medium" ? "8 heures" : "24 heures";
-                setSla(misÀJour["sla"]);
-            }
-            return misÀJour;
-        });
-    };
-
-    const assignerIncident = () => {
-        alert(`Incident assigné à ${réponses.assignee || "Inconnu"} avec SLA : ${sla}`);
-    };
+    const refs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
     const questionsIncident: Question[] = [
-        { id: "ClientName", text: "Quel client êtes-vous ?", type: "select", options: ["Bill Payment", "Bankup", "Interop", "OpenR"] },
-        { id: "environment", text: "Quel environnement est affecté ?", type: "radio", options: ["Dev", "HF", "HT"] },
-        { id: "severity", text: "Quel est le niveau de gravité de l’incident ?", type: "radio", options: ["Low", "Medium", "High"] },
-        { id: "shortDescription", text: "Brève description", type: "text", placeholder: "Résumez brièvement le problème..." },
-        { id: "details", text: "Description détaillée", type: "textarea", placeholder: "Expliquez le problème en détail..." },
-        { id: "attachments", text: "Ajouter des pièces jointes si nécessaire", type: "file" },
+        {
+            id: "ClientName",
+            text: "Quel service est concerné par l’incident ?",
+            type: "select",
+            options: ["Bill Payment", "Bankup", "Interop", "OpenR", "Cockpit"]
+        },
+        {
+            id: "environment",
+            text: "Quel est l’environnement affecté ?",
+            type: "radio",
+            options: ["Dev", "HF", "HT", "Prod"]
+        },
+        {
+            id: "impact",
+            text: "Quel est l’effet ou les conséquences de l’incident ? (impact)",
+            type: "radio",
+            options: ["Haut", "Moyen", "Faible"]
+        },
+        {
+            id: "urgence",
+            text: "Niveau d'urgence de l’incident",
+            type: "radio",
+            options: ["Haute", "Moyenne", "Modérée"]
+        },
+        {
+            id: "shortDescription",
+            text: "Quel est l’objet principal de l’incident ?",
+            type: "text",
+            placeholder: "Exemple : Échec de l’authentification via SSO"
+        },
+        {
+            id: "details",
+            text: "Décrivez les détails techniques de l’incident",
+            type: "textarea",
+            placeholder: "Expliquez les étapes, erreurs rencontrées et conséquences fonctionnelles"
+        },
+        {
+            id: "attachments",
+            text: "Ajoutez les fichiers nécessaires (logs, captures d’écran, etc.)",
+            type: "file"
+        }
     ];
+
+    const totalQuestions = questionsIncident.length;
+    const answeredCount = questionsIncident.filter((q) => {
+        const val = réponses[q.id];
+        if (q.type === "file") {
+            const fileList = val as FileList;
+            return fileList && fileList.length > 0;
+        }
+        return val && val !== "";
+    }).length;
+
+    const progress = Math.min(Math.round((answeredCount / totalQuestions) * 100), 100);
+
+    const gérerChangementRéponse = (id: string, valeur: string | FileList | null) => {
+        setRéponses((précédent) => ({ ...précédent, [id]: valeur }));
+        setChampErreur((précédent) => précédent.filter((champ) => champ !== id));
+    };
+
+    useEffect(() => {
+        const impact = réponses.impact as string;
+        const urgence = réponses.urgence as string;
+
+        if (impact && urgence) {
+            const map = {
+                "Haute-Haut": "P1 (Critique)",
+                "Haute-Moyen": "P2 (Haute)",
+                "Haute-Faible": "P3 (Modéré)",
+                "Moyenne-Haut": "P2 (Haute)",
+                "Moyenne-Moyen": "P3 (Modéré)",
+                "Moyenne-Faible": "P4 (Basse)",
+                "Modérée-Haut": "P3 (Modéré)",
+                "Modérée-Moyen": "P4 (Basse)",
+                "Modérée-Faible": "P4 (Basse)"
+            };
+            const nouvellePriorité = map[`${urgence}-${impact}`] || "Non défini";
+            setPriorité(nouvellePriorité);
+
+            const mapSla: { [key: string]: string } = {
+                "P1 (Critique)": "2 heures",
+                "P2 (Haute)": "4 heures",
+                "P3 (Modéré)": "8 heures",
+                "P4 (Basse)": "24 heures"
+            };
+
+            setSla(mapSla[nouvellePriorité] || "");
+        }
+    }, [réponses.impact, réponses.urgence]);
+
+    const handleSubmitClick = () => {
+        const champsManquants = questionsIncident.filter((q) => {
+            const val = réponses[q.id];
+            if (q.type === "file") {
+                const fileList = val as FileList;
+                return !fileList || fileList.length === 0;
+            }
+            return !val || val === "";
+        });
+
+        if (champsManquants.length > 0) {
+            const ids = champsManquants.map((q) => q.id);
+            setChampErreur(ids);
+
+            const firstId = ids[0];
+            const target = refs.current[firstId];
+            if (target) {
+                target.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+
+            toast.error("Veuillez remplir tous les champs.");
+            return;
+        }
+
+        const transformedAnswers: { [key: string]: string } = {};
+        Object.entries(réponses).forEach(([key, val]) => {
+            if (typeof val === "string") {
+                transformedAnswers[key] = val;
+            } else if (val instanceof FileList) {
+                transformedAnswers[key] = Array.from(val).map((f) => f.name).join(", ");
+            }
+        });
+
+        setRéponses(transformedAnswers);
+        setAfficherPopup(true);
+    };
 
     return (
         <div className="flex bg-gray-100 min-h-screen">
             <Sidebar />
-            <div className="flex-1 flex justify-center items-start p-10">
-                <div className="w-full max-w-5xl space-y-6">
-                    <IncidentHeader step={étape} />
+            <div className="flex-1 flex flex-col">
+                <HeaderBar />
 
-                    <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-lg p-8">
-                        {étape === 2 ? (
-                            <>
-                                <AssignIncident
-                                    answers={réponses}
-                                    onAnswerChange={gérerChangementRéponse}
-                                    onAssign={assignerIncident}
-                                />
-                                <div className="mt-6 text-center">
-                                    <button
-                                        onClick={() => setAfficherPopup(true)}
-                                        className="bg-green-500 text-white px-6 py-3 rounded-lg shadow hover:bg-green-600 transition"
-                                    >
-                                        ✅ Terminer
-                                    </button>
+                <div className="flex justify-center items-start p-10">
+                    <div className="w-full max-w-5xl space-y-6">
+                        <IncidentHeader step={étape} progress={progress} />
+
+                        <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-lg p-8">
+                            {questionsIncident.map((q, i) => (
+                                <div
+                                    key={q.id}
+                                    ref={(el) => (refs.current[q.id] = el)}
+                                    className={`bg-white p-6 rounded-xl border mb-6 shadow ${
+                                        champErreur.includes(q.id)
+                                            ? "border-red-500 animate-shake"
+                                            : "border-gray-200"
+                                    }`}
+                                >
+                                    <h3 className="text-lg font-semibold text-gray-800 mb-3">{i + 1}. {q.text}</h3>
+                                    <IncidentQuestions
+                                        questions={[q]}
+                                        answers={réponses}
+                                        onAnswerChange={gérerChangementRéponse}
+                                    />
                                 </div>
-                            </>
-                        ) : (
-                            <>
-                                <IncidentQuestions
-                                    questions={questionsIncident}
-                                    answers={réponses}
-                                    onAnswerChange={gérerChangementRéponse}
-                                />
-                                {sla && (
-                                    <div className="text-right text-sm text-gray-600 font-medium mt-4">
-                                        ⏱️ SLA attribué : <span className="text-black font-bold">{sla}</span>
-                                    </div>
-                                )}
-                            </>
-                        )}
+                            ))}
 
-                        <div className="flex justify-between mt-8">
-                            {étape > 1 && (
-                                <button
-                                    onClick={() => setÉtape(étape - 1)}
-                                    className="bg-gray-200 px-6 py-2 rounded-lg shadow hover:bg-gray-300 transition"
-                                >
-                                    ← Retour
-                                </button>
+                            {sla && (
+                                <div className="text-right text-sm text-gray-600 font-medium mt-4">
+                                    ⏱️ SLA attribué : <span className="text-black font-bold">{sla}</span>
+                                </div>
                             )}
-                            {étape < 2 && (
-                                <button
-                                    onClick={() => setÉtape(étape + 1)}
-                                    className="ml-auto bg-red-500 text-white px-6 py-2 rounded-lg shadow hover:bg-red-600 transition"
-                                >
-                                    Suivant →
-                                </button>
+
+                            {priorité && (
+                                <div className="text-right text-sm text-gray-600 font-medium mt-2">
+                                    📌 Priorité calculée : <span className="text-black font-bold">{priorité}</span>
+                                </div>
                             )}
+
+                            <div className="mt-6 text-center">
+                                <button
+                                    onClick={handleSubmitClick}
+                                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow transition"
+                                >
+                                    Soumettre l’incident
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <IncidentSummaryPopup
-                visible={afficherPopup}
-                onClose={() => setAfficherPopup(false)}
-                answers={réponses}
-                sla={sla}
-                reportDate={dateRapport}
-            />
+                <IncidentSummaryPopup
+                    visible={afficherPopup}
+                    onClose={() => setAfficherPopup(false)}
+                    answers={réponses as { [key: string]: string }}
+                    sla={sla}
+                    priorité={priorité}
+                    reportDate={dateRapport}
+                />
+
+                <ToastContainer />
+            </div>
         </div>
     );
 };

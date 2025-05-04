@@ -1,96 +1,223 @@
-// app/core/historique-incident/historiqueIncident.tsx
 'use client';
 
+import React, { useState, useMemo } from 'react';
 import Sidebar from '@/app/core/SideBar/Sidebar';
-import { Bell, User, CalendarDays, AlertTriangle } from 'lucide-react';
-import Image from 'next/image';
-import logoImage from '@/public/images/logoImage.png';
+import HeaderBar from '@/app/core/components/HeaderBar';
+import HistoriquePopup from './historiquePopup';
+import FilterPopup from './FilterPopup';
+import {
+    Search,
+    ChevronLeft,
+    ChevronRight,
+    Filter,
+    ArrowUpDown
+} from 'lucide-react';
 
-const incidents = [
-    {
-        id: 'ID8239851',
-        title: 'Timeout API billing',
-        status: 'RESOLU',
-        assignedTo: 'Chama Benkierch',
-        createdAt: '2025-03-24',
-        priority: 'MOYENNE'
-    },
-    {
-        id: 'ID9917251',
-        title: 'Lien mort dans la documentation API',
-        status: 'RESOLU',
-        assignedTo: 'Sara Lamsalek',
-        createdAt: '2025-03-15',
-        priority: 'BASSE'
-    }
+interface Incident {
+    id: string;
+    title: string;
+    createdAt: string;
+    status: string;
+    priority: string;
+    assignedTo?: string;
+    handledBy?: string;
+}
+
+const allIncidents: Incident[] = [
+    { id: 'INC001', title: 'Erreur de login', createdAt: '2025-04-01', status: 'DECLARED', priority: 'MOYENNE' },
+    { id: 'INC002', title: 'Blocage API', createdAt: '2025-04-02', status: 'ASSIGNED', priority: 'HAUTE' },
+    { id: 'INC003', title: 'Analyse lente', createdAt: '2025-04-03', status: 'IN_ANALYSIS', priority: 'CRITIQUE' },
+    { id: 'INC004', title: 'Redirection sécurité', createdAt: '2025-04-04', status: 'TRANSFERRED', priority: 'MOYENNE' },
+    { id: 'INC005', title: 'Incident terminé', createdAt: '2025-04-05', status: 'RESOLVED', priority: 'BASSE' }
 ];
 
+const statusLabels: Record<string, string> = {
+    DECLARED: 'Déclaré',
+    ASSIGNED: 'Affecté',
+    IN_ANALYSIS: 'En cours d’analyse',
+    TRANSFERRED: 'Transféré',
+    RESOLVED: 'Résolu'
+};
+
 const getPriorityStyle = (priority: string) => {
-    switch (priority?.toUpperCase()) {
-        case 'CRITIQUE':
-            return 'bg-red-100 text-red-800 border border-red-300';
-        case 'HAUTE':
-            return 'bg-orange-100 text-orange-800 border border-orange-300';
-        case 'MOYENNE':
-            return 'bg-yellow-100 text-yellow-800 border border-yellow-300';
-        case 'BASSE':
-            return 'bg-green-100 text-green-800 border border-green-300';
-        default:
-            return 'bg-gray-200 text-gray-700 border border-gray-300';
-    }
+    const styleMap = {
+        CRITIQUE: 'bg-red-100 text-red-700',
+        HAUTE: 'bg-orange-100 text-orange-700',
+        MOYENNE: 'bg-yellow-100 text-yellow-700',
+        BASSE: 'bg-green-100 text-green-700'
+    };
+    return styleMap[priority] || 'bg-gray-100 text-gray-700';
 };
 
 export default function HistoriqueIncident() {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+    const [showPopup, setShowPopup] = useState(false);
+    const [filters, setFilters] = useState<{ status?: string }>({});
+    const [sortPriority, setSortPriority] = useState<string>('');
+    const [page, setPage] = useState(1);
+
+    const availableStatuses = useMemo(() => {
+        const set = new Set(allIncidents.map((i) => i.status));
+        return Array.from(set);
+    }, []);
+
+    const incidentsFiltrés = useMemo(() => {
+        let result = allIncidents.filter((incident) => {
+            const matchSearch =
+                incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                incident.id.toLowerCase().includes(searchTerm.toLowerCase());
+
+            const matchStatus =
+                !filters.status || incident.status === filters.status;
+
+            return matchSearch && matchStatus;
+        });
+
+        if (sortPriority) {
+            result = result.sort((a, b) =>
+                ['CRITIQUE', 'HAUTE', 'MOYENNE', 'BASSE'].indexOf(a.priority) -
+                ['CRITIQUE', 'HAUTE', 'MOYENNE', 'BASSE'].indexOf(b.priority)
+            );
+        }
+
+        return result;
+    }, [filters, searchTerm, sortPriority]);
+
+    const incidentsParPage = 5;
+    const paginatedIncidents = incidentsFiltrés.slice(
+        (page - 1) * incidentsParPage,
+        page * incidentsParPage
+    );
+    const totalPages = Math.ceil(incidentsFiltrés.length / incidentsParPage);
+
+    const resetFilters = () => {
+        setSearchTerm('');
+        setFilters({});
+        setSortPriority('');
+    };
+
     return (
-        <div className="min-h-screen flex bg-gray-100">
+        <div className="flex bg-gray-50 min-h-screen text-[17px]">
             <Sidebar />
             <div className="flex-1 flex flex-col">
-                {/* Header */}
-                <header className="bg-white shadow-md px-6 py-4 flex items-center justify-between">
-                    <div className="w-1/3"></div>
-                    <div className="flex justify-center w-1/3">
-                        <Image src={logoImage} alt="Logo SG-FIX" width={220} height={70} />
-                    </div>
-                    <div className="flex justify-end w-1/3">
-                        <div className="relative cursor-pointer">
-                            <Bell className="h-7 w-7 text-gray-600" />
-                            <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500 border-2 border-white" />
+                <HeaderBar />
+                <main className="p-6 max-w-7xl mx-auto w-full relative">
+                    <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
+                        Historique des incidents
+                    </h1>
+
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setShowPopup(true)}
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded hover:bg-blue-200"
+                            >
+                                <Filter className="w-4 h-4" /> Filtrer
+                            </button>
+
+                            <button
+                                onClick={() => setSortPriority(sortPriority ? '' : 'true')}
+                                className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded hover:bg-green-200"
+                            >
+                                <ArrowUpDown className="w-4 h-4" /> Trier par priorité
+                            </button>
+
+                            <button
+                                onClick={resetFilters}
+                                className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
+                            >
+                                Réinitialiser les filtres
+                            </button>
+                        </div>
+
+                        <div className="relative w-full max-w-md ml-auto">
+                            <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+                            <input
+                                type="text"
+                                placeholder="Rechercher par titre ou ID..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md"
+                            />
                         </div>
                     </div>
-                </header>
 
-                {/* Content */}
-                <main className="flex-1 p-8 flex flex-col items-center">
-                    <div className="w-full max-w-4xl">
-                        <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Historique des incidents résolus</h1>
-                        <div className="grid gap-6">
-                            {incidents.map((incident) => (
-                                <div
+                    {showPopup && (
+                        <div className="absolute z-50 top-28 left-10">
+                            <FilterPopup
+                                onApply={(f) => setFilters(f)}
+                                onClose={() => setShowPopup(false)}
+                                availableStatuses={availableStatuses}
+                            />
+                        </div>
+                    )}
+
+                    <div className="bg-white rounded-xl shadow overflow-x-auto">
+                        <table className="min-w-full text-left text-gray-700 text-[16px]">
+                            <thead className="bg-gray-100 text-sm uppercase">
+                            <tr>
+                                <th className="px-6 py-3">ID</th>
+                                <th className="px-6 py-3">Titre</th>
+                                <th className="px-6 py-3">Statut</th>
+                                <th className="px-6 py-3">Priorité</th>
+                                <th className="px-6 py-3">Créé le</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {paginatedIncidents.map((incident) => (
+                                <tr
                                     key={incident.id}
-                                    className="bg-white rounded-2xl shadow-md p-6 border-l-4 border-green-500 hover:shadow-lg transition"
+                                    className="hover:bg-gray-50 cursor-pointer border-b"
+                                    onClick={() => setSelectedIncident(incident)}
                                 >
-                                    <h2 className="text-2xl font-semibold text-green-600 mb-4">{incident.title}</h2>
-                                    <div className="text-lg text-gray-700 space-y-2">
-                                        <p className="flex items-center gap-2">
-                                            <User className="h-5 w-5 text-gray-500" />
-                                            <span className="font-medium">Affecté à :</span> {incident.assignedTo}
-                                        </p>
-                                        <p className="flex items-center gap-2">
-                                            <CalendarDays className="h-5 w-5 text-gray-500" />
-                                            <span className="font-medium">Date :</span> {incident.createdAt}
-                                        </p>
-                                        <p className="flex items-center gap-2">
-                                            <AlertTriangle className="h-5 w-5 text-gray-500" />
-                                            <span className="font-medium">Priorité :</span>
-                                            <span className={`px-2 py-1 rounded text-sm font-semibold ${getPriorityStyle(incident.priority)}`}>
+                                    <td className="px-6 py-4 font-medium">{incident.id}</td>
+                                    <td className="px-6 py-4">{incident.title}</td>
+                                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-gray-200 text-sm font-medium text-gray-800">
+                        ● {statusLabels[incident.status] || incident.status}
+                      </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 text-sm font-medium rounded-full ${getPriorityStyle(incident.priority)}`}>
                         {incident.priority}
                       </span>
-                                        </p>
-                                    </div>
-                                </div>
+                                    </td>
+                                    <td className="px-6 py-4">{incident.createdAt}</td>
+                                </tr>
                             ))}
-                        </div>
+                            </tbody>
+                        </table>
                     </div>
+
+                    {totalPages > 1 && (
+                        <div className="flex justify-center items-center gap-4 mt-6">
+                            <button
+                                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                disabled={page === 1}
+                                className="text-gray-700 disabled:opacity-50"
+                            >
+                                <ChevronLeft className="w-6 h-6" />
+                            </button>
+                            <span className="text-gray-800 font-medium">
+                Page {page} sur {totalPages}
+              </span>
+                            <button
+                                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                                disabled={page === totalPages}
+                                className="text-gray-700 disabled:opacity-50"
+                            >
+                                <ChevronRight className="w-6 h-6" />
+                            </button>
+                        </div>
+                    )}
+
+                    {selectedIncident && (
+                        <HistoriquePopup
+                            incident={selectedIncident}
+                            onClose={() => setSelectedIncident(null)}
+                        />
+                    )}
                 </main>
             </div>
         </div>

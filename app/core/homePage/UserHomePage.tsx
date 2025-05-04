@@ -1,10 +1,16 @@
 'use client';
 
 import Sidebar from '@/app/core/SideBar/Sidebar';
+import HeaderBar from '@/app/core/components/HeaderBar';
 import { useRouter } from 'next/navigation';
-import { PlusCircle, Clock, CheckCircle, Bell, FileText, Settings } from 'lucide-react';
-import Image from 'next/image';
-import logoImage from '@/public/images/logoImage.png';
+import {
+    PlusCircle,
+    Clock,
+    CheckCircle,
+    Bell,
+    FileText,
+    Settings,
+} from 'lucide-react';
 
 export default function UserHomePage() {
     const router = useRouter();
@@ -54,26 +60,8 @@ export default function UserHomePage() {
             <Sidebar />
 
             <div className="flex-1 flex flex-col">
-                {/* HEADER */}
-                <header className="bg-white shadow-md px-6 py-4 flex items-center justify-between">
-                    <div className="w-1/3"></div>
-
-                    <div className="flex justify-center w-1/3">
-                        <Image src={logoImage} alt="Logo SG-FIX" width={220} height={70} />
-                    </div>
-
-                    <div className="flex justify-end w-1/3">
-                        <div
-                            className="relative cursor-pointer"
-                            onClick={() => router.push('/core/notification-user')}
-                        >
-                            <Bell className="h-7 w-7 text-gray-600" />
-                            {hasNotification && (
-                                <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500 border-2 border-white" />
-                            )}
-                        </div>
-                    </div>
-                </header>
+                {/* ✅ HeaderBar cohérent */}
+                <HeaderBar />
 
                 {/* BODY */}
                 <main className="flex-1 flex flex-col items-center justify-center p-8">
@@ -89,8 +77,12 @@ export default function UserHomePage() {
                                 className="cursor-pointer bg-white rounded-2xl shadow-md hover:shadow-xl p-6 flex flex-col items-center transition transform hover:-translate-y-1 hover:border hover:border-red-400"
                             >
                                 {item.icon}
-                                <h3 className="text-xl font-semibold text-gray-700 mb-2">{item.title}</h3>
-                                <p className="text-gray-500 text-sm text-center">{item.description}</p>
+                                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+                                    {item.title}
+                                </h3>
+                                <p className="text-gray-500 text-sm text-center">
+                                    {item.description}
+                                </p>
                             </div>
                         ))}
                     </div>
