@@ -1,24 +1,45 @@
+// ENUM des statuts d'incident
 export enum IncidentStatus {
-  DECLARED = "Déclaré",
-  ASSIGNED = "Affecté",
-  ANALYSING = "En cours d’analyse",
-  TRANSFERRED = "Transféré",
-  RESOLVED = "Résolu"
+  DECLARE = 'Déclaré',
+  AFFECTE = 'Affecté',
+  EN_COURS_ANALYSE = 'En cours d’analyse',
+  TRANSFERE = 'Transféré',
+  RESOLU = 'Résolu',
 }
 
-export type Incident = {
+// ENUM des niveaux de priorité
+export enum IncidentPriority {
+  FAIBLE = 'FAIBLE',
+  MOYENNE = 'MOYENNE',
+  ÉLEVÉE = 'ÉLEVÉE',
+  CRITIQUE = 'CRITIQUE',
+}
+
+// ENUM des niveaux d'impact
+export enum IncidentImpact {
+  MINEUR = 'Mineur',
+  MOYEN = 'Moyen',
+  MAJEUR = 'Majeur',
+  CRITIQUE = 'Critique',
+}
+
+// ENUM des niveaux d'urgence
+export enum IncidentUrgency {
+  FAIBLE = 'Faible',
+  MOYENNE = 'Moyenne',
+  ÉLEVÉE = 'Élevée',
+  IMMÉDIATE = 'Immédiate',
+}
+
+// Interface principale d’un incident
+export interface Incident {
   id: string;
   title: string;
   status: IncidentStatus;
-  service: string;
+  du: string;
   assignedTo: string;
   createdAt: string;
-  impact: string;
-  urgency: string;
-  priority: string;
-  sla?: string;
-  description?: string;
-  customerName?: string;
-  lastUpdatedBy?: string;
-  lastUpdatedAt?: string;
-};
+  impact: IncidentImpact | string;
+  urgency: IncidentUrgency | string;
+  priority: IncidentPriority | string;
+}

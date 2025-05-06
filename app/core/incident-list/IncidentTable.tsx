@@ -1,92 +1,94 @@
-'use client';
-
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Incident } from '../../utils/TypeIncident';
-import { getStatusStyle } from '../../utils/IncidentStatus';
-import IncidentDetails from './IncidentDetail';
-import { getPriorityStyle, IncidentPriority } from '../../utils/IncidentPriority';
+import { getStatusStyle } from '../../utils/styleHelpers';
+import IncidentPopup from './IncidentPopup';
 
-type IncidentTableProps = {
-  incidents: Incident[]; // S'assurer que cette prop est bien reçue
+const stringToColor = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+        hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const color = `hsl(${hash % 360}, 60%, 60%)`;
+    return color;
 };
 
-function getInitials(fullName: string) {
-  const parts = fullName.split(' ');
-  return parts.length > 1 ? parts[0][0] + parts[1][0] : parts[0][0];
+interface Props {
+    incidents?: Incident[];
 }
 
-function getColorForName(name: string) {
-  const hash = name.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-  const colors = ['bg-blue-500', 'bg-green-500', 'bg-red-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500'];
-  return colors[hash % colors.length];
-}
+const IncidentTable: React.FC<Props> = ({ incidents = [] }) => {
+    const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
 
-export default function IncidentTable({ incidents }: IncidentTableProps) {
-  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
-
-  const handleCloseDetails = () => {
-    setSelectedIncident(null);
-  };
-
-  if (!incidents || incidents.length === 0) {
     return (
-        <div className="text-center text-sm text-gray-500 p-4">
-          Aucun incident à afficher.
-        </div>
-    );
-  }
-
-  return (
-      <div className={`relative ${selectedIncident ? 'backdrop-blur-md' : ''}`}>
-        <div className="bg-white p-4 md:p-6 rounded-xl shadow-md overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs md:text-sm">
-            <thead>
-            <tr className="border-b bg-gray-100 text-gray-800 font-semibold">
-              <th className="p-3">Incident ID</th>
-              <th className="p-3">Titre</th>
-              <th className="p-3">Service</th>
-              <th className="p-3">Assigné à</th>
-              <th className="p-3">Créé le</th>
-              <th className="p-3">Statut</th>
-              <th className="p-3">Priorité</th>
-            </tr>
-            </thead>
-            <tbody className="text-gray-700">
-            {incidents.map((incident) => (
-                <tr
-                    key={incident.id}
-                    className="border-b cursor-pointer hover:bg-gray-100 transition"
-                    onClick={() => setSelectedIncident(incident)}
-                >
-                  <td className="p-3">{incident.id}</td>
-                  <td className="p-3 break-words">{incident.title}</td>
-                  <td className="p-3">{incident.service}</td>
-                  <td className="p-3 flex items-center gap-2">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold ${getColorForName(incident.assignedTo || '')}`}>
-                      {getInitials(incident.assignedTo || '')}
-                    </div>
-                    <span className="text-xs md:text-sm">{incident.assignedTo}</span>
-                  </td>
-                  <td className="p-3">{incident.createdAt}</td>
-                  <td className="p-3">
-                  <span className={`inline-block px-2 py-1 rounded-full text-white font-semibold text-[10px] md:text-xs ${getStatusStyle(incident.status)}`}>
-                    {incident.status}
-                  </span>
-                  </td>
-                  <td className="p-3">
-                  <span className={`inline-block px-2 py-1 rounded-full text-white font-semibold text-[10px] md:text-xs ${getPriorityStyle(incident.priority as IncidentPriority)}`}>
-                    {incident.priority || 'N/A'}
-                  </span>
-                  </td>
+        <>
+            <table className="min-w-full bg-white border rounded shadow-sm">
+                <thead>
+                <tr className="bg-gray-100 text-left text-sm text-gray-600 font-semibold">
+                    <th className="p-3">ID</th>
+                    <th className="p-3">Titre</th>
+                    <th className="p-3">DU</th>
+                    <th className="p-3">Statut</th>
+                    <th className="p-3">Priorité</th>
+                    <th className="p-3">Assigné à</th>
+                    <th className="p-3">Date</th>
                 </tr>
-            ))}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                {incidents.map((incident) => (
+                    <tr
+                        key={incident.id}
+                        onClick={() => setSelectedIncident(incident)}
+                        className="border-t hover:bg-gray-50 transition cursor-pointer"
+                    >
+                        <td className="p-3 font-medium text-gray-700">{incident.id}</td>
+                        <td className="p-3">{incident.title}</td>
+                        <td className="p-3">{incident.du}</td>
+                        <td className="p-3">
+                <span className={`px-3 py-1 rounded-full text-sm font-semibold border ${getStatusStyle(incident.status)}`}>
+                  {incident.status}
+                </span>
+                        </td>
+                        <td className="p-3">
+                <span
+                    className="inline-block text-xs font-semibold text-white rounded-full px-2 h-6 flex items-center justify-center whitespace-nowrap"
+                    style={{
+                        backgroundColor:
+                            incident.priority === 'CRITIQUE'
+                                ? '#7f1d1d'
+                                : incident.priority === 'ÉLEVÉE'
+                                    ? '#9a3412'
+                                    : incident.priority === 'MOYENNE'
+                                        ? '#92400e'
+                                        : '#6d768f',
+                    }}
+                >
+                  {incident.priority}
+                </span>
+                        </td>
+                        <td className="p-3 flex items-center gap-2">
+                            <div
+                                className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white"
+                                style={{ backgroundColor: stringToColor(incident.assignedTo) }}
+                            >
+                                {incident.assignedTo
+                                    .split(' ')
+                                    .map((n) => n[0])
+                                    .join('')
+                                    .toUpperCase()}
+                            </div>
+                            <span>{incident.assignedTo}</span>
+                        </td>
+                        <td className="p-3 whitespace-nowrap">{incident.createdAt}</td>
+                    </tr>
+                ))}
+                </tbody>
+            </table>
 
-        {selectedIncident && (
-            <IncidentDetails incident={selectedIncident} onClose={handleCloseDetails} />
-        )}
-      </div>
-  );
-}
+            {selectedIncident && (
+                <IncidentPopup incident={selectedIncident} onClose={() => setSelectedIncident(null)} />
+            )}
+        </>
+    );
+};
+
+export default IncidentTable;
