@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 interface FilterPopupProps {
     onApply: (filters: { status?: string }) => void;
     onClose: () => void;
-    availableStatuses: string[];
+    availableStatuses?: string[];
 }
 
 export default function FilterPopup({ onApply, onClose, availableStatuses }: FilterPopupProps) {
@@ -18,14 +18,6 @@ export default function FilterPopup({ onApply, onClose, availableStatuses }: Fil
         onClose();
     };
 
-    const statusLabels: Record<string, string> = {
-        DECLARED: 'Déclaré',
-        ASSIGNED: 'Affecté',
-        IN_ANALYSIS: 'En cours d’analyse',
-        TRANSFERRED: 'Transféré',
-        RESOLVED: 'Résolu',
-    };
-
     return (
         <div className="text-sm w-[360px] bg-white bg-opacity-95 p-6 rounded-xl shadow-lg">
             <h2 className="text-lg font-semibold mb-4 text-gray-800">Filtrer les incidents</h2>
@@ -36,16 +28,16 @@ export default function FilterPopup({ onApply, onClose, availableStatuses }: Fil
                 </label>
                 <select
                     id="status"
-                    className="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none"
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                     value={selectedStatus || ''}
                     onChange={(e) => setSelectedStatus(e.target.value === '' ? null : e.target.value)}
                 >
                     <option value="">Tous les statuts</option>
-                    {availableStatuses.map((status) => (
-                        <option key={status} value={status}>
-                            {statusLabels[status] || status}
-                        </option>
-                    ))}
+                    <option value="SUBMITTED">Soumis</option>
+                    <option value="ASSIGNED">Affecté</option>
+                    <option value="TAKEN_OVER">Pris en charge</option>
+                    <option value="TRANSFERRED">Transféré</option>
+                    <option value="RESOLVED">Résolu</option>
                 </select>
             </div>
 
@@ -54,7 +46,7 @@ export default function FilterPopup({ onApply, onClose, availableStatuses }: Fil
                     onClick={onClose}
                     className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300"
                 >
-                    Fermer
+                    Annuler
                 </button>
                 <button
                     onClick={handleApply}

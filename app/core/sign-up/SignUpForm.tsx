@@ -11,10 +11,9 @@ import backgroundImage from '../../../public/images/background.jpg';
 
 const users = [
     { email: 'admin@sgfix.com', password: 'admin123', role: 'Admin' },
-    { email: 'user@sgfix.com', password: 'user123', role: 'Utilisateur' },
-    { email: 'lead@sgfix.com', password: 'lead123', role: 'Team Leader' },
     { email: 'dev@sgfix.com', password: 'dev123', role: 'Développeur' },
-    { email: 'tech@sgfix.com', password: 'tech123', role: 'Tech-Lead' },
+    { email: 'ba@sgfix.com', password: 'ba123', role: 'Business Analyst' },
+    { email: 'user@sgfix.com', password: 'user123', role: 'Utilisateur' },
 ];
 
 const SignInForm = () => {
@@ -34,18 +33,18 @@ const SignInForm = () => {
         if (user) {
             setStatus('loading');
 
-            // Définir la route selon le rôle
             const roleToRoute: Record<string, string> = {
-                'Admin': '/core/incident-list',
-                'Utilisateur': '/core/homePage',
-                // Les autres seront définis plus tard
+                'Admin': '/core/Admin-homePage',
+                'Développeur': '/core/incident-en-cours',
+                'Business Analyst': '/core/historique-incident',
+                'Utilisateur': '/core/homePage', // ✅ Chemin corrigé
             };
 
             localStorage.setItem('userRole', user.role);
 
             setTimeout(() => {
                 setStatus(null);
-                const destination = roleToRoute[user.role] || '/core/homePage/user-homepage';
+                const destination = roleToRoute[user.role] || '/core/homePage';
                 router.push(destination);
             }, 3000);
         } else {
@@ -120,7 +119,6 @@ const SignInForm = () => {
                     </button>
                 </form>
 
-                {/* Barre verte animée */}
                 {status === 'loading' && (
                     <div className="absolute bottom-0 left-0 w-full h-2 overflow-hidden">
                         <div
@@ -131,19 +129,14 @@ const SignInForm = () => {
                             }}
                         />
                         <style jsx>{`
-              @keyframes loadBar {
-                0% {
-                  width: 0%;
-                }
-                100% {
-                  width: 100%;
-                }
-              }
-            `}</style>
+                            @keyframes loadBar {
+                                0% { width: 0%; }
+                                100% { width: 100%; }
+                            }
+                        `}</style>
                     </div>
                 )}
 
-                {/* Toaster d'erreur */}
                 {status === 'error' && (
                     <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-red-100 text-red-700 px-4 py-2 rounded-md flex items-center shadow-md border border-red-300 text-sm">
                         <svg className="h-4 w-4 mr-2 fill-red-600" viewBox="0 0 20 20">

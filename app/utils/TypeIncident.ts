@@ -1,10 +1,9 @@
 export enum IncidentStatus {
-  PENDING = "PENDING",
-  COMPLETED = "COMPLETED",
-  CANCELLED = "CANCELLED",
-  RESOLVED = "RESOLVED",
-  NEW = "NEW",
-  IN_PROGRESS = "IN_PROGRESS",
+  DECLARED = "Déclaré",
+  ASSIGNED = "Affecté",
+  ANALYSING = "En cours d’analyse",
+  TRANSFERRED = "Transféré",
+  RESOLVED = "Résolu"
 }
 
 export type Incident = {
@@ -13,15 +12,13 @@ export type Incident = {
   status: IncidentStatus;
   service: string;
   assignedTo: string;
-  profileImage: string;
   createdAt: string;
-  priority?: string;
-  impact?: string;
-  urgency?: string;
+  impact: string;
+  urgency: string;
+  priority: string;
   sla?: string;
   description?: string;
   customerName?: string;
   lastUpdatedBy?: string;
   lastUpdatedAt?: string;
 };
-

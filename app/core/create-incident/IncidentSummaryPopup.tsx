@@ -9,8 +9,8 @@ import {
     Flame,
     AlarmClock,
     StickyNote,
-    FileText,
-    Paperclip
+    Paperclip,
+    Hash
 } from "lucide-react";
 import { toast } from "react-toastify";
 
@@ -32,10 +32,15 @@ const IncidentSummaryPopup = ({
                                   reportDate
                               }: IncidentSummaryPopupProps) => {
     const router = useRouter();
-
     if (!visible) return null;
 
-    const fichiers = answers.attachments?.split(",") || [];
+    const fichiers = typeof answers.attachments === "string"
+        ? answers.attachments.split(",").filter(Boolean)
+        : [];
+
+    const tags = typeof answers.tags === "string"
+        ? answers.tags.split(",").filter(Boolean)
+        : [];
 
     const handleConfirm = () => {
         toast.success("Incident soumis avec succès.", {
@@ -51,23 +56,23 @@ const IncidentSummaryPopup = ({
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-            <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-10 w-[90%] max-w-4xl animate-fade-in-up">
-                <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">
-                    Récapitulatif de l’incident déclaré
+            <div className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 w-[95%] max-w-2xl animate-fade-in-up">
+                <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
+                    Récapitulatif de l’incident
                 </h2>
 
-                <ul className="space-y-5 text-gray-800 text-[17px] leading-relaxed">
+                <ul className="space-y-4 text-gray-800 text-[15px] leading-relaxed">
                     <li className="flex items-center gap-3">
                         <StickyNote className="text-gray-600 h-5 w-5" />
-                        <strong>Objet de l’incident :</strong> {answers.shortDescription}
+                        <strong>Objet :</strong> {answers.shortDescription}
                     </li>
                     <li className="flex items-center gap-3">
                         <CalendarDays className="text-blue-500 h-5 w-5" />
-                        <strong>Date de déclaration :</strong> {reportDate}
+                        <strong>Date :</strong> {reportDate}
                     </li>
                     <li className="flex items-center gap-3">
                         <Building className="text-red-500 h-5 w-5" />
-                        <strong>Service concerné :</strong> {answers.ClientName}
+                        <strong>DU :</strong> {answers.ClientName}
                     </li>
                     <li className="flex items-center gap-3">
                         <Globe className="text-purple-600 h-5 w-5" />
@@ -83,23 +88,33 @@ const IncidentSummaryPopup = ({
                     </li>
                     <li className="flex items-center gap-3">
                         <AlarmClock className="text-green-600 h-5 w-5" />
-                        <strong>SLA attribué :</strong> {sla}
+                        <strong>SLA :</strong> {sla}
                     </li>
                     <li className="flex items-center gap-3">
                         <AlarmClock className="text-red-600 h-5 w-5" />
-                        <strong>Priorité calculée :</strong> {priorité}
+                        <strong>Priorité :</strong> {priorité}
                     </li>
-                    <li className="flex items-start gap-3">
-                        <FileText className="text-gray-600 h-5 w-5 mt-1" />
-                        <strong>Détails techniques :</strong>
-                        <span className="whitespace-pre-line">{answers.details}</span>
-                    </li>
-
+                    {tags.length > 0 && (
+                        <li className="flex items-center gap-3 flex-wrap">
+                            <Hash className="text-indigo-600 h-5 w-5" />
+                            <strong>Tags :</strong>
+                            <div className="flex flex-wrap gap-2">
+                                {tags.map((tag, index) => (
+                                    <span
+                                        key={index}
+                                        className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm"
+                                    >
+                                        #{tag.trim()}
+                                    </span>
+                                ))}
+                            </div>
+                        </li>
+                    )}
                     {fichiers.length > 0 && answers.attachments && (
                         <li className="flex items-start gap-3">
                             <Paperclip className="text-gray-700 h-5 w-5 mt-1" />
                             <div>
-                                <strong>Fichiers ajoutés :</strong>
+                                <strong>Fichiers :</strong>
                                 <ul className="mt-1 list-disc list-inside text-sm">
                                     {fichiers.map((file, index) => (
                                         <li key={index}>{file.trim()}</li>
@@ -110,17 +125,17 @@ const IncidentSummaryPopup = ({
                     )}
                 </ul>
 
-                <div className="flex justify-center gap-4 mt-10">
+                <div className="flex justify-center gap-4 mt-8">
                     <button
                         onClick={onClose}
-                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-3 rounded-lg shadow transition"
+                        className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-5 py-2 rounded-md transition"
                     >
                         Annuler
                     </button>
 
                     <button
                         onClick={handleConfirm}
-                        className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow transition"
+                        className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md transition"
                     >
                         Confirmer l’envoi
                     </button>

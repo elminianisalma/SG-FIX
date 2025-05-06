@@ -10,7 +10,7 @@ import {
     ChevronLeft,
     ChevronRight,
     Filter,
-    ArrowUpDown
+    ArrowUpDown,
 } from 'lucide-react';
 
 interface Incident {
@@ -24,19 +24,19 @@ interface Incident {
 }
 
 const allIncidents: Incident[] = [
-    { id: 'INC001', title: 'Erreur de login', createdAt: '2025-04-01', status: 'DECLARED', priority: 'MOYENNE' },
+    { id: 'INC001', title: 'Erreur de login', createdAt: '2025-04-01', status: 'SUBMITTED', priority: 'MOYENNE' },
     { id: 'INC002', title: 'Blocage API', createdAt: '2025-04-02', status: 'ASSIGNED', priority: 'HAUTE' },
-    { id: 'INC003', title: 'Analyse lente', createdAt: '2025-04-03', status: 'IN_ANALYSIS', priority: 'CRITIQUE' },
+    { id: 'INC003', title: 'Analyse lente', createdAt: '2025-04-03', status: 'TAKEN_OVER', priority: 'CRITIQUE' },
     { id: 'INC004', title: 'Redirection sécurité', createdAt: '2025-04-04', status: 'TRANSFERRED', priority: 'MOYENNE' },
-    { id: 'INC005', title: 'Incident terminé', createdAt: '2025-04-05', status: 'RESOLVED', priority: 'BASSE' }
+    { id: 'INC005', title: 'Incident terminé', createdAt: '2025-04-05', status: 'RESOLVED', priority: 'BASSE' },
 ];
 
 const statusLabels: Record<string, string> = {
-    DECLARED: 'Déclaré',
+    SUBMITTED: 'Soumis',
     ASSIGNED: 'Affecté',
-    IN_ANALYSIS: 'En cours d’analyse',
+    TAKEN_OVER: 'Pris en charge',
     TRANSFERRED: 'Transféré',
-    RESOLVED: 'Résolu'
+    RESOLVED: 'Résolu',
 };
 
 const getPriorityStyle = (priority: string) => {
@@ -44,7 +44,7 @@ const getPriorityStyle = (priority: string) => {
         CRITIQUE: 'bg-red-100 text-red-700',
         HAUTE: 'bg-orange-100 text-orange-700',
         MOYENNE: 'bg-yellow-100 text-yellow-700',
-        BASSE: 'bg-green-100 text-green-700'
+        BASSE: 'bg-green-100 text-green-700',
     };
     return styleMap[priority] || 'bg-gray-100 text-gray-700';
 };
@@ -57,27 +57,31 @@ export default function HistoriqueIncident() {
     const [sortPriority, setSortPriority] = useState<string>('');
     const [page, setPage] = useState(1);
 
+    const sortedIncidents = [...allIncidents].sort((a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
     const availableStatuses = useMemo(() => {
-        const set = new Set(allIncidents.map((i) => i.status));
+        const set = new Set(sortedIncidents.map((i) => i.status));
         return Array.from(set);
     }, []);
 
     const incidentsFiltrés = useMemo(() => {
-        let result = allIncidents.filter((incident) => {
+        let result = sortedIncidents.filter((incident) => {
             const matchSearch =
                 incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                 incident.id.toLowerCase().includes(searchTerm.toLowerCase());
 
-            const matchStatus =
-                !filters.status || incident.status === filters.status;
+            const matchStatus = !filters.status || incident.status === filters.status;
 
             return matchSearch && matchStatus;
         });
 
         if (sortPriority) {
-            result = result.sort((a, b) =>
-                ['CRITIQUE', 'HAUTE', 'MOYENNE', 'BASSE'].indexOf(a.priority) -
-                ['CRITIQUE', 'HAUTE', 'MOYENNE', 'BASSE'].indexOf(b.priority)
+            result = result.sort(
+                (a, b) =>
+                    ['CRITIQUE', 'HAUTE', 'MOYENNE', 'BASSE'].indexOf(a.priority) -
+                    ['CRITIQUE', 'HAUTE', 'MOYENNE', 'BASSE'].indexOf(b.priority)
             );
         }
 

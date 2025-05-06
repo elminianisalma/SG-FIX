@@ -3,7 +3,12 @@
 import React, { useState, useMemo } from 'react';
 import Sidebar from '@/app/core/SideBar/Sidebar';
 import HeaderBar from '@/app/core/components/HeaderBar';
-import { Search } from 'lucide-react';
+import IncidentEnCoursPopup from './IncidentEnCoursPopup';
+import {
+    Search,
+    Filter,
+    ArrowUpDown
+} from 'lucide-react';
 
 interface Incident {
     id: string;
@@ -12,57 +17,89 @@ interface Incident {
     status: string;
     priority: string;
     assignedTo?: string;
-    handledBy?: string;
+    description?: string;
+    resolvedAt?: string;
+    transferredAt?: string;
 }
 
 const allIncidents: Incident[] = [
-    { id: 'INC100', title: 'Analyse API lente', createdAt: '2025-05-01', status: 'IN_ANALYSIS', priority: 'CRITIQUE' },
-    { id: 'INC101', title: 'Erreur intermittente', createdAt: '2025-05-02', status: 'IN_ANALYSIS', priority: 'HAUTE' },
-    { id: 'INC102', title: 'Blocage JSON', createdAt: '2025-05-03', status: 'IN_ANALYSIS', priority: 'MOYENNE' },
+    {
+        id: 'INC1001',
+        title: 'Erreur authentification',
+        createdAt: '2025-05-03',
+        status: 'IN_PROGRESS',
+        priority: 'CRITIQUE',
+        assignedTo: 'Aya Bouznari',
+        description: 'Incident critique empêchant l’accès à l’application.'
+    },
+    {
+        id: 'INC1002',
+        title: 'Problème API utilisateur',
+        createdAt: '2025-05-01',
+        status: 'IN_PROGRESS',
+        priority: 'HAUTE',
+        assignedTo: 'Yassine Farissi',
+        description: 'Réponses incohérentes sur l’API /user/data.'
+    }
 ];
 
+const statusLabels: Record<string, string> = {
+    IN_PROGRESS: 'Pris en charge'
+};
+
 const getPriorityStyle = (priority: string) => {
-    const styleMap = {
+    const map = {
         CRITIQUE: 'bg-red-100 text-red-700',
         HAUTE: 'bg-orange-100 text-orange-700',
         MOYENNE: 'bg-yellow-100 text-yellow-700',
         BASSE: 'bg-green-100 text-green-700'
     };
-    return styleMap[priority] || 'bg-gray-100 text-gray-700';
+    return map[priority] || 'bg-gray-200 text-gray-700';
 };
 
-const statusLabels: Record<string, string> = {
-    IN_ANALYSIS: 'En cours d’analyse',
-};
-
-export default function IncidentEnCours() {
+export default function IncidentsEnCoursDeTraitement() {
     const [searchTerm, setSearchTerm] = useState('');
-    const [priorityFilter, setPriorityFilter] = useState<string>('');
+    const [sortPriority, setSortPriority] = useState('');
     const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+    const [priorityFilter, setPriorityFilter] = useState('');
 
     const incidentsFiltrés = useMemo(() => {
-        return allIncidents.filter((incident) => {
-            const matchSearch = incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                incident.id.toLowerCase().includes(searchTerm.toLowerCase());
+        let result = allIncidents.filter(
+            (incident) =>
+                incident.status === 'IN_PROGRESS' &&
+                (incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    incident.id.toLowerCase().includes(searchTerm.toLowerCase())) &&
+                (!priorityFilter || incident.priority === priorityFilter)
+        );
 
-            const matchPriority = !priorityFilter || incident.priority === priorityFilter;
+        if (sortPriority) {
+            result.sort((a, b) =>
+                ['CRITIQUE', 'HAUTE', 'MOYENNE', 'BASSE'].indexOf(a.priority) -
+                ['CRITIQUE', 'HAUTE', 'MOYENNE', 'BASSE'].indexOf(b.priority)
+            );
+        }
 
-            return incident.status === 'IN_ANALYSIS' && matchSearch && matchPriority;
-        });
-    }, [searchTerm, priorityFilter]);
+        return result;
+    }, [searchTerm, sortPriority, priorityFilter]);
+
+    const resetFilters = () => {
+        setSearchTerm('');
+        setSortPriority('');
+        setPriorityFilter('');
+    };
 
     return (
         <div className="flex bg-gray-50 min-h-screen text-[17px]">
             <Sidebar />
             <div className="flex-1 flex flex-col">
                 <HeaderBar />
-                <main className="p-6 max-w-7xl mx-auto w-full">
-                    <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
-                        Incidents en cours d’analyse
+                <main className="p-6 max-w-7xl mx-auto w-full relative">
+                    <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
+                        Incidents en cours de traitement
                     </h1>
 
-                    <div className="flex items-center justify-between mb-6 gap-4">
-                        <div className="flex gap-4 items-center">
+                    <div className="flex items-center justify-between mb-6">
+                        <div className="flex items-center gap-4">
                             <select
                                 value={priorityFilter}
                                 onChange={(e) => setPriorityFilter(e.target.value)}
@@ -76,17 +113,21 @@ export default function IncidentEnCours() {
                             </select>
 
                             <button
-                                onClick={() => {
-                                    setPriorityFilter('');
-                                    setSearchTerm('');
-                                }}
-                                className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                                onClick={() => setSortPriority(sortPriority ? '' : 'true')}
+                                className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded hover:bg-green-200"
+                            >
+                                <ArrowUpDown className="w-4 h-4" /> Trier par priorité
+                            </button>
+
+                            <button
+                                onClick={resetFilters}
+                                className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
                             >
                                 Réinitialiser
                             </button>
                         </div>
 
-                        <div className="relative w-full max-w-md">
+                        <div className="relative w-full max-w-md ml-auto">
                             <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
                             <input
                                 type="text"
@@ -119,14 +160,14 @@ export default function IncidentEnCours() {
                                     <td className="px-6 py-4 font-medium">{incident.id}</td>
                                     <td className="px-6 py-4">{incident.title}</td>
                                     <td className="px-6 py-4">
-                      <span className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-gray-200 text-sm font-medium text-gray-800">
-                        ● {statusLabels[incident.status]}
-                      </span>
+                                            <span className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-gray-200 text-sm font-medium text-gray-800">
+                                                ● {statusLabels[incident.status] || incident.status}
+                                            </span>
                                     </td>
                                     <td className="px-6 py-4">
-                      <span className={`px-3 py-1 text-sm font-medium rounded-full ${getPriorityStyle(incident.priority)}`}>
-                        {incident.priority}
-                      </span>
+                                            <span className={`px-3 py-1 text-sm font-medium rounded-full ${getPriorityStyle(incident.priority)}`}>
+                                                {incident.priority}
+                                            </span>
                                     </td>
                                     <td className="px-6 py-4">{incident.createdAt}</td>
                                 </tr>
@@ -134,6 +175,13 @@ export default function IncidentEnCours() {
                             </tbody>
                         </table>
                     </div>
+
+                    {selectedIncident && (
+                        <IncidentEnCoursPopup
+                            incident={selectedIncident}
+                            onClose={() => setSelectedIncident(null)}
+                        />
+                    )}
                 </main>
             </div>
         </div>

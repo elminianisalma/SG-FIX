@@ -14,7 +14,7 @@ import Sidebar from "@/app/core/SideBar/Sidebar";
 interface Question {
     id: string;
     text: string;
-    type: "text" | "textarea" | "radio" | "select" | "file";
+    type: "text" | "textarea" | "radio" | "select" | "file" | "multitag";
     placeholder?: string;
     options?: string[];
 }
@@ -22,7 +22,7 @@ interface Question {
 const IncidentForm = () => {
     const router = useRouter();
     const [étape, setÉtape] = useState(1);
-    const [réponses, setRéponses] = useState<{ [key: string]: string | FileList | null }>({});
+    const [réponses, setRéponses] = useState<{ [key: string]: string | string[] | FileList | null }>({});
     const [sla, setSla] = useState<string>("");
     const [priorité, setPriorité] = useState<string>("");
     const [afficherPopup, setAfficherPopup] = useState(false);
@@ -34,7 +34,7 @@ const IncidentForm = () => {
     const questionsIncident: Question[] = [
         {
             id: "ClientName",
-            text: "Quel service est concerné par l’incident ?",
+            text: "Quel DU (Delivery Unit) est concerné par l’incident ?",
             type: "select",
             options: ["Bill Payment", "Bankup", "Interop", "OpenR", "Cockpit"]
         },
@@ -55,6 +55,12 @@ const IncidentForm = () => {
             text: "Niveau d'urgence de l’incident",
             type: "radio",
             options: ["Haute", "Moyenne", "Modérée"]
+        },
+        {
+            id: "tags",
+            text: "Quels tags correspondent à cet incident ?",
+            type: "multitag",
+            options: ["Bridge", "Transfert", "Elevy", "Account", "E-tax", "Guce"]
         },
         {
             id: "shortDescription",
@@ -82,12 +88,15 @@ const IncidentForm = () => {
             const fileList = val as FileList;
             return fileList && fileList.length > 0;
         }
+        if (q.type === "multitag") {
+            return (val as string[])?.length > 0;
+        }
         return val && val !== "";
     }).length;
 
     const progress = Math.min(Math.round((answeredCount / totalQuestions) * 100), 100);
 
-    const gérerChangementRéponse = (id: string, valeur: string | FileList | null) => {
+    const gérerChangementRéponse = (id: string, valeur: string | string[] | FileList | null) => {
         setRéponses((précédent) => ({ ...précédent, [id]: valeur }));
         setChampErreur((précédent) => précédent.filter((champ) => champ !== id));
     };
@@ -129,6 +138,9 @@ const IncidentForm = () => {
                 const fileList = val as FileList;
                 return !fileList || fileList.length === 0;
             }
+            if (q.type === "multitag") {
+                return !(val as string[]) || (val as string[]).length === 0;
+            }
             return !val || val === "";
         });
 
@@ -152,6 +164,8 @@ const IncidentForm = () => {
                 transformedAnswers[key] = val;
             } else if (val instanceof FileList) {
                 transformedAnswers[key] = Array.from(val).map((f) => f.name).join(", ");
+            } else if (Array.isArray(val)) {
+                transformedAnswers[key] = val.join(",");
             }
         });
 
@@ -164,43 +178,28 @@ const IncidentForm = () => {
             <Sidebar />
             <div className="flex-1 flex flex-col">
                 <HeaderBar />
-
                 <div className="flex justify-center items-start p-10">
                     <div className="w-full max-w-5xl space-y-6">
                         <IncidentHeader step={étape} progress={progress} />
-
                         <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-lg p-8">
-                            {questionsIncident.map((q, i) => (
-                                <div
-                                    key={q.id}
-                                    ref={(el) => (refs.current[q.id] = el)}
-                                    className={`bg-white p-6 rounded-xl border mb-6 shadow ${
-                                        champErreur.includes(q.id)
-                                            ? "border-red-500 animate-shake"
-                                            : "border-gray-200"
-                                    }`}
-                                >
-                                    <h3 className="text-lg font-semibold text-gray-800 mb-3">{i + 1}. {q.text}</h3>
-                                    <IncidentQuestions
-                                        questions={[q]}
-                                        answers={réponses}
-                                        onAnswerChange={gérerChangementRéponse}
-                                    />
-                                </div>
-                            ))}
+                            <IncidentQuestions
+                                questions={questionsIncident}
+                                answers={réponses}
+                                onAnswerChange={gérerChangementRéponse}
+                                errorFields={champErreur}
+                                refs={refs}
+                            />
 
                             {sla && (
                                 <div className="text-right text-sm text-gray-600 font-medium mt-4">
                                     ⏱️ SLA attribué : <span className="text-black font-bold">{sla}</span>
                                 </div>
                             )}
-
                             {priorité && (
                                 <div className="text-right text-sm text-gray-600 font-medium mt-2">
                                     📌 Priorité calculée : <span className="text-black font-bold">{priorité}</span>
                                 </div>
                             )}
-
                             <div className="mt-6 text-center">
                                 <button
                                     onClick={handleSubmitClick}

@@ -1,70 +1,96 @@
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend, LineChart, Line } from "recharts";
+'use client';
 
-interface KpiDashboardProps {
-    incidentsCount: number;
-    pendingCount: number;
-    completedCount: number;
-    cancelledCount: number;
-}
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    Tooltip,
+    ResponsiveContainer,
+    LineChart,
+    Line,
+    PieChart,
+    Pie,
+    Cell,
+    Legend,
+} from 'recharts';
 
-export default function KpiDashboard({ incidentsCount, pendingCount, completedCount, cancelledCount }: KpiDashboardProps) {
-    const data = [
-        { name: "Pending", value: pendingCount, color: "#f1e887" },
-        { name: "Completed", value: completedCount, color: "#81dfa1" },
-        { name: "Cancelled", value: cancelledCount, color: "#df2b4b" }
+export default function AdminKpiDashboard() {
+    const statusData = [
+        { name: 'Déclaré', value: 14, color: '#facc15' },
+        { name: 'Affecté', value: 10, color: '#60a5fa' },
+        { name: 'Résolu', value: 8, color: '#34d399' },
     ];
 
-    const trendData = [
-        { name: "Jan", incidents: 5 },
-        { name: "Feb", incidents: 8 },
-        { name: "Mar", incidents: 7 },
-        { name: "Apr", incidents: 6 },
-        { name: "May", incidents: 9 }
+    const resolutionTimeTrend = [
+        { name: 'Lun', time: 3.4 },
+        { name: 'Mar', time: 2.8 },
+        { name: 'Mer', time: 4.1 },
+        { name: 'Jeu', time: 3.7 },
+        { name: 'Ven', time: 3.1 },
+    ];
+
+    const serviceImpactData = [
+        { name: 'Interop', value: 7, color: '#f87171' },
+        { name: 'Bankup', value: 5, color: '#fb923c' },
+        { name: 'Cockpit', value: 3, color: '#a78bfa' },
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 bg-[#F4F5F9] p-6 rounded-lg">
-            <div className="bg-[#DDDFE6] p-4 rounded-lg shadow-lg">
-                <h2 className="text-lg font-semibold text-[#252C41] mb-4">Incidents Status</h2>
-                <ResponsiveContainer width="100%" height={300}>
-                    <BarChart data={data}>
-                        <XAxis dataKey="name" stroke="#252C41" />
-                        <YAxis stroke="#252C41" />
-                        <Tooltip />
-                        <Bar dataKey="value">
-                            {data.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                        </Bar>
-                    </BarChart>
-                </ResponsiveContainer>
-            </div>
+        <div className="bg-gray-50 rounded-xl shadow-inner px-4 py-6 mb-6">
+            <h2 className="text-lg font-bold text-gray-700 mb-4 text-center">Résumé visuel des incidents</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-2">
+                {/* Répartition des statuts */}
+                <div className="bg-white rounded-xl shadow p-4">
+                    <h3 className="text-sm font-medium text-gray-600 mb-2 text-center">Répartition des statuts</h3>
+                    <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={statusData}>
+                            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                            <YAxis tick={{ fontSize: 11 }} />
+                            <Tooltip itemStyle={{ fontSize: 11 }} labelStyle={{ fontSize: 11 }} />
+                            <Bar dataKey="value">
+                                {statusData.map((entry, index) => (
+                                    <Cell key={index} fill={entry.color} />
+                                ))}
+                            </Bar>
+                        </BarChart>
+                    </ResponsiveContainer>
+                </div>
 
-            <div className="bg-[#DDDFE6] p-4 rounded-lg shadow-lg">
-                <h2 className="text-lg font-semibold text-[#252C41] mb-4">Incidents Breakdown</h2>
-                <ResponsiveContainer width="100%" height={300}>
-                    <PieChart>
-                        <Pie data={data} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                            {data.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                        </Pie>
-                        <Legend wrapperStyle={{ color: '#252C41' }} />
-                        <Tooltip />
-                    </PieChart>
-                </ResponsiveContainer>
-            </div>
+                {/* Temps moyen de résolution */}
+                <div className="bg-white rounded-xl shadow p-4">
+                    <h3 className="text-sm font-medium text-gray-600 mb-2 text-center">Temps moyen de résolution (h)</h3>
+                    <ResponsiveContainer width="100%" height={200}>
+                        <LineChart data={resolutionTimeTrend}>
+                            <XAxis dataKey="name" tick={{ fontSize: 11 }} />
+                            <YAxis tick={{ fontSize: 11 }} />
+                            <Tooltip itemStyle={{ fontSize: 11 }} labelStyle={{ fontSize: 11 }} />
+                            <Line type="monotone" dataKey="time" stroke="#3b82f6" strokeWidth={2} dot={{ r: 3 }} />
+                        </LineChart>
+                    </ResponsiveContainer>
+                </div>
 
-            <div className="bg-[#DDDFE6] p-4 rounded-lg shadow-lg">
-                <h2 className="text-lg font-semibold text-[#252C41] mb-4 font-bold">Incident Trend</h2>
-                <ResponsiveContainer width="100%" height={300}>
-                    <LineChart data={trendData}>
-                        <XAxis dataKey="name" stroke="#252C41" />
-                        <YAxis stroke="#252C41" />
-                        <Tooltip />
-                        <Line type="monotone" dataKey="incidents" stroke="#10B981" activeDot={{ r: 8 }} />
-                    </LineChart>
-                </ResponsiveContainer>
+                {/* Top services impactés */}
+                <div className="bg-white rounded-xl shadow p-4">
+                    <h3 className="text-sm font-medium text-gray-600 mb-2 text-center">Top services impactés</h3>
+                    <ResponsiveContainer width="100%" height={200}>
+                        <PieChart>
+                            <Pie
+                                data={serviceImpactData}
+                                dataKey="value"
+                                nameKey="name"
+                                outerRadius={60}
+                                label={{ style: { fontSize: 11 } }}
+                            >
+                                {serviceImpactData.map((entry, index) => (
+                                    <Cell key={index} fill={entry.color} />
+                                ))}
+                            </Pie>
+                            <Legend verticalAlign="bottom" height={30} wrapperStyle={{ fontSize: '11px' }} />
+                            <Tooltip itemStyle={{ fontSize: 11 }} labelStyle={{ fontSize: 11 }} />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </div>
             </div>
         </div>
     );

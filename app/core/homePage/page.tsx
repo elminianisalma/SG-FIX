@@ -1,6 +1,4 @@
-'use client';
-
-import UserHomePage from "@/app/core/homePage/UserHomePage";
+import UserHomePage from './UserHomePage';
 
 export default function Page() {
     return <UserHomePage />;
