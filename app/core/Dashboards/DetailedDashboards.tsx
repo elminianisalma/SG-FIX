@@ -1,14 +1,29 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Sidebar from "@/app/core/SideBar/SideBar";
-import { FaExclamationTriangle, FaCheckCircle, FaClock, FaTachometerAlt, FaSearch } from "react-icons/fa"; // Icônes pour les KPI
-import { Bar, Radar, Pie, Line } from "react-chartjs-2";
-import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend, RadialLinearScale, ArcElement, PointElement, LineElement, Filler } from "chart.js";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css"; // Styles du DatePicker
+import Sidebar from '@/app/core/SideBar/Sidebar';
+import HeaderBar from '@/app/core/components/HeaderBar';
+import { Bar, Pie, Doughnut, Line } from 'react-chartjs-2';
+import {
+    Chart as ChartJS,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    Title,
+    Tooltip,
+    Legend,
+    ArcElement,
+    PointElement,
+    LineElement,
+} from 'chart.js';
+import {
+    FaTicketAlt,
+    FaClock,
+    FaLayerGroup,
+    FaChartLine,
+    FaArrowsAltH,
+    FaCheckCircle,
+} from 'react-icons/fa';
 
-// Enregistrement des composants Chart.js
 ChartJS.register(
     CategoryScale,
     LinearScale,
@@ -16,473 +31,170 @@ ChartJS.register(
     Title,
     Tooltip,
     Legend,
-    RadialLinearScale,
     ArcElement,
     PointElement,
-    LineElement,
-    Filler
+    LineElement
 );
 
-// Exemple de données pour les KPI
-const kpiData = {
-    totalIncidents: 175000,
-    totalResolved: 45100,
-    totalEscalated: 12000,
-    slaMet: 120000,
-    slaMissed: 55000,
-    slaPerformance: {
-        high: 1500,
-        medium: 1200,
-        low: 1000,
-    },
-};
+// 🎨 Couleurs douces et vives
+const vividColors = ['#a78bfa', '#f472b6', '#fde047', '#4ade80', '#60a5fa'];
 
-// Répartition des incidents par environnement
-const incidentEnvironmentDistribution = {
-    HT: 800,
-    HF: 600,
-    DEV: 400,
-};
-
-// Données pour le graphique (Bar - Répartition des incidents par environnement)
-const barChartData = {
-    labels: Object.keys(incidentEnvironmentDistribution),
-    datasets: [
-        {
-            label: "Incidents par Environnement",
-            data: Object.values(incidentEnvironmentDistribution),
-            backgroundColor: "rgba(54, 162, 235, 0.6)",
-            borderColor: "rgba(54, 162, 235, 1)",
-            borderWidth: 1,
-
-        },
-    ],
-};
-
-// Options pour le graphique Bar
-const barChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        title: {
-            display: true,
-            text: 'Incidents par Environnement',
-        },
-        legend: {
-            position: 'bottom' as const,
-        },
-    },
-    scales: {
-        y: {
-            beginAtZero: true,
-            title: {
-                display: true,
-                text: 'Nombre d\'Incidents',
-            },
-        },
-        x: {
-            title: {
-                display: true,
-                text: 'Environnement',
-            },
-        },
-    },
-};
-
-// Données pour le graphique (Radar - Performance SLA par priorité)
-const radarChartData = {
-    labels: ['Haute', 'Moyenne', 'Basse'],
-    datasets: [
-        {
-            label: 'Incidents Résolus',
-            data: [kpiData.slaPerformance.high, kpiData.slaPerformance.medium, kpiData.slaPerformance.low],
-            backgroundColor: 'rgba(255, 99, 132, 0.2)',
-            borderColor: 'rgb(255, 99, 132)',
-            borderWidth: 2,
-            pointBackgroundColor: 'rgb(255, 99, 132)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgb(255, 99, 132)',
-            fill: true,
-        },
-    ],
-};
-
-// Options pour le graphique Radar
-const radarChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        title: {
-            display: true,
-            text: 'Performance des SLA par Priorité',
-        },
-        legend: {
-            position: 'bottom' as const,
-        },
-    },
-    scales: {
-        r: {
-            beginAtZero: true,
-            ticks: {
-                stepSize: 500,
-                fontSize: 10,
-            },
-        },
-    },
-};
-
-// Données pour le graphique (Pie - Répartition des statuts des incidents)
-const incidentStatusDistribution = {
-    Pending: kpiData.totalIncidents - kpiData.totalResolved - kpiData.totalEscalated,
-    Escalated: kpiData.totalEscalated,
-    Cancelled: 5000, // Exemple de statut annulé
-};
-
-const pieChartData = {
-    labels: Object.keys(incidentStatusDistribution),
-    datasets: [
-        {
-            label: 'Répartition des Statuts',
-            data: Object.values(incidentStatusDistribution),
-            backgroundColor: [
-                'rgba(54, 162, 235, 0.8)', // Pending
-                'rgba(255, 206, 86, 0.8)', // Escalated
-                'rgba(255, 99, 132, 0.8)', // Cancelled
-            ],
-            borderColor: [
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(255, 99, 132, 1)',
-            ],
-            borderWidth: 1,
-        },
-    ],
-};
-
-// Options pour le graphique Pie
-const pieChartOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        title: {
-            display: true,
-            text: 'Répartition des Statuts des Incidents',
-        },
-        legend: {
-            position: 'bottom' as const,
-        },
-    },
-};
-
-// Données pour le graphique (Line - Incidents Résolus par Jour)
-const resolvedIncidentsByDay = [
-    { day: "Lun", resolved: 15 },
-    { day: "Mar", resolved: 18 },
-    { day: "Mer", resolved: 22 },
-    { day: "Jeu", resolved: 17 },
-    { day: "Ven", resolved: 25 },
+const kpisData = [
+    { label: 'Incidents déclarés', value: 128, icon: <FaTicketAlt className="text-white text-xl" />, border: vividColors[1] },
+    { label: 'Incidents en cours', value: 37, icon: <FaClock className="text-white text-xl" />, border: vividColors[0] },
+    { label: 'Incidents résolus', value: 85, icon: <FaCheckCircle className="text-white text-xl" />, border: vividColors[3] },
+    { label: 'Temps moyen résolution', value: '2.8 h', icon: <FaChartLine className="text-white text-xl" />, border: vividColors[4] },
+    { label: 'Top DU impacté', value: 'Interop', icon: <FaLayerGroup className="text-white text-xl" />, border: vividColors[2] },
+    { label: 'Taux de transfert', value: '12 %', icon: <FaArrowsAltH className="text-white text-xl" />, border: vividColors[3] },
 ];
 
-// Données pour le graphique Line - Incidents Résolus
-const lineChartData = {
-    labels: resolvedIncidentsByDay.map((day) => day.day),
-    datasets: [
-        {
-            label: "Incidents Résolus",
-            data: resolvedIncidentsByDay.map((day) => day.resolved),
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1,
-            fill: false,
-        },
-    ],
+const statusData = {
+    Déclaré: 40,
+    Affecté: 25,
+    'En cours d’analyse': 18,
+    Transféré: 10,
+    Résolu: 85,
 };
 
-// Options pour le graphique Line
-const lineChartOptions = {
+const priorityData = {
+    Critique: 20,
+    Majeur: 45,
+    Moyen: 50,
+    Mineur: 13,
+};
+
+const duData = {
+    BillPayment: 15,
+    Bankup: 22,
+    Interop: 42,
+    OpenR: 30,
+    Cockpit: 25,
+};
+
+const resolvedByDay = [5, 11, 8, 14, 16];
+
+const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
-        title: {
-            display: true,
-            text: 'Incidents Résolus / Jour',
-        },
-        legend: {
-            position: 'bottom' as const,
-        },
+        legend: { position: 'bottom', labels: { color: '#4b5563' } },
+        tooltip: { titleColor: '#4b5563', bodyColor: '#4b5563' },
     },
     scales: {
-        y: {
-            beginAtZero: true,
-            title: {
-                display: true,
-                text: 'Nombre d\'Incidents',
-            },
-        },
-        x: {
-            title: {
-                display: true,
-                text: 'Jour',
-            },
-        },
+        y: { ticks: { color: '#4b5563' }, grid: { color: '#e5e7eb' } },
+        x: { ticks: { color: '#4b5563' }, grid: { color: '#e5e7eb' } },
     },
 };
 
-// Répartition des incidents par équipe et par réponse
-const teamResponseData = {
-    "Team A": { diagnosis: 5, repairs: 3, alert: true },
-    "Team B": { diagnosis: 8, repairs: 6, alert: true },
-    "Team C": { diagnosis: 4, repairs: 2, alert: false },
-    "Team D": { diagnosis: 7, repairs: 4, alert: true },
-};
-
-// Données pour les graphiques de temps de réponse moyen par équipe
-const responseTimeData = {
-    labels: Object.keys(teamResponseData),
-    datasets: [
-        {
-            label: "Temps de réponse (Diagnostic)",
-            data: Object.values(teamResponseData).map(team => team.diagnosis),
-            backgroundColor: 'rgba(255, 206, 86, 0.6)',
-            borderColor: 'rgba(255, 206, 86, 1)',
-            borderWidth: 1,
-        },
-        {
-            label: "Temps de réponse (Réparations)",
-            data: Object.values(teamResponseData).map(team => team.repairs),
-            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-            borderColor: 'rgba(54, 162, 235, 1)',
-            borderWidth: 1,
-        }
-    ]
-};
-
-const responseTimeOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-        title: {
-            display: true,
-            text: 'Temps de Réponse Moyen par Équipe',
-        },
-        legend: {
-            position: 'bottom' as const,
-        },
-    },
-    scales: {
-        y: {
-            beginAtZero: true,
-            title: {
-                display: true,
-                text: 'Temps en heures',
-            },
-        },
-        x: {
-            title: {
-                display: true,
-                text: 'Équipes',
-            },
-        },
-    },
-};
-
-// Exemple de données pour le filtre par personne (à remplacer par vos données réelles)
-const peopleList = ["Alice", "Bob", "Charlie", "David", "Eve"];
-
-export default function DetailedDashboards() {
-    const [activeTab, setActiveTab] = useState("charts");
-    const [timePeriod, setTimePeriod] = useState("jour");
-    const [startDate, setStartDate] = useState<Date | null>(null);
-    const [endDate, setEndDate] = useState<Date | null>(null);
-    const [searchQuery, setSearchQuery] = useState("");
-    const [showCalendar, setShowCalendar] = useState(false);
-    const [personFilter, setPersonFilter] = useState("");
-
-    const handleTabChange = (tab: string) => {
-        setActiveTab(tab);
-    };
-
-    const handleTimePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setTimePeriod(e.target.value);
-    };
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
-    };
-
-    const handleDateChange = (dates: [Date | null, Date | null]) => {
-        setStartDate(dates[0]);
-        setEndDate(dates[1]);
-        setShowCalendar(false);
-    };
-
-    const toggleCalendar = () => {
-        setShowCalendar(!showCalendar);
-    };
-
-    const handlePersonFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setPersonFilter(e.target.value);
-        console.log("Filtrer par personne:", e.target.value);
-        // Implémentez ici la logique de filtrage des données par personne
-    };
+export default function DashboardSGFIX() {
+    const totalCritique = priorityData.Critique;
+    const totalOthers = Object.values(priorityData).reduce((sum, val) => sum + val, 0) - totalCritique;
 
     return (
-        <div className="flex min-h-screen bg-gray-100">
-            {/* Sidebar importée */}
+        <div className="bg-gray-100 min-h-screen flex">
             <Sidebar />
+            <div className="flex-1 flex flex-col">
+                <HeaderBar />
 
-            <div className="flex-1 ml-48 p-8 flex flex-col">
-                {/* Header centré avec filtres */}
-                <div className="bg-white p-6 rounded-lg shadow-md mb-6">
-                    <h1 className="text-3xl font-semibold text-gray-900 text-center mb-4">Tableau de Bord des Incidents</h1>
-                    <div className="flex items-center justify-start space-x-4">
-                        {/* Filtre par période */}
-                        <div className="flex items-center">
-                            <label htmlFor="filterPeriod" className="mr-2 text-lg text-gray-700 ">Période:</label>
-                            <select
-                                id="filterPeriod"
-                                value={timePeriod}
-                                onChange={handleTimePeriodChange}
-                                className="px-4 py-2 border rounded-md text-lg"
-                            >
-                                <option value="jour">Jour</option>
-                                <option value="semaine">Semaine</option>
-                                <option value="mois">Mois</option>
-                            </select>
-                        </div>
+                <main className="px-10 py-10 ml-48 w-full max-w-screen-xl">
+                    <h1 className="text-2xl font-bold text-center text-gray-800 mb-8">
+                        Tableau de bord – Suivi des incidents
+                    </h1>
 
-                        {/* Filtre par date */}
-                        <div className="relative">
-                            <label htmlFor="startDate" className="mr-2 text-lg text-gray-700">Date:</label>
-                            <input
-                                type="text"
-                                value={startDate ? (endDate ? `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}` : startDate.toLocaleDateString()) : 'Sélectionner une date'}
-                                onClick={toggleCalendar}
-                                className="px-4 py-2 border rounded-md text-lg cursor-pointer"
-                                readOnly
-                            />
-                            {showCalendar && (
-                                <div style={{ position: 'absolute', zIndex: 10 }}>
-                                    <DatePicker
-                                        selected={startDate}
-                                        onChange={handleDateChange}
-                                        startDate={startDate}
-                                        endDate={endDate}
-                                        selectsRange
-                                        isClearable
-                                        inline
-                                    />
+                    {/* KPI Container */}
+                    <div className="mb-10 bg-white p-6 rounded-xl shadow-md border">
+                        <h2 className="text-lg font-semibold text-gray-700 mb-4">Indicateurs Clés de Performance</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                            {kpisData.map((kpi, idx) => (
+                                <div
+                                    key={idx}
+                                    className="bg-white border-2 rounded-lg p-4 flex flex-col items-center justify-center shadow"
+                                    style={{ borderColor: kpi.border }}
+                                >
+                                    <div className="bg-gray-800 rounded-full p-2 mb-2">
+                                        {kpi.icon}
+                                    </div>
+                                    <span className="text-sm font-medium text-gray-500">{kpi.label}</span>
+                                    <span className="text-xl font-bold text-gray-800">{kpi.value}</span>
                                 </div>
-                            )}
-                        </div>
-
-                        {/* Filtre par personne */}
-                        <div className="flex items-center">
-                            <label htmlFor="personFilter" className="mr-2 text-lg text-gray-700">Personne:</label>
-                            <select
-                                id="personFilter"
-                                value={personFilter}
-                                onChange={handlePersonFilterChange}
-                                className="px-4 py-2 border rounded-md text-lg"
-                            >
-                                <option value="">Toutes les personnes</option>
-                                {peopleList.map((person) => (
-                                    <option key={person} value={person}>{person}</option>
-                                ))}
-                            </select>
-                        </div>
-
-                        {/* Barre de recherche */}
-                        <div className="flex items-center flex-grow justify-end">
-                            <input
-                                type="text"
-                                placeholder="Rechercher ..."
-                                value={searchQuery}
-                                onChange={handleSearchChange}
-                                className="px-4 py-2 border rounded-md text-lg w-64"
-                            />
-                            <FaSearch className="ml-2 text-gray-600" />
+                            ))}
                         </div>
                     </div>
-                </div>
 
-                {/* Navigation par onglets */}
-                <div className="flex mt-2 border-b border-gray-200">
-                    <button
-                        className={`px-4 py-2 text-sm font-medium text-gray-600 border-b-2 ${activeTab === "charts" ? "border-blue-500 text-blue-700" : "border-transparent hover:text-gray-800 hover:border-gray-300"} focus:outline-none`}
-                        onClick={() => handleTabChange("charts")}
-                    >
-                        Graphiques
-                    </button>
-                    <button
-                        className={`px-4 py-2 text-sm font-medium text-gray-600 border-b-2 ${activeTab === "kpi" ? "border-blue-500 text-blue-700" : "border-transparent hover:text-gray-800 hover:border-gray-300"} focus:outline-none`}
-                        onClick={() => handleTabChange("kpi")}
-                    >
-                        KPI
-                    </button>
-                </div>
+                    {/* Graphs Container */}
+                    <div className="bg-white p-6 rounded-xl shadow-md border">
+                        <h2 className="text-lg font-semibold text-gray-700 mb-4">Visualisation des Données</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm h-72">
+                                <h2 className="text-sm font-medium text-gray-700 mb-2">Répartition des statuts</h2>
+                                <Pie
+                                    data={{
+                                        labels: Object.keys(statusData),
+                                        datasets: [{ data: Object.values(statusData), backgroundColor: vividColors }],
+                                    }}
+                                    options={chartOptions}
+                                />
+                            </div>
 
-                {/* Contenu des onglets */}
-                <div className="mt-4 flex-1">
-                    {activeTab === "charts" && (
-                        <div className="bg-white rounded-lg shadow-md p-4 space-y-4">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Visualisation des Données</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div className="bg-white p-2 rounded-lg shadow-md" style={{ height: '300px' }}>
-                                    <h4 className="text-md font-semibold text-gray-700 mb-2">Temps de Réponse Moyen par Équipe</h4>
-                                    <Bar data={responseTimeData} options={responseTimeOptions} />
-                                </div>
-                                <div className="bg-white p-2 rounded-lg shadow-md" style={{ height: '300px' }}>
-                                    <h4 className="text-md font-semibold text-gray-700 mb-2">Incidents par Environnement</h4>
-                                    <Bar data={barChartData} options={barChartOptions} />
-                                </div>
-                                <div className="bg-white p-2 rounded-lg shadow-md" style={{ height: '300px' }}>
-                                    <h4 className="text-md font-semibold text-gray-700 mb-2">Performance des SLA par Priorité</h4>
-                                    <Radar data={radarChartData} options={radarChartOptions} />
-                                </div>
-                                <div className="bg-white p-2 rounded-lg shadow-md" style={{ height: '300px' }}>
-                                    <h4 className="text-md font-semibold text-gray-700 mb-2">Répartition des Statuts des Incidents</h4>
-                                    <Pie data={pieChartData} options={pieChartOptions} />
-                                </div>
-                                <div className="bg-white p-2 rounded-lg shadow-md" style={{ height: '300px' }}>
-                                    <h4 className="text-md font-semibold text-gray-700 mb-2">Incidents Résolus par Jour</h4>
-                                    <Line data={lineChartData} options={lineChartOptions} />
-                                </div>
+                            <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm h-72">
+                                <h2 className="text-sm font-medium text-gray-700 mb-2">Répartition des priorités</h2>
+                                <Doughnut
+                                    data={{
+                                        labels: Object.keys(priorityData),
+                                        datasets: [{ data: Object.values(priorityData), backgroundColor: vividColors }],
+                                    }}
+                                    options={chartOptions}
+                                />
+                            </div>
+
+                            <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm h-72">
+                                <h2 className="text-sm font-medium text-gray-700 mb-2">Incidents par DU</h2>
+                                <Bar
+                                    data={{
+                                        labels: Object.keys(duData),
+                                        datasets: [{ data: Object.values(duData), backgroundColor: vividColors }],
+                                    }}
+                                    options={{
+                                        ...chartOptions,
+                                        indexAxis: 'y',
+                                        plugins: { legend: { display: false } },
+                                    }}
+                                />
+                            </div>
+
+                            <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm h-72">
+                                <h2 className="text-sm font-medium text-gray-700 mb-2">Incidents résolus par jour</h2>
+                                <Line
+                                    data={{
+                                        labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'],
+                                        datasets: [{
+                                            label: 'Résolus',
+                                            data: resolvedByDay,
+                                            borderColor: vividColors[3],
+                                            backgroundColor: '#f0f9ff',
+                                            tension: 0.4,
+                                        }],
+                                    }}
+                                    options={chartOptions}
+                                />
+                            </div>
+
+                            <div className="bg-white border border-gray-200 p-4 rounded-lg shadow-sm h-72">
+                                <h2 className="text-sm font-medium text-gray-700 mb-2">Taux d’incidents critiques</h2>
+                                <Pie
+                                    data={{
+                                        labels: ['Critiques', 'Autres'],
+                                        datasets: [{
+                                            data: [totalCritique, totalOthers],
+                                            backgroundColor: [vividColors[0], '#cbd5e1'],
+                                        }],
+                                    }}
+                                    options={chartOptions}
+                                />
                             </div>
                         </div>
-                    )}
-
-                    {activeTab === "kpi" && (
-                        <div className="bg-white rounded-lg shadow-md p-6">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">KPI de Gestion des Incidents</h3>
-                            <div className="grid grid-cols-2 gap-6">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                                    <div className="bg-white border border-gray-300 rounded-xl shadow-sm p-6">
-                                        <h2 className="text-lg font-semibold text-gray-800 mb-2">Total des Incidents</h2>
-                                        <p className="text-2xl font-bold text-blue-600">{kpiData.totalIncidents}</p>
-                                    </div>
-                                    <div className="bg-white border border-gray-300 rounded-xl shadow-sm p-6">
-                                        <h2 className="text-lg font-semibold text-gray-800 mb-2">Incidents Résolus</h2>
-                                        <p className="text-2xl font-bold text-green-600">{kpiData.totalResolved}</p>
-                                    </div>
-                                    <div className="bg-white border border-gray-300 rounded-xl shadow-sm p-6">
-                                        <h2 className="text-lg font-semibold text-gray-800 mb-2">Incidents Escaladés</h2>
-                                        <p className="text-2xl font-bold text-red-500">{kpiData.totalEscalated}</p>
-                                    </div>
-                                </div>
-
-
-                                <div className="bg-purple-100 p-4 rounded-lg shadow-md flex items-center space-x-4">
-                                    <FaClock className="text-2xl text-purple-700" />
-                                    <div>
-                                        <h4 className="text-sm font-semibold text-gray-700">SLA Non Respectés</h4>
-                                        <div className="text-xl font-bold text-gray-900">{kpiData.slaMissed}</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                    </div>
+                </main>
             </div>
         </div>
     );

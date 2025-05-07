@@ -5,10 +5,11 @@ import IncidentListPage from "@/app/core/incident-list/page";
 import DetailedDashboards from "@/app/core/Dashboards/DetailedDashboards";
 import AdminUserProfiles from "@/app/core/employees-dashboard/employeesDashboard";
 import UserHomePage from "@/app/core/homePage/UserHomePage";
+import RoleManagement from "@/app/core/admin-roles/RoleManagement";
 export default function Home() {
     return (
         <div>
-            <SignUpForm/>
+            <RoleManagement/>
         </div>
     );
 }

@@ -18,19 +18,19 @@ const AdminHomePage = () => {
             title: "Tous les incidents",
             icon: <AlertTriangle className="w-6 h-6 text-red-500" />,
             onClick: () => router.push("/core/incident-list"),
-            description: "Afficher et gérer tous les incidents signalés.",
+            description: "Affichage de tous les incidents signalés.",
         },
         {
             title: "Utilisateurs",
             icon: <Users className="w-6 h-6 text-blue-500" />,
-            onClick: () => router.push("/core/gestion-utilisateurs"),
+            onClick: () => router.push("/core/admin-roles"),
             description: "Gérer les comptes et les rôles des utilisateurs.",
         },
         {
             title: "Tableau de bord",
             icon: <BarChart2 className="w-6 h-6 text-green-600" />,
-            onClick: () => router.push("/core/dashboard"),
-            description: "Visualiser les statistiques globales et tendances.",
+            onClick: () => router.push("/core/Dashboards"),
+            description: "Visualiser les statistiques globales.",
         },
     ];
 
