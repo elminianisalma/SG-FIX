@@ -6,10 +6,11 @@ import DetailedDashboards from "@/app/core/Dashboards/DetailedDashboards";
 import AdminUserProfiles from "@/app/core/employees-dashboard/employeesDashboard";
 import UserHomePage from "@/app/core/homePage/UserHomePage";
 import RoleManagement from "@/app/core/admin-roles/RoleManagement";
+import CreateIncidentPage from './core/create-incident/page';
 export default function Home() {
     return (
         <div>
-            <RoleManagement/>
+            <SignUpForm/>
         </div>
     );
 }

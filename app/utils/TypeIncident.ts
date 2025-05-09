@@ -42,4 +42,6 @@ export interface Incident {
   impact: IncidentImpact | string;
   urgency: IncidentUrgency | string;
   priority: IncidentPriority | string;
+  dateResolution?: string;
+  tags?: string[];
 }

@@ -1,6 +1,5 @@
 'use client';
 import React, { useState } from "react";
-import Sidebar from "../SideBar/SideBar";
 import IncidentTable from "@/app/core/incident-list/IncidentTable";
 import {
     ListIcon,

@@ -1,7 +1,11 @@
-'use client';
-
 import React, { useState } from 'react';
-import { Search, Filter } from 'lucide-react';
+import {
+  Calendar,
+  ChevronDown,
+  ArrowUpDown,
+  SlidersHorizontal,
+  Search,
+} from 'lucide-react';
 import Sidebar from '@/app/core/SideBar/Sidebar';
 import IncidentTable from './IncidentTable';
 import KpiDashboard from './KpiDashboard';
@@ -20,6 +24,8 @@ export default function IncidentList() {
       impact: 'CRITIQUE',
       urgency: 'MOYENNE',
       priority: calculatePriority('CRITIQUE', 'MOYENNE'),
+      dateResolution:'2025-04-04',
+      tags:['sécurité','interop']
     },
     {
       id: 'ID9831',
@@ -31,6 +37,8 @@ export default function IncidentList() {
       impact: 'ÉLEVÉ',
       urgency: 'ÉLEVÉE',
       priority: calculatePriority('ÉLEVÉ', 'ÉLEVÉE'),
+      dateResolution:'2025-10-30',
+      tags:['réseau','openR']
     },
     {
       id: 'ID3365',
@@ -42,62 +50,132 @@ export default function IncidentList() {
       impact: 'MOYEN',
       urgency: 'FAIBLE',
       priority: calculatePriority('MOYEN', 'FAIBLE'),
+      dateResolution:'2025-04-04',
+      tags: ['base de données', 'paiement', 'crash'], 
     },
   ]);
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<IncidentStatus | ''>('');
+  const [filterStatus, setFilterStatus] = useState<IncidentStatus | ''>(''); 
+  const [dateRange, setDateRange] = useState({ from: '', to: '' });
+  const [showFilter, setShowFilter] = useState(false);
 
   const filteredIncidents = incidents.filter(
-      (incident) =>
-          incident.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
-          (filterStatus ? incident.status === filterStatus : true)
+    (incident) =>
+      incident.title.toLowerCase().includes(searchTerm.toLowerCase()) &&
+      (filterStatus ? incident.status === filterStatus : true)
   );
 
   return (
-      <div className="flex min-h-screen bg-gray-50">
-        <Sidebar />
-        <div className="flex-1 p-6 sm:p-10 max-w-6xl mx-auto">
-          <h1 className="text-3xl font-extrabold mb-6 text-gray-800 text-center">
-            Liste des incidents
-          </h1>
+    <div className="flex max-h-screen bg-gray-50">
+      <Sidebar />
+      <div className="flex-1 p-4 sm:p-8 max-w-6xl mx-auto relative">
+        <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center">
+          Liste des incidents
+        </h1>
 
-          <KpiDashboard incidents={filteredIncidents} />
+        <KpiDashboard incidents={filteredIncidents} />
 
-          {/* Filtres (sous les dashboards) */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 my-8">
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-3 text-gray-400" size={20} />
+        <div className="flex justify-end mb-3 z-10 relative">
+          <div className="flex items-center gap-3 w-full">
+            {/* 🔧 Barre de recherche élargie */}
+            <div className="relative flex-grow flex items-center">
+              <Search className="absolute left-3 text-gray-500" size={16} />
               <input
-                  type="text"
-                  placeholder="Rechercher un incident..."
-                  className="w-full h-10 pl-10 pr-3 rounded-md border border-gray-200 bg-white shadow-sm text-base focus:ring-2 focus:ring-blue-500"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                type="text"
+                placeholder="Rechercher un incident..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
-
-            <div className="relative w-full sm:w-60">
-              <Filter className="absolute left-3 top-3 text-gray-400" size={20} />
-              <select
-                  className="w-full h-10 pl-10 pr-3 rounded-md border border-gray-200 bg-white shadow-sm text-base focus:ring-2 focus:ring-blue-500"
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value as IncidentStatus | '')}
-              >
-                <option value="">Tous les statuts</option>
-                <option value={IncidentStatus.DECLARE}>Déclaré</option>
-                <option value={IncidentStatus.AFFECTE}>Affecté</option>
-                <option value={IncidentStatus.EN_COURS_ANALYSE}>En cours d’analyse</option>
-                <option value={IncidentStatus.TRANSFERE}>Transféré</option>
-                <option value={IncidentStatus.RESOLU}>Résolu</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="overflow-x-auto">
-            <IncidentTable incidents={filteredIncidents} />
+            {/* Bouton Sort by */}
+            <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-100 text-gray-700 text-sm font-medium">
+              <ArrowUpDown size={16} />
+              Sort by
+            </button>
+            {/* Bouton Filter */}
+            <button
+              onClick={() => setShowFilter(!showFilter)}
+              className="flex items-center gap-2 px-3 py-1.5 bg-white border border-green-600 rounded-md shadow-sm hover:bg-gray-100 text-green-600 text-sm font-medium"
+            >
+              <SlidersHorizontal size={16} />
+              Filter
+            </button>
           </div>
         </div>
+
+        {showFilter && (
+          <div className="absolute top-[160px] right-10 z-20 bg-white p-4 rounded-lg shadow-lg w-full max-w-sm text-sm">
+            <h2 className="text-xl font-semibold mb-3">Filtres</h2>
+
+            <div className="mb-3">
+              <label className="text-gray-700 font-medium">Plage de dates</label>
+              <div className="flex flex-wrap gap-3 mt-1">
+                <div className="relative flex-1 min-w-[140px]">
+                  <Calendar className="absolute left-2.5 top-2.5 text-gray-500" size={16} />
+                  <input
+                    type="date"
+                    className="w-full h-10 pl-9 pr-3 rounded-md border border-gray-300 text-sm"
+                    value={dateRange.from}
+                    onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
+                  />
+                </div>
+                <div className="relative flex-1 min-w-[140px]">
+                  <Calendar className="absolute left-2.5 top-2.5 text-gray-500" size={16} />
+                  <input
+                    type="date"
+                    className="w-full h-10 pl-9 pr-3 rounded-md border border-gray-300 text-sm"
+                    value={dateRange.to}
+                    onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-3">
+              <label className="text-gray-700 font-medium">Statut</label>
+              <div className="relative mt-1">
+                <ChevronDown className="absolute left-2.5 top-2.5 text-gray-500" size={16} />
+                <select
+                  className="w-full h-10 pl-9 pr-3 rounded-md border border-gray-300 text-sm"
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value as IncidentStatus | '')}
+                >
+                  <option value="">Tous les statuts</option>
+                  <option value={IncidentStatus.DECLARE}>Déclaré</option>
+                  <option value={IncidentStatus.AFFECTE}>Affecté</option>
+                  <option value={IncidentStatus.EN_COURS_ANALYSE}>En cours d’analyse</option>
+                  <option value={IncidentStatus.TRANSFERE}>Transféré</option>
+                  <option value={IncidentStatus.RESOLU}>Résolu</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="flex gap-3 mt-3">
+              <button
+                onClick={() => {
+                  setFilterStatus('');
+                  setDateRange({ from: '', to: '' });
+                }}
+                className="flex-1 py-2 rounded-md bg-gray-200 text-gray-700 font-medium text-sm"
+              >
+                Réinitialiser
+              </button>
+              <button
+                onClick={() => setShowFilter(false)}
+                className="flex-1 py-2 rounded-md bg-green-500 text-white font-medium text-sm"
+              >
+                Appliquer
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="overflow-x-auto z-0">
+          <IncidentTable incidents={filteredIncidents} />
+        </div>
       </div>
+    </div>
   );
 }

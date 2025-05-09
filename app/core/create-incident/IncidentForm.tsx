@@ -9,7 +9,7 @@ import IncidentSummaryPopup from "@/app/core/create-incident/IncidentSummaryPopu
 import IncidentQuestions from "@/app/core/create-incident/IncidentQuestions";
 import IncidentHeader from "@/app/core/create-incident/IncidentHeader";
 import HeaderBar from "@/app/core/components/HeaderBar";
-import Sidebar from "@/app/core/SideBar/Sidebar";
+import Sidebar from "../SideBar/Sidebar";
 
 interface Question {
     id: string;
@@ -175,55 +175,55 @@ const IncidentForm = () => {
 
     return (
         <div className="flex bg-gray-100 min-h-screen">
-            <Sidebar />
-            <div className="flex-1 flex flex-col">
+        <Sidebar /> 
+        <div className="flex-1 flex flex-col">
                 <HeaderBar />
-                <div className="flex justify-center items-start p-10">
-                    <div className="w-full max-w-5xl space-y-6">
-                        <IncidentHeader step={étape} progress={progress} />
-                        <div className="bg-white/60 backdrop-blur-md rounded-2xl shadow-lg p-8">
-                            <IncidentQuestions
-                                questions={questionsIncident}
-                                answers={réponses}
-                                onAnswerChange={gérerChangementRéponse}
-                                errorFields={champErreur}
-                                refs={refs}
-                            />
-
-                            {sla && (
-                                <div className="text-right text-sm text-gray-600 font-medium mt-4">
-                                    ⏱️ SLA attribué : <span className="text-black font-bold">{sla}</span>
-                                </div>
-                            )}
-                            {priorité && (
-                                <div className="text-right text-sm text-gray-600 font-medium mt-2">
-                                    📌 Priorité calculée : <span className="text-black font-bold">{priorité}</span>
-                                </div>
-                            )}
-                            <div className="mt-6 text-center">
-                                <button
-                                    onClick={handleSubmitClick}
-                                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow transition"
-                                >
-                                    Soumettre l’incident
-                                </button>
+            <div className="flex justify-center items-start p-10">
+                <div className="w-full max-w-screen-2xl space-y-6">
+                    <IncidentHeader step={étape} progress={progress} />
+                    <div className="bg-white backdrop-blur-md rounded-2xl shadow-lg p-8">
+                        <IncidentQuestions
+                            questions={questionsIncident}
+                            answers={réponses}
+                            onAnswerChange={gérerChangementRéponse}
+                            errorFields={champErreur}
+                            refs={refs}
+                        />
+                        {sla && (
+                            <div className="text-right text-sm text-gray-600 font-medium mt-4">
+                                ⏱️ SLA attribué : <span className="text-black font-bold">{sla}</span>
                             </div>
+                        )}
+                        {priorité && (
+                            <div className="text-right text-sm text-gray-600 font-medium mt-2">
+                                📌 Priorité calculée : <span className="text-black font-bold">{priorité}</span>
+                            </div>
+                        )}
+                        <div className="mt-6 text-center">
+                            <button
+                                onClick={handleSubmitClick}
+                                className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg shadow transition"
+                            >
+                                Soumettre l’incident
+                            </button>
                         </div>
                     </div>
                 </div>
-
-                <IncidentSummaryPopup
-                    visible={afficherPopup}
-                    onClose={() => setAfficherPopup(false)}
-                    answers={réponses as { [key: string]: string }}
-                    sla={sla}
-                    priorité={priorité}
-                    reportDate={dateRapport}
-                />
-
-                <ToastContainer />
             </div>
+    
+            <IncidentSummaryPopup
+                visible={afficherPopup}
+                onClose={() => setAfficherPopup(false)}
+                answers={réponses as { [key: string]: string }}
+                sla={sla}
+                priorité={priorité}
+                reportDate={dateRapport}
+            />
+    
+            <ToastContainer />
         </div>
+    </div>
+    
     );
 };
 

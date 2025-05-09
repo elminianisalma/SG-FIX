@@ -3,7 +3,6 @@
 import React, { useState, useMemo } from 'react';
 import Sidebar from '@/app/core/SideBar/Sidebar';
 import HeaderBar from '@/app/core/components/HeaderBar';
-import HistoriquePopup from './historiquePopup';
 import FilterPopup from './FilterPopup';
 import {
     Search,
@@ -12,6 +11,7 @@ import {
     Filter,
     ArrowUpDown,
 } from 'lucide-react';
+import HistoriquePopup from './HistoriquePopup';
 
 interface Incident {
     id: string;

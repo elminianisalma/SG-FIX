@@ -9,7 +9,7 @@ const IncidentHeader = ({ step, progress }: IncidentHeaderProps) => {
     const isDeclaration = step === 1;
 
     return (
-        <div className="bg-black/75 backdrop-blur-sm border border-gray-900 rounded-xl shadow-md py-6 px-6 flex flex-col items-center justify-center space-y-3">
+        <div className="bg-black/75 backdrop-blur-sm border border-gray-900 rounded-xl bg-white shadow-md py-6 px-6 flex flex-col items-center justify-center space-y-3">
             {/* Icône rouge */}
             <div className="rounded-full bg-red-600 p-3 flex items-center justify-center">
                 {isDeclaration ? (
