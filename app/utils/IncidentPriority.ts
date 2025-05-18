@@ -4,8 +4,7 @@ export enum IncidentPriority {
     ELEVE = "Élevée",
     CRITIQUE = "Critique",
 }
-
-export const getPriorityStyle = (priority: IncidentPriority): string => {
+export const getPriorityStyle = (priority?: IncidentPriority): string => {
     switch (priority) {
         case IncidentPriority.FAIBLE:
             return 'bg-green-100 text-green-600 border border-green-500';

@@ -1,11 +1,12 @@
 "use client";
 
-import DetailedDashboards from "@/app/core/Dashboards/DetailedDashboards";
+import MainDashboard from "./MainDashboard";
+
 
 export default function Page() {
     return (
         <div>
-            <DetailedDashboards />
+            <MainDashboard />
         </div>
     );
 }

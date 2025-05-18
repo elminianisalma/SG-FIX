@@ -1,3 +1,4 @@
+"use client";
 import React, { useState } from "react";
 import Sidebar from "../SideBar/Sidebar";
 import {
@@ -70,7 +71,7 @@ const initialIncidents: Record<ColumnType, Incident[]> = {
   ],
 };
 
-export default function Home() {
+export default function IncidentStatutBoard() {
   const [columns, setColumns] = useState(initialIncidents);
   const [activeView, setActiveView] = useState("Board");
 

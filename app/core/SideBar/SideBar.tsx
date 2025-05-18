@@ -23,8 +23,6 @@ export default function Sidebar() {
 
     return (
         <>
-            <HeaderBar isSidebarHovered={isHovered} /> 
-
             <div
                 className={`bg-red-600 fixed top-0 left-0 z-10 text-white h-screen p-4 
                             transition-all duration-300 overflow-hidden 
@@ -44,15 +42,15 @@ export default function Sidebar() {
                 </div>
 
                 <nav className="flex flex-col space-y-6">
-                    <SidebarIcon icon={<FaSearch size={24} />} label="Search" isHovered={isHovered} onClick={() => router.push('/core/incidents-details')} />
-                    <SidebarIcon icon={<FaTasks size={24} />} label="Incidents" isHovered={isHovered} onClick={() => router.push('/core/incident-list')} />
-                    <SidebarIcon icon={<FaBell size={24} />} label="Notifications" isHovered={isHovered} onClick={() => router.push('/core/notification-page')} />
-                    <SidebarIcon icon={<FaServer size={24} />} label="Database" isHovered={isHovered} />
-                    <SidebarIcon icon={<FaChartPie size={24} />} label="Dashboard" isHovered={isHovered} onClick={() => router.push('/core/Dashboards')} />
-                    <SidebarIcon icon={<FaCalendarCheck size={24} />} label="Tasks" isHovered={isHovered} onClick={() => router.push('/core/tasks-dashboard')} />
-                    <SidebarIcon icon={<FaUsers size={24} />} label="Employees" isHovered={isHovered} onClick={() => router.push('/core/employees-dashboard')} />
-                    <SidebarIcon icon={<FaCloudSun size={24} />} label="API Weather" isHovered={isHovered} onClick={() => router.push('/core/api-meteo')}/>
-                    <SidebarIcon icon={<FaQuestionCircle size={24} />} label="Help" isHovered={isHovered} />
+                    <SidebarIcon icon={<FaSearch size={27} />} label="Search" isHovered={isHovered} onClick={() => router.push('/core/incidents-details')} />
+                    <SidebarIcon icon={<FaTasks size={27} />} label="Incidents" isHovered={isHovered} onClick={() => router.push('/core/incident-list')} />
+                    <SidebarIcon icon={<FaBell size={27} />} label="Notifications" isHovered={isHovered} onClick={() => router.push('/core/notification-page')} />
+                    <SidebarIcon icon={<FaServer size={27} />} label="Database" isHovered={isHovered} />
+                    <SidebarIcon icon={<FaChartPie size={27} />} label="Dashboard" isHovered={isHovered} onClick={() => router.push('/core/Dashboards')} />
+                    <SidebarIcon icon={<FaCalendarCheck size={27} />} label="Tasks" isHovered={isHovered} onClick={() => router.push('/core/tasks-dashboard')} />
+                    <SidebarIcon icon={<FaUsers size={27} />} label="Employees" isHovered={isHovered} onClick={() => router.push('/core/employees-dashboard')} />
+                    <SidebarIcon icon={<FaCloudSun size={27} />} label="API Weather" isHovered={isHovered} onClick={() => router.push('/core/api-meteo')}/>
+                    <SidebarIcon icon={<FaQuestionCircle size={27} />} label="Help" isHovered={isHovered} />
                 </nav>
             </div>
         </>

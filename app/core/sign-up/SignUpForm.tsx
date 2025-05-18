@@ -35,8 +35,8 @@ const SignInForm = () => {
 
             const roleToRoute: Record<string, string> = {
                 'Admin': '/core/Admin-homePage',
-                'Développeur': '/core/incident-en-cours',
-                'Business Analyst': '/core/historique-incident',
+                'Développeur': '/core/dev-homepage',
+                'Business Analyst': '/core/BA-homepage',
                 'Utilisateur': '/core/homePage', // ✅ Chemin corrigé
             };
 

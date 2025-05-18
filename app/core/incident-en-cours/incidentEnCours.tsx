@@ -1,82 +1,41 @@
 'use client';
-
 import React, { useState, useMemo } from 'react';
 import Sidebar from '@/app/core/SideBar/Sidebar';
 import HeaderBar from '@/app/core/components/HeaderBar';
-import IncidentEnCoursPopup from './IncidentEnCoursPopup';
-import {
-    Search,
-    Filter,
-    ArrowUpDown
-} from 'lucide-react';
-
-interface Incident {
-    id: string;
-    title: string;
-    createdAt: string;
-    status: string;
-    priority: string;
-    assignedTo?: string;
-    description?: string;
-    resolvedAt?: string;
-    transferredAt?: string;
-}
-
-const allIncidents: Incident[] = [
-    {
-        id: 'INC1001',
-        title: 'Erreur authentification',
-        createdAt: '2025-05-03',
-        status: 'IN_PROGRESS',
-        priority: 'CRITIQUE',
-        assignedTo: 'Aya Bouznari',
-        description: 'Incident critique empêchant l’accès à l’application.'
-    },
-    {
-        id: 'INC1002',
-        title: 'Problème API utilisateur',
-        createdAt: '2025-05-01',
-        status: 'IN_PROGRESS',
-        priority: 'HAUTE',
-        assignedTo: 'Yassine Farissi',
-        description: 'Réponses incohérentes sur l’API /user/data.'
-    }
-];
-
-const statusLabels: Record<string, string> = {
-    IN_PROGRESS: 'Pris en charge'
-};
-
-const getPriorityStyle = (priority: string) => {
-    const map = {
-        CRITIQUE: 'bg-red-100 text-red-700',
-        HAUTE: 'bg-orange-100 text-orange-700',
-        MOYENNE: 'bg-yellow-100 text-yellow-700',
-        BASSE: 'bg-green-100 text-green-700'
-    };
-    return map[priority] || 'bg-gray-200 text-gray-700';
-};
+import { Search, ArrowUpDown, SlidersHorizontal, User, Shield, Network, CalendarDays, MessageCircle } from 'lucide-react';
+import { Incident } from '@/app/utils/Incidents';
+import { IncidentStatus } from '@/app/utils/IncidentStatus';
+import { IncidentPriority, getPriorityStyle } from '@/app/utils/IncidentPriority';
+import { initialIncidents } from '../assign-incident/data';
+import IncidentEnCoursPopup from './IncidentEnCoursPopup'; // Assure-toi que le chemin est correct
 
 export default function IncidentsEnCoursDeTraitement() {
     const [searchTerm, setSearchTerm] = useState('');
-    const [sortPriority, setSortPriority] = useState('');
+    const [sortPriority, setSortPriority] = useState<'asc' | 'desc' | ''>('');
+    const [priorityFilter, setPriorityFilter] = useState<IncidentPriority | ''>('');
+    const [showFilter, setShowFilter] = useState<boolean>(false);
     const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
-    const [priorityFilter, setPriorityFilter] = useState('');
 
-    const incidentsFiltrés = useMemo(() => {
-        let result = allIncidents.filter(
+    const filteredIncidents = useMemo(() => {
+        let result = initialIncidents.filter(
             (incident) =>
-                incident.status === 'IN_PROGRESS' &&
+                [IncidentStatus.EN_COURS_ANALYSE, IncidentStatus.TRANSFERE].includes(incident.status) &&
                 (incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    incident.id.toLowerCase().includes(searchTerm.toLowerCase())) &&
-                (!priorityFilter || incident.priority === priorityFilter)
+                    incident.id.toString().includes(searchTerm)) &&
+                (!priorityFilter || incident.priorité === priorityFilter)
         );
 
-        if (sortPriority) {
-            result.sort((a, b) =>
-                ['CRITIQUE', 'HAUTE', 'MOYENNE', 'BASSE'].indexOf(a.priority) -
-                ['CRITIQUE', 'HAUTE', 'MOYENNE', 'BASSE'].indexOf(b.priority)
-            );
+        const priorityOrder = [
+            IncidentPriority.CRITIQUE,
+            IncidentPriority.ELEVE,
+            IncidentPriority.MOYEN,
+            IncidentPriority.FAIBLE,
+        ];
+
+        if (sortPriority === 'asc') {
+            result.sort((a, b) => priorityOrder.indexOf(a.priorité!) - priorityOrder.indexOf(b.priorité!));
+        } else if (sortPriority === 'desc') {
+            result.sort((a, b) => priorityOrder.indexOf(b.priorité!) - priorityOrder.indexOf(a.priorité!));
         }
 
         return result;
@@ -89,101 +48,124 @@ export default function IncidentsEnCoursDeTraitement() {
     };
 
     return (
-        <div className="flex bg-gray-50 min-h-screen text-[17px]">
+        <div className="flex bg-gray-50 min-h-screen text-[17px] relative">
             <Sidebar />
             <div className="flex-1 flex flex-col">
                 <HeaderBar />
-                <main className="p-6 max-w-7xl mx-auto w-full relative">
-                    <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
+                <main className="p-6 max-w-7xl mx-auto w-full">
+                    <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">
                         Incidents en cours de traitement
                     </h1>
 
-                    <div className="flex items-center justify-between mb-6">
-                        <div className="flex items-center gap-4">
-                            <select
-                                value={priorityFilter}
-                                onChange={(e) => setPriorityFilter(e.target.value)}
-                                className="border border-gray-300 rounded-md px-3 py-2"
-                            >
-                                <option value="">Toutes les priorités</option>
-                                <option value="CRITIQUE">Critique</option>
-                                <option value="HAUTE">Haute</option>
-                                <option value="MOYENNE">Moyenne</option>
-                                <option value="BASSE">Basse</option>
-                            </select>
-
-                            <button
-                                onClick={() => setSortPriority(sortPriority ? '' : 'true')}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded hover:bg-green-200"
-                            >
-                                <ArrowUpDown className="w-4 h-4" /> Trier par priorité
-                            </button>
-
-                            <button
-                                onClick={resetFilters}
-                                className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
-                            >
-                                Réinitialiser
-                            </button>
-                        </div>
-
-                        <div className="relative w-full max-w-md ml-auto">
-                            <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                        <div className="relative flex-1 w-full">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={20} />
                             <input
                                 type="text"
-                                placeholder="Rechercher par titre ou ID..."
+                                placeholder="Rechercher un incident..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md"
+                                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
+                        </div>
+
+                        <div className="flex items-center gap-4">
+                            <div className="relative">
+                                <button
+                                    onClick={() => setShowFilter(!showFilter)}
+                                    className="inline-flex items-center gap-1 px-4 py-3 bg-white border border-green-600 rounded-md shadow-sm hover:bg-gray-100 text-green-600 text-base font-medium"
+                                >
+                                    <SlidersHorizontal size={20} />
+                                    Filtres
+                                </button>
+
+                                {showFilter && (
+                                    <div className="absolute top-full mt-2 right-0 w-64 bg-white p-4 border border-gray-300 rounded-md shadow-lg z-20">
+                                        <label className="block mb-2 text-sm font-medium text-gray-700">
+                                            Filtrer par priorité
+                                        </label>
+                                        <select
+                                            value={priorityFilter}
+                                            onChange={(e) => setPriorityFilter(e.target.value as IncidentPriority)}
+                                            className="w-full p-2 mb-4 border border-gray-300 rounded-md"
+                                        >
+                                            <option value="">Toutes</option>
+                                            <option value={IncidentPriority.CRITIQUE}>Critique</option>
+                                            <option value={IncidentPriority.ELEVE}>Élevé</option>
+                                            <option value={IncidentPriority.MOYEN}>Moyenne</option>
+                                            <option value={IncidentPriority.FAIBLE}>Faible</option>
+                                        </select>
+                                    </div>
+                                )}
+                            </div>
+
+                            <button
+                                onClick={() => setSortPriority(sortPriority === 'asc' ? 'desc' : 'asc')}
+                                className="inline-flex items-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-100 text-base font-medium"
+                            >
+                                <ArrowUpDown size={20} />
+                                Trier par
+                            </button>
+                            <button
+                                onClick={resetFilters}
+                                className="inline-flex items-center gap-2 px-4 py-3 bg-red-100 text-red-700 rounded hover:bg-red-200"
+                            >
+                                Réinitialiser les filtres
+                            </button>
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-xl shadow overflow-x-auto">
-                        <table className="min-w-full text-left text-gray-700 text-[16px]">
-                            <thead className="bg-gray-100 text-sm uppercase">
-                            <tr>
-                                <th className="px-6 py-3">ID</th>
-                                <th className="px-6 py-3">Titre</th>
-                                <th className="px-6 py-3">Statut</th>
-                                <th className="px-6 py-3">Priorité</th>
-                                <th className="px-6 py-3">Créé le</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            {incidentsFiltrés.map((incident) => (
-                                <tr
-                                    key={incident.id}
-                                    className="hover:bg-gray-50 cursor-pointer border-b"
-                                    onClick={() => setSelectedIncident(incident)}
-                                >
-                                    <td className="px-6 py-4 font-medium">{incident.id}</td>
-                                    <td className="px-6 py-4">{incident.title}</td>
-                                    <td className="px-6 py-4">
-                                            <span className="inline-flex items-center gap-2 px-2 py-1 rounded-full bg-gray-200 text-sm font-medium text-gray-800">
-                                                ● {statusLabels[incident.status] || incident.status}
-                                            </span>
-                                    </td>
-                                    <td className="px-6 py-4">
-                                            <span className={`px-3 py-1 text-sm font-medium rounded-full ${getPriorityStyle(incident.priority)}`}>
-                                                {incident.priority}
-                                            </span>
-                                    </td>
-                                    <td className="px-6 py-4">{incident.createdAt}</td>
-                                </tr>
-                            ))}
-                            </tbody>
-                        </table>
-                    </div>
+                    <div className="grid grid-cols-1 gap-4">
+                        {filteredIncidents.map((incident) => (
+                            <div
+                                key={incident.id}
+                                className="border rounded-lg p-4 bg-white shadow-sm cursor-pointer hover:shadow-md transition"
+                                onClick={() => setSelectedIncident(incident)}
+                            >
+                                <div className="flex justify-between items-center">
+                                    <h2 className="text-xl font-semibold">{incident.title}</h2>
+                                    <span className={`px-2 py-1 text-sm rounded ${getPriorityStyle(incident.priorité)}`}>
+                                        {incident.priorité}
+                                    </span>
+                                </div>
 
-                    {selectedIncident && (
-                        <IncidentEnCoursPopup
-                            incident={selectedIncident}
-                            onClose={() => setSelectedIncident(null)}
-                        />
-                    )}
+                                <p className="mt-2 text-lg">{incident.description}</p>
+
+                                <div className="mt-3 space-y-1 text-lg">
+                                    <div className="flex items-center gap-2">
+                                        <User size={20} className="text-blue-500" />
+                                        Assigné à : {incident.assignedTo}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Network size={20} className="text-green-600" />
+                                        Service : {incident.affectedService} | Env : {incident.environment}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Shield size={20} className="text-purple-600" />
+                                        Déclaré par : {incident.declaredBy}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <CalendarDays size={20} className="text-orange-500" />
+                                        Date : {incident.declarationDate}
+                                    </div>
+                                   
+                                </div>
+                            </div>
+                        ))}
+
+                        {filteredIncidents.length === 0 && (
+                            <p className="text-center text-gray-500 mt-8">Aucun incident trouvé.</p>
+                        )}
+                    </div>
                 </main>
             </div>
+
+            {selectedIncident && (
+                    <IncidentEnCoursPopup incident={selectedIncident} onClose={() => setSelectedIncident(null)} />
+                
+                )}
+
+
         </div>
     );
 }

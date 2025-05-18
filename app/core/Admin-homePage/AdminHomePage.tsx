@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import Sidebar from '@/app/core/SideBar/SideBar';
 import HeaderBar from '@/app/core/components/HeaderBar';
 import {
     BarChart2,
@@ -9,6 +8,7 @@ import {
     AlertTriangle
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Sidebar from '../SideBar/Sidebar';
 
 const AdminHomePage = () => {
     const router = useRouter();

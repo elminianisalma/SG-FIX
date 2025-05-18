@@ -18,8 +18,8 @@ const HeaderBar = () => {
                 <Image
                     src="/images/logoImage.png"
                     alt="Logo SG-FIX"
-                    width={280}   // ✅ Agrandi
-                    height={90}   // ✅ Agrandi
+                    width={280}   
+                    height={90}   
                     priority
                 />
             </div>
