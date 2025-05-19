@@ -1,4 +1,4 @@
-import { Comment } from "../core/incident-en-cours/CommentModal";
+import { Comment } from "../view/incident-en-cours/CommentModal";
 import { IncidentPriority } from "./IncidentPriority";
 import { IncidentStatus } from "./IncidentStatus";
 import { IncidentUrgency } from "./IncidentUrgency";
