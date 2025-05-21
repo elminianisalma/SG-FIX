@@ -1,6 +1,5 @@
 'use client';
 import React, { useState, useMemo } from 'react';
-import Sidebar from '@/app/core/SideBar/Sidebar';
 import HeaderBar from '@/app/view/components/HeaderBar';
 import { Search, ArrowUpDown, SlidersHorizontal, User, Shield, Network, CalendarDays, MessageCircle } from 'lucide-react';
 import { Incident } from '@/app/utils/Incidents';
@@ -8,6 +7,7 @@ import { IncidentStatus } from '@/app/utils/IncidentStatus';
 import { IncidentPriority, getPriorityStyle } from '@/app/utils/IncidentPriority';
 import { initialIncidents } from '../assign-incident/data';
 import IncidentEnCoursPopup from './IncidentEnCoursPopup'; // Assure-toi que le chemin est correct
+import Sidebar from '../SideBarComponent/SideBar';
 
 export default function IncidentsEnCoursDeTraitement() {
     const [searchTerm, setSearchTerm] = useState('');

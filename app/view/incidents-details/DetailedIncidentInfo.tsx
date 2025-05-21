@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useRef } from "react";
-import Sidebar from "../SideBarComponent/Sidebar";
 import { Avatar } from "@mui/material";
 import { FaFileAlt, FaTimes , FaSyncAlt} from "react-icons/fa";
 import HeaderBar from "../components/HeaderBar";
+import Sidebar from "../SideBarComponent/SideBar";
 
 const currentIncident = {
     id: "ID1238957",

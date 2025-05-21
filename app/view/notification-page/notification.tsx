@@ -3,10 +3,10 @@ import { Card, CardContent } from "../../common/Card";
 import { Button } from "../../common/Button";
 import { Avatar } from "../../common/avatar";
 import { SignalIcon } from "lucide-react";
-import Sidebar from "@/app/core/SideBarComponent/SideBar";
 import ReassignModal from "./ReaffectModal";
 import { useRouter } from 'next/navigation';
 import {getPriorityStyle, IncidentPriority} from "@/app/utils/IncidentPriority";
+import Sidebar from "../SideBarComponent/SideBar";
 
 export default function IncidentNotificationPage() {
     const [showReassignDialog, setShowReassignDialog] = useState(false);

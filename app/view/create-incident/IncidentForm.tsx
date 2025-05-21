@@ -10,6 +10,7 @@ import IncidentQuestions from "@/app/view/create-incident/IncidentQuestions";
 import IncidentHeader from "@/app/view/create-incident/IncidentHeader";
 import HeaderBar from "@/app/view/components/HeaderBar";
 import Sidebar from "../SideBarComponent/SideBar";
+import { Incident } from "@/app/models/Incident";
 
 interface Question {
     id: string;
@@ -170,8 +171,32 @@ const IncidentForm = () => {
             }
         });
 
-        setRéponses(transformedAnswers);
+        const incidentBody: Incident = {
+        titre: transformedAnswers.shortDescription || "",
+        description: transformedAnswers.details || "",
+        gravité: transformedAnswers.impact || "",
+        priorité: priorité,
+        clientIgg: transformedAnswers.ClientName || "",
+        coeDevIgg: null,
+        environnement: transformedAnswers.environment || "",
+        tags: (réponses.tags as string[]) || [],
+        application: transformedAnswers.ClientName || ""  // ou un autre champ si tu en as un spécifique
+    };
+         try {
+        const response = await IncidentService.createIncident(incidentBody);
+        console.log("Incident créé avec succès :", response);
+        toast.success("Incident créé avec succès !");
         setAfficherPopup(true);
+        setRéponses({}); // si tu veux reset le formulaire
+    } catch (error) {
+        console.error("Erreur lors de la création de l'incident :", error);
+        toast.error("Erreur lors de la création de l'incident.");
+    }
+
+        setRéponses(transformedAnswers);
+        console.log("Réponses soumises :", transformedAnswers);
+        setAfficherPopup(true);
+
     };
 
     return (

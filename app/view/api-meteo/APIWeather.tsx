@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import Sidebar from '@/app/core/SideBar/Sidebar';
 import { FaCloudSun, FaCloudShowersHeavy, FaBolt } from 'react-icons/fa';
+import Sidebar from '../SideBarComponent/SideBar';
 
 const apiNames = ['API 1', 'API 2', 'API 3', 'API 4'];
 

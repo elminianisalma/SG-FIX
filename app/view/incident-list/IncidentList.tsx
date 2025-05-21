@@ -6,11 +6,11 @@ import {
   SlidersHorizontal,
   Search,
 } from 'lucide-react';
-import Sidebar from '@/app/core/SideBar/Sidebar';
 import IncidentTable from './IncidentTable';
 import KpiDashboard from './KpiDashboard';
 import { Incident, IncidentStatus } from '../../utils/TypeIncident';
 import { calculatePriority } from '../../utils/calculatePriority';
+import Sidebar from '../SideBarComponent/SideBar';
 
 export default function IncidentList() {
   const [incidents] = useState<Incident[]>([

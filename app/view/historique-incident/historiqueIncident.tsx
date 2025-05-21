@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import Sidebar from '@/app/core/SideBar/Sidebar';
 import HeaderBar from '@/app/view/components/HeaderBar';
 import FilterPopup from './FilterPopup';
 import {
@@ -12,6 +11,7 @@ import {
     ArrowUpDown,
 } from 'lucide-react';
 import HistoriquePopup from './HistoriquePopup';
+import Sidebar from '../SideBarComponent/SideBar';
 
 interface Incident {
     id: string;

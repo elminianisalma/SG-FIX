@@ -4,7 +4,7 @@ import React from 'react';
 import HeaderBar from '@/app/view/components/HeaderBar';
 import { BarChart2, Users, AlertTriangle, Bell, UserCheck, ClipboardCheck } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Sidebar from '../SideBarComponent/Sidebar';
+import Sidebar from '../SideBarComponent/SideBar';
 
 const BAHomePage = () => {
   const router = useRouter();
@@ -13,31 +13,31 @@ const BAHomePage = () => {
     {
       title: "Liste des incidents",
       icon: <AlertTriangle className="w-6 h-6 text-red-500" />,
-      onClick: () => router.push("/core/incidents"),
+      onClick: () => router.push("/view/incidents"),
       description: "Consulter tous les incidents déclarés.",
     },
     {
       title: "Affecter un incident",
       icon: <ClipboardCheck className="w-6 h-6 text-blue-600" />,
-      onClick: () => router.push("/core/assign-incident"),
+      onClick: () => router.push("/view/assign-incident"),
       description: "Assigner un incident à un développeur.",
     },
     {
       title: "Disponibilité des développeurs",
       icon: <UserCheck className="w-6 h-6 text-green-600" />,
-      onClick: () => router.push("/core/dev-disponibility"),
+      onClick: () => router.push("/view/dev-disponibility"),
       description: "Voir les développeurs disponibles.",
     },
     {
       title: "Tableau de bord",
       icon: <BarChart2 className="w-6 h-6 text-purple-600" />,
-      onClick: () => router.push("/core/dashboard-ba"),
+      onClick: () => router.push("/view/dashboard-ba"),
       description: "Visualiser les statistiques.",
     },
     {
       title: "Notifications",
       icon: <Bell className="w-6 h-6 text-orange-500" />,
-      onClick: () => router.push("/core/notifications"),
+      onClick: () => router.push("/view/notifications"),
       description: "Voir les incidents récemment déclarés.",
     },
   ];
