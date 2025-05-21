@@ -1,7 +1,7 @@
 import { Comment } from "../view/incident-en-cours/CommentModal";
 import { IncidentPriority } from "./IncidentPriority";
 import { IncidentStatus } from "./IncidentStatus";
-import { IncidentUrgency } from "./IncidentUrgency";
+import { IncidentUrgency } from "./IncidentGravity";
 
 export interface Attachment {
   name: string;
