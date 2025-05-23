@@ -1,7 +1,7 @@
 import { Comment } from "../view/incident-en-cours/CommentModal";
+import { IncidentGravity } from "./IncidentGravity";
 import { IncidentPriority } from "./IncidentPriority";
 import { IncidentStatus } from "./IncidentStatus";
-import { IncidentUrgency } from "./IncidentGravity";
 
 export interface Attachment {
   name: string;
@@ -26,7 +26,7 @@ export interface Incident {
   tags?: string[]; // Ajout de tags
   priorité?: IncidentPriority; // Priorité (Low, Medium, High)
   environment?: 'Dev' | 'HF' | 'HT' | 'Prod'; // Environnement
-  urgency?: IncidentUrgency; // Urgence
+  gravité?: IncidentGravity; // Urgence
   description?: string; // Description de l'incident
   attachments?: Attachment[];
 }

@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import Sidebar from "../SideBarComponent/Sidebar";
 import HeaderBar from "../components/HeaderBar";
 import {
   Search,
@@ -19,6 +18,7 @@ import { Incident } from "@/app/utils/Incidents";
 import { initialIncidents } from "../assign-incident/data";
 import { IncidentStatus } from "@/app/utils/IncidentStatus";
 import { IncidentPriority } from "@/app/utils/IncidentPriority";
+import Sidebar from "../SideBarComponent/SideBar";
 
 export type ColumnType = "A Faire" | "En cours d’analyse" | "Résolu";
 

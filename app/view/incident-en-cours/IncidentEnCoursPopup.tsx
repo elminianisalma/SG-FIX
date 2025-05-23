@@ -20,11 +20,12 @@ import {
 } from 'lucide-react';
 import { getStatusStyle, IncidentStatus } from '@/app/utils/IncidentStatus';
 import { getPriorityStyle, IncidentPriority } from '@/app/utils/IncidentPriority';
-import { Incident } from '@/app/utils/Incidents';
+
 import AttachmentsSection from './AttachementSection';
+import { IncidentDetail } from '@/app/models/IncidentDetail';
 
 interface Props {
-  incident: Incident;
+  incident: IncidentDetail;
   onClose: () => void;
 }
 
@@ -56,38 +57,38 @@ const AvatarInitials = ({ name }: { name: string }) => {
   );
 };
 
-const getSteps = (incident: Incident) => [
+const getSteps = (incident: IncidentDetail) => [
   {
     label: 'Création',
     status: true,
     icon: <Clock className="w-6 h-6 text-blue-600" />,
     color: 'text-blue-600',
-    details: `Le ${new Date(incident.declarationDate).toLocaleDateString()} à ${new Date(
-      incident.declarationDate
+    details: `Le ${new Date(incident.dateDeclaration)} à ${new Date(
+      incident.dateDeclaration
     ).toLocaleTimeString()}`,
   },
   {
     label: 'Affecté',
-    status: !!incident.assignedTo,
+    status: !!incident.client_fullName,
     icon: <User className="w-6 h-6 text-orange-500" />,
     color: 'text-orange-500',
-    details: incident.assignedTo ? `Assigné à ${incident.assignedTo}` : 'Non assigné',
+    details: incident.client_fullName? `Assigné à ${incident.client_firstName}` : 'Non assigné',
   },
   {
     label: 'En traitement',
     status: [
-      IncidentStatus.EN_COURS_ANALYSE,
+      IncidentStatus.PRIS_EN_CHARGE,
       IncidentStatus.RESOLU,
       IncidentStatus.TRANSFERE,
-    ].includes(incident.status),
+    ].includes(incident.statutIncident),
     icon: <Loader2 className="w-6 h-6 text-yellow-500 animate-spin" />,
     color: 'text-yellow-500',
     details:
-      incident.status === IncidentStatus.EN_COURS_ANALYSE
+      incident.statutIncident === IncidentStatus.PRIS_EN_CHARGE
         ? "L'incident est en cours d'analyse."
-        : incident.status === IncidentStatus.RESOLU
+        : incident.statutIncident === IncidentStatus.RESOLU
         ? "L'incident a été traité et est en cours de clôture."
-        : incident.status === IncidentStatus.TRANSFERE
+        : incident.statutIncident === IncidentStatus.TRANSFERE
         ? "L'incident a été transmis à une autre équipe."
         : 'En attente de traitement.',
   },
@@ -119,14 +120,14 @@ const IncidentEnCoursPopup = ({ incident, onClose }: Props) => {
     {/* TITRE INCIDENT */}
     <div className="mb-6">
       <h3 className="text-xl font-semibold text-gray-800 flex flex-wrap items-center gap-3 break-words">
-        <span className="break-words max-w-full">{incident.title}</span>
-        {incident.priorité && (
+        <span className="break-words max-w-full">{incident.titre}</span>
+        {incident.priorite && (
           <span
             className={`inline-flex items-end px-3 py-1 rounded-full text-base font-medium ${getPriorityStyle(
-              incident.priorité
+              incident.priorite
             )}`}
           >
-            {incident.priorité}
+            {incident.priorite}
           </span>
         )}
       </h3>
@@ -137,64 +138,49 @@ const IncidentEnCoursPopup = ({ incident, onClose }: Props) => {
           <div className="flex items-center gap-2">
             <Info className="w-6 h-6 text-blue-600" />
             <strong className="font-semibold">Status :</strong>{' '}
-            <span className={`${getStatusStyle(incident.status)} font-semibold rounded-full px-3`}>
-              {incident.status}
+            <span className={`${getStatusStyle(incident.statutIncident)} font-semibold rounded-full px-3`}>
+              {incident.statutIncident}
             </span>
           </div>
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-6 h-6 text-red-600" />
-            <strong className="font-semibold">Urgence :</strong> {incident.urgency || 'Non spécifiée'}
+            <strong className="font-semibold">Gravité :</strong> {incident.gravite || 'Non spécifiée'}
           </div>
           <div className="flex items-center gap-2">
             <Cloud className="w-6 h-6 text-cyan-600" />
-            <strong className="font-semibold">Environnement :</strong> {incident.environment || 'Non précisé'}
+            <strong className="font-semibold">Environnement :</strong> {incident.environnement|| 'Non précisé'}
           </div>
           <div className="flex items-center gap-2">
             <Network className="w-6 h-6 text-green-600" />
-            <strong className="font-semibold">Service impacté :</strong> {incident.affectedService}
+            <strong className="font-semibold">Service impacté :</strong> {incident.application}
           </div>
           <div className="flex items-center gap-2">
             <UserCheck className="w-6 h-6 text-purple-600" />
             <strong className="font-semibold">Déclaré par :</strong>{' '}
-            {incident.declaredBy ? <AvatarInitials name={incident.declaredBy} /> : 'Inconnu'}
-            <span>{incident.declaredBy}</span>
+            {incident.clientSub ? <AvatarInitials name={incident.client_fullName} /> : 'Inconnu'}
+            <span>{incident.client_fullName}</span>
           </div>
           <div className="flex items-center gap-2">
             <User className="w-6 h-6 text-orange-500" />
             <strong className="font-semibold">Assigné à :</strong>{' '}
-            {incident.assignedTo ? <AvatarInitials name={incident.assignedTo} /> : 'Non assigné'}
-            <span>{incident.assignedTo}</span>
+            {incident.coeDev_fullName ? <AvatarInitials name={incident.coeDev_firstName} /> : 'Non assigné'}
+            <span>{incident.coeDev_fullName}</span>
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="w-6 h-6 text-blue-600" />
             <strong className="font-semibold">Date de déclaration :</strong>{' '}
-            {new Date(incident.declarationDate).toLocaleString()}
+            {new Date(incident.dateDeclaration).toLocaleString()}
           </div>
-          {incident.resolutionDate && (
+          {incident.dateResolution && (
             <div className="flex items-center gap-2">
               <Check className="w-6 h-6 text-green-600" />
               <strong className="font-semibold">Date de résolution :</strong>{' '}
-              {new Date(incident.resolutionDate).toLocaleString()}
+              {new Date(incident.dateResolution).toLocaleString()}
             </div>
           )}
         </div>
 
-        {incident.tags && incident.tags.length > 0 && (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 flex-wrap">
-              <Tag className="w-6 h-6 text-pink-600" />
-              <strong className="text-base font-semibold text-gray-800 mr-2">Tags :</strong>
-              {incident.tags.map((tag, idx) => (
-                <span
-                  key={idx}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-base font-medium bg-gray-200 text-gray-800"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
+       
 
         {incident.description && (
           <div className="mb-6">
@@ -218,129 +204,10 @@ const IncidentEnCoursPopup = ({ incident, onClose }: Props) => {
             >
               Activités
             </button>
-            {incident.comments && (
-              <button
-                className={`px-4 py-2 text-base font-medium ${
-                  activeTab === 'comments'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setActiveTab('comments')}
-              >
-                Commentaires
-                <span className="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white bg-blue-600 rounded-full">
-                  3
-                </span>
-              </button>
-            )}
-            {incident.documentation && (
-              <button
-                className={`px-4 py-2 text-base font-medium ${
-                  activeTab === 'documentation'
-                    ? 'border-b-2 border-blue-600 text-blue-600'
-                    : 'text-gray-500 hover:text-gray-700'
-                }`}
-                onClick={() => setActiveTab('documentation')}
-              >
-                Attachements
-              </button>
-            )}
+          
+          </div>
+
          
-          </div>
-
-          <div className="p-4 bg-gray-50 rounded-lg mt-4">
-            {activeTab === 'comments' && incident.comments && (
-              <div>
-                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                  {incident.comments.map((comment, idx) => (
-                    <div key={idx} className="p-3">
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-full flex items-center justify-center bg-blue-500 text-white font-bold text-sm">
-                            {comment.author
-                              .split(' ')
-                              .map(word => word[0]?.toUpperCase())
-                              .slice(0, 2)
-                              .join('')}
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-center mb-1">
-                            <span className="font-semibold text-gray-800">{comment.author}</span>
-                            <span className="text-xs text-gray-500">
-                              {comment.date ? new Date(comment.date).toLocaleString() : ''}
-                            </span>
-                          </div>
-                          <p className="text-gray-700">{comment.message}</p>
-                          <div className="flex gap-2 mt-2">
-                            <button className="flex items-center gap-1 text-gray-500 hover:text-blue-600 text-sm">
-                              <ThumbsUp className="w-4 h-4" />
-                              Like
-                            </button>
-                            <button className="flex items-center gap-1 text-gray-500 hover:text-blue-600 text-sm">
-                              <MessageSquare className="w-4 h-4" />
-                              Reply
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Section pour ajouter un commentaire */}
-                <div className="border-t pt-4 mt-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-2">Ajouter un commentaire</h3>
-                  <div className="flex items-start gap-3">
-                    <div className="flex-shrink-0">
-                      <AvatarInitials name="Meriem Oulja" />
-                    </div>
-                    <div className="flex-1 flex flex-col gap-2">
-                      <textarea
-                        rows={3}
-                        className="w-full p-3 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-                        placeholder="Écrivez un commentaire..."
-                      />
-                      <div className="flex justify-end">
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition">
-                          Envoyer
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'documentation' && incident.documentation && (
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Info className="w-6 h-6 text-blue-600" />
-                  <strong className="text-base font-semibold text-gray-800">Documentation :</strong>
-                </div>
-                <p className="text-lg text-gray-600">{incident.documentation}</p>
-              </div>
-            )}
-
-            {activeTab === 'historique' && (
-              <div>
-                <h3 className="text-base font-semibold text-gray-800 mb-3">Historique</h3>
-                <ol className="relative border-l-2 border-gray-200 ml-4 pl-4 space-y-4">
-                  {steps.map((step, index) => (
-                    <li key={index} className="relative flex gap-3 items-start">
-                      <div>{step.icon}</div>
-                      <div>
-                        <p className={`text-base font-semibold ${step.status ? step.color : 'text-gray-400'}`}>
-                          {step.label}
-                        </p>
-                        <p className="text-sm text-gray-500 max-w-lg">{step.details}</p>
-                      </div>
-                    </li>
-                  ))}
-                </ol>
-              </div>
-            )}
-          </div>
         </div>
 
         <div className="text-center mt-6">

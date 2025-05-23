@@ -50,7 +50,7 @@ const IncidentSummaryPopup = ({
 
         setTimeout(() => {
             onClose();
-            router.push("/core/homePage");
+            router.push("/view/homePage");
         }, 3200);
     };
 

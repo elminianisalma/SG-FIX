@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import {
   ArrowUpDown, Download, Search, SlidersHorizontal
 } from "lucide-react";
-import Sidebar from '../SideBarComponent/Sidebar';
 import HeaderBar from '../components/HeaderBar';
 import { IncidentStatus } from '@/app/utils/IncidentStatus';
 import { Incident } from '@/app/utils/Incidents';
@@ -13,10 +12,13 @@ import { IncidentCard } from './Incident-card';
 import { IncidentPriority } from '@/app/utils/IncidentPriority';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Sidebar from '../SideBarComponent/SideBar';
+import IncidentEnCoursPopup from '../incident-en-cours/IncidentEnCoursPopup';
+import { IncidentDetail } from '@/app/models/IncidentDetail';
 
 const IncidentAssignment: React.FC = () => {
-  const [incidents, setIncidents] = useState<Incident[]>(initialIncidents || []);
-  const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
+  const [incidents, setIncidents] = useState<IncidentDetail []>(initialIncidents || []);
+  const [selectedIncident, setSelectedIncident] = useState<IncidentDetail| null>(null);
   const [assignee, setAssignee] = useState<string>("");
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [showFilter, setShowFilter] = useState<boolean>(false);
@@ -26,20 +28,20 @@ const IncidentAssignment: React.FC = () => {
 
   // Fonction pour obtenir la valeur numérique de la priorité (pour le tri)
   const priorityValue = (p?: IncidentPriority): number => {
-    if (p === IncidentPriority.ELEVE) return 3;
-    if (p === IncidentPriority.MOYEN) return 2;
+    if (p === IncidentPriority.ELEVEE) return 3;
+    if (p === IncidentPriority.MOYENNE) return 2;
     if (p === IncidentPriority.FAIBLE) return 1;
     return 0;
   };
 
-  const handleAssign = (incident: Incident) => {
+  const handleAssign = (incident: IncidentDetail) => {
     setSelectedIncident(incident);
-    setAssignee(incident.assignedTo || "");
+    setAssignee(incident.client_firstName || "");
   };
 
   const handleSortByPriority = () => {
     const sorted = [...incidents].sort((a, b) =>
-      priorityValue(b.priorité) - priorityValue(a.priorité)
+      priorityValue(b.priorite) - priorityValue(a.priorite)
     );
     setIncidents(sorted);
     setIsSortedByPriority(true);
@@ -50,7 +52,7 @@ const IncidentAssignment: React.FC = () => {
       setIncidents(incidents.map(inc =>
         inc.id === selectedIncident.id ? { ...inc, assignedTo: assignee } : inc
       ));
-      toast.success(`Incident "${selectedIncident.title}" affecté à ${assignee} avec succès !`, {
+      toast.success(`Incident "${selectedIncident.titre}" affecté à ${assignee} avec succès !`, {
         position: "bottom-center",
         autoClose: 4000,
         hideProgressBar: false,
@@ -74,11 +76,11 @@ const IncidentAssignment: React.FC = () => {
   const incidentsPerPage = 3;
 
   const filteredIncidents = incidents
-    .filter(i => i.status !== IncidentStatus.RESOLU)
+    .filter(i => i.statutIncident !== IncidentStatus.RESOLU)
     .filter(i =>
-      (!filterPriority || i.priorité === filterPriority) &&
-      (!searchTerm || i.title.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (!filterDate || i.declarationDate === filterDate)
+      (!filterPriority || i.priorite === filterPriority) &&
+      (!searchTerm || i.titre.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (!filterDate || i.dateDeclaration === filterDate)
     );
 
   const paginatedIncidents = filteredIncidents.slice(
@@ -145,8 +147,8 @@ const IncidentAssignment: React.FC = () => {
                       className="w-full p-2 mb-4 border border-gray-300 rounded-md"
                     >
                       <option value="">Toutes</option>
-                      <option value={IncidentPriority.ELEVE}>Élevée</option>
-                      <option value={IncidentPriority.MOYEN}>Moyenne</option>
+                      <option value={IncidentPriority.ELEVEE}>Élevée</option>
+                      <option value={IncidentPriority.MOYENNE}>Moyenne</option>
                       <option value={IncidentPriority.FAIBLE}>Faible</option>
                     </select>
 
@@ -195,10 +197,7 @@ const IncidentAssignment: React.FC = () => {
             </div>
           </div>
 
-          {/* Ici tu peux afficher le formulaire d'assignation avec un bouton qui appelle handleSubmitAssignment */}
-          {selectedIncident && (
-              <ToastContainer />            
-          )}
+      
 
           {/* ToastContainer doit être présent une seule fois dans ton app ou dans ce composant */}
           

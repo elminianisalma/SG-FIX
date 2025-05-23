@@ -38,7 +38,7 @@ const IncidentForm = () => {
   const questionsIncident: Question[] = [
     {
       id: "application",
-      text: "Quel DU (Delivery Unit) est concerné par l’incident ?",
+      text: "Quel application est concerné par l’incident ?",
       type: "select",
       options: ["BILL_PAYMENT", "Bankup", "Interop", "OpenR", "Cockpit"]
     },
@@ -46,7 +46,7 @@ const IncidentForm = () => {
       id: "environment",
       text: "Quel est l’environnement affecté ?",
       type: "radio",
-      options: ["Dev", "HF", "HT", "Prod"]
+      options: ["Dev", "HF", "HT", "Stabilisation"]
     },
     {
       id: "gravité",
@@ -104,12 +104,11 @@ const IncidentForm = () => {
         "MINEUR": IncidentPriority.MOYENNE
       };
       const gravite = réponses["gravité"] as string;
-console.log("gravite sélectionnée :", gravite);
 
 
       const nouvellePriorité = prioritéMap[gravite];
       setPriorité(nouvellePriorité);
-     console.log('priorite:',nouvellePriorité);
+      console.log('priorite:',nouvellePriorité);
       const slaMap: Record<IncidentPriority, string> = {
         [IncidentPriority.MOYENNE]: "8 heures",
         [IncidentPriority.ELEVEE]: "4 heures",
@@ -148,7 +147,6 @@ console.log("gravite sélectionnée :", gravite);
         transformedAnswers[key] = val.join(", ");
       }
     }
-      console.log('priorite:',priorité);
     const incidentBody: Incident = {
       titre: transformedAnswers.shortDescription || "",
       description: transformedAnswers.details || "",
