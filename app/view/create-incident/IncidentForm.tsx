@@ -34,6 +34,7 @@ const IncidentForm = () => {
   const [dateRapport] = useState(new Date().toLocaleString());
 
   const refs = useRef<{ [key: string]: HTMLDivElement | null }>({});
+  const [transformedAnswers, setTransformedAnswers] = useState<{ [key: string]: string }>({});
 
   const questionsIncident: Question[] = [
     {
@@ -120,57 +121,62 @@ const IncidentForm = () => {
     }
   }, [réponses["gravité"]]);
 
-  const handleSubmitClick = async () => {
-    const champsManquants = questionsIncident.filter((q) => {
-      const val = réponses[q.id];
-      if (q.type === "file") return !(val as FileList)?.length;
-      if (q.type === "multitag") return !(val as string[])?.length;
-      return !val;
-    });
+ const handleSubmitClick = async () => {
+  const champsManquants = questionsIncident.filter((q) => {
+    const val = réponses[q.id];
+    if (q.type === "file") return !(val as FileList)?.length;
+    if (q.type === "multitag") return !(val as string[])?.length;
+    return !val;
+  });
 
-    if (champsManquants.length > 0) {
-      const ids = champsManquants.map((q) => q.id);
-      setChampErreur(ids);
-      const firstId = ids[0];
-      refs.current[firstId]?.scrollIntoView({ behavior: "smooth", block: "center" });
-      toast.error("Veuillez remplir tous les champs.");
-      return;
-    }
+  if (champsManquants.length > 0) {
+    const ids = champsManquants.map((q) => q.id);
+    setChampErreur(ids);
+    const firstId = ids[0];
+    refs.current[firstId]?.scrollIntoView({ behavior: "smooth", block: "center" });
+    toast.error("Veuillez remplir tous les champs.");
+    return;
+  }
 
-    const transformedAnswers: { [key: string]: string } = {};
-    for (const [key, val] of Object.entries(réponses)) {
-      if (typeof val === "string") {
-        transformedAnswers[key] = val;
-      } else if (val instanceof FileList) {
-        transformedAnswers[key] = Array.from(val).map((f) => f.name).join(", ");
-      } else if (Array.isArray(val)) {
-        transformedAnswers[key] = val.join(", ");
-      }
+  const transformed: { [key: string]: string } = {};
+  for (const [key, val] of Object.entries(réponses)) {
+    if (typeof val === "string") {
+      transformed[key] = val;
+    } else if (val instanceof FileList) {
+      transformed[key] = Array.from(val).map((f) => f.name).join(", ");
+    } else if (Array.isArray(val)) {
+      transformed[key] = val.join(", ");
     }
-    const incidentBody: Incident = {
-      titre: transformedAnswers.shortDescription || "",
-      description: transformedAnswers.details || "",
-      gravite: transformedAnswers.gravité || "",
-      priorite: priorité || "",
-      clientIgg: "BHAHAH", // 🔧 Remplacer avec la vraie valeur
-      coeDevIgg: null,
-      environnement: transformedAnswers.environment || "",
-      tags: (réponses.tags as string[]) || [],
-      application: transformedAnswers.application || ""
-    };
+  }
 
-    try {
-      const response = await IncidentService.createIncident(incidentBody);
-      toast.success("Incident créé avec succès !");
-      setAfficherPopup(true);
-      setRéponses({});
-    } catch (error) {
-      console.error("Erreur lors de la création de l'incident :", error);
-      toast.error("Erreur lors de la création de l'incident.");
-    }
-    console.log('reponse:',incidentBody);
-    
+  // ✅ Mettre à jour l'état avant de montrer le popup
+  setTransformedAnswers(transformed);
+
+  const incidentBody: Incident = {
+    titre: transformed.shortDescription || "",
+    description: transformed.details || "",
+    gravite: transformed.gravité || "",
+    priorite: priorité || "",
+    clientIgg: "BHAHAH",
+    coeDevIgg: null,
+    environnement: transformed.environment || "",
+    tags: (réponses.tags as string[]) || [],
+    application: transformed.application || ""
   };
+
+  try {
+    const response = await IncidentService.createIncident(incidentBody);
+    toast.success("Incident créé avec succès !");
+    setAfficherPopup(true); // ✅ Le popup affichera maintenant les bonnes données
+    setRéponses({});
+  } catch (error) {
+    console.error("Erreur lors de la création de l'incident :", error);
+    toast.error("Erreur lors de la création de l'incident.");
+  }
+
+  console.log("reponse:", incidentBody);
+};
+
 
   return (
     <div className="flex bg-gray-100 min-h-screen">
@@ -212,14 +218,15 @@ const IncidentForm = () => {
           </div>
         </div>
 
-        <IncidentSummaryPopup
-          visible={afficherPopup}
-          onClose={() => setAfficherPopup(false)}
-          answers={réponses as { [key: string]: string }}
-          sla={sla}
-          priorité={priorité}
-          reportDate={dateRapport}
+    <IncidentSummaryPopup
+        visible={afficherPopup}
+        onClose={() => setAfficherPopup(false)}
+        answers={transformedAnswers}
+        sla={sla}
+        priorité={priorité}
+        reportDate={dateRapport}
         />
+
 
         <ToastContainer />
       </div>
