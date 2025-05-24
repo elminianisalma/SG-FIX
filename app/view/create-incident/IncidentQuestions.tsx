@@ -85,7 +85,7 @@ const IncidentQuestions = ({
       case "radio":
   let options;
   switch (q.id) {
-    case "gravité":
+    case "à":
       options = Object.keys(IncidentGravity);
       break;
 

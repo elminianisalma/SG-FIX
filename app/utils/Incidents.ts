@@ -1,4 +1,5 @@
 import { Comment } from "../view/incident-en-cours/CommentModal";
+import { EnvironmentIncident } from "./EnvironnemntIncident";
 import { IncidentGravity } from "./IncidentGravity";
 import { IncidentPriority } from "./IncidentPriority";
 import { IncidentStatus } from "./IncidentStatus";
@@ -12,21 +13,14 @@ export interface Attachment {
 
 
 export interface Incident {
-  id: string;
-  title: string;
-  progress: number;
-  assignedTo?: string;
-  comments?: Comment[];  // Modifié pour contenir un tableau de Comment
-  documentation?: string;
-  declarationDate: string;
-  resolutionDate?: string;
-  declaredBy: string;
-  status: IncidentStatus;
-  affectedService: string;
-  tags?: string[]; // Ajout de tags
-  priorité?: IncidentPriority; // Priorité (Low, Medium, High)
-  environment?: 'Dev' | 'HF' | 'HT' | 'Prod'; // Environnement
-  gravité?: IncidentGravity; // Urgence
-  description?: string; // Description de l'incident
-  attachments?: Attachment[];
+        id: BigInt,
+        title: string,
+        description:string,
+        status:string,
+        priorité: string,
+        declarationDate: string,
+        affectedService: string,
+        environment:string,
+        declaredBy: string,
+        assignedTo:string,
 }

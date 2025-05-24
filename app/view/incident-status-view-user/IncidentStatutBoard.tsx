@@ -1,6 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import Sidebar from "../SideBarComponent/Sidebar";
 import {
   ExclamationTriangleIcon,
   Cog6ToothIcon,
@@ -9,6 +8,7 @@ import {
   AdjustmentsHorizontalIcon,
 } from "@heroicons/react/24/outline";
 import HeaderBar from "../components/HeaderBar";
+import Sidebar from "../SideBarComponent/SideBar";
 
 type Incident = {
   id: number;

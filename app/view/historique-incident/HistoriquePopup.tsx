@@ -4,26 +4,11 @@ import React from 'react';
 import {
     X, Info, CheckCircle, AlertCircle, CalendarDays, User, Tag, Clock, Copy, Check
 } from 'lucide-react';
-
-interface Incident {
-    id: string;
-    title: string;
-    createdAt: string;
-    updatedAt?: string;
-    resolvedAt?: string;
-    status: string;
-    priority: string;
-    description?: string;
-    assignedTo?: string;
-    assignedToName?: string;
-    createdBy?: string;
-    category?: string;
-    similarIncidents?: Array<Pick<Incident, 'id' | 'title' | 'priority' | 'status'>>;
-    transferredAt?: string;
-}
+import { IncidentDetail } from '@/app/models/IncidentDetail';
+import { IncidentStatus } from '@/app/utils/IncidentStatus';
 
 interface Props {
-    incident: Incident;
+    incident: IncidentDetail;
     onClose: () => void;
 }
 
@@ -63,60 +48,55 @@ const InfoItem = ({ icon, label, value }: { icon: React.ReactNode; label: string
     </p>
 );
 
-const SimilarIncidentItem = ({ id, title, priority, status }: Pick<Incident, 'id' | 'title' | 'priority' | 'status'>) => (
+const SimilarIncidentItem = ({ id, titre, priorite, statutIncident }: any) => (
     <div className="flex items-center gap-2 py-1.5 border-b border-gray-200 last:border-b-0">
         <Copy className="w-4 h-4 text-gray-400" />
         <div className="flex-grow">
-            <p className="text-sm font-medium text-gray-800 line-clamp-1">{title}</p>
+            <p className="text-sm font-medium text-gray-800 line-clamp-1">{titre}</p>
             <div className="flex items-center gap-1 text-xs text-gray-600">
                 <span className="font-semibold">ID:</span> <span className="text-gray-500">{id}</span>
-                <PriorityBadge priority={priority} />
-                <StatusBadge status={status} />
+                <PriorityBadge priority={priorite} />
+                <StatusBadge status={statutIncident} />
             </div>
         </div>
     </div>
 );
 
-const getSteps = (incident: Incident) => [
+const getSteps = (incident: IncidentDetail) => [
     {
-        label: 'Créé le',
-        status: true,
-        details: `${new Date(incident.createdAt).toLocaleDateString()} à ${new Date(incident.createdAt).toLocaleTimeString()}`
+        label: 'Déclaré le',
+        status: !!incident.dateDeclaration,
+        details: incident.dateDeclaration
+            ? `${new Date(incident.dateDeclaration).toLocaleDateString()} à ${new Date(incident.dateDeclaration).toLocaleTimeString()}`
+            : 'Inconnu'
     },
     {
         label: 'Assigné',
-        status: !!incident.assignedTo,
-        details: incident.assignedToName
-            ? `à ${incident.assignedToName}`
-            : incident.assignedTo
-                ? `(ID) ${incident.assignedTo}`
-                : 'Non assigné'
+        status: !!incident.coeDev_fullName,
+        details: incident.coeDev_fullName || 'Non assigné'
     },
     {
         label: 'Traitement',
-        status: ['IN_PROGRESS', 'RESOLVED', 'TRANSFERRED'].includes(incident.status),
+        status: ['IN_PROGRESS', 'RESOLVED', 'TRANSFERRED'].includes(incident.statutIncident),
         details:
-            incident.status === 'IN_PROGRESS'
-                ? "en cours d'analyse"
-                : incident.status === 'RESOLVED'
-                    ? "traité, en clôture"
-                    : incident.status === 'TRANSFERRED'
-                        ? "transmis à une autre équipe"
-                        : 'en attente'
+          incident.statutIncident === IncidentStatus.PRIS_EN_CHARGE
+            ? "En cours d’analyse"
+            : incident.statutIncident === IncidentStatus.RESOLU
+                ? "Résolu"
+                : incident.statutIncident === IncidentStatus.TRANSFERE
+                ? "Transféré"
+                : incident.statutIncident === IncidentStatus.AFFECTE
+                    ? "Affecté"
+                    : "Déclaré"
+
+
     },
     {
         label: 'Résolu le',
-        status: incident.status === 'RESOLVED',
-        details: incident.resolvedAt
-            ? `${new Date(incident.resolvedAt).toLocaleDateString()} à ${new Date(incident.resolvedAt).toLocaleTimeString()}`
+        status: !!incident.dateResolution,
+        details: incident.dateResolution
+            ? `${new Date(incident.dateResolution).toLocaleDateString()} à ${new Date(incident.dateResolution).toLocaleTimeString()}`
             : 'Non résolu'
-    },
-    {
-        label: 'Transféré le',
-        status: incident.status === 'TRANSFERRED',
-        details: incident.transferredAt
-            ? `${new Date(incident.transferredAt).toLocaleDateString()} à ${new Date(incident.transferredAt).toLocaleTimeString()}`
-            : 'Non transféré'
     }
 ];
 
@@ -135,22 +115,16 @@ const HistoriquePopup = ({ incident, onClose }: Props) => {
                     Détails de l’incident
                 </h2>
 
-                <div className="mb-2"><StatusBadge status={incident.status} /></div>
+                <div className="mb-2"><StatusBadge status={incident.statutIncident} /></div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 mb-2">
-                    <InfoItem icon={<span className="font-semibold text-gray-800 text-sm">#</span>} label="ID" value={incident.id} />
-                    <InfoItem icon={<Tag className="w-4 h-4 text-blue-400" />} label="Titre" value={incident.title} />
-                    <InfoItem icon={<CalendarDays className="w-4 h-4 text-blue-400" />} label="Créé le" value={incident.createdAt} />
-                    {incident.updatedAt && <InfoItem icon={<Clock className="w-4 h-4 text-yellow-500" />} label="Mis à jour" value={incident.updatedAt} />}
-                    {incident.resolvedAt && <InfoItem icon={<CheckCircle className="w-4 h-4 text-green-500" />} label="Résolu" value={incident.resolvedAt} />}
-                    <InfoItem icon={<span className="w-4 h-4 text-orange-500 text-sm">P</span>} label="Priorité" value={<PriorityBadge priority={incident.priority} />} />
-                    {incident.assignedToName
-                        ? <InfoItem icon={<User className="w-4 h-4 text-gray-400" />} label="Assigné" value={incident.assignedToName} />
-                        : incident.assignedTo
-                            ? <InfoItem icon={<User className="w-4 h-4 text-gray-400" />} label="Assigné (ID)" value={incident.assignedTo} />
-                            : null}
-                    {incident.createdBy && <InfoItem icon={<User className="w-4 h-4 text-purple-500" />} label="Créé par" value={incident.createdBy} />}
-                    {incident.category && <InfoItem icon={<Tag className="w-4 h-4 text-indigo-500" />} label="Catégorie" value={incident.category} />}
+                    <InfoItem icon={<span className="font-semibold text-gray-800 text-sm">#</span>} label="ID" />
+                    <InfoItem icon={<Tag className="w-4 h-4 text-blue-400" />} label="Titre" value={incident.titre} />
+                    <InfoItem icon={<CalendarDays className="w-4 h-4 text-blue-400" />} label="Créé le" value={incident.dateDeclaration} />
+                    <InfoItem icon={<span className="w-4 h-4 text-orange-500 text-sm">P</span>} label="Priorité" value={<PriorityBadge priority={incident.priorite} />} />
+                    {incident.coeDev_fullName && <InfoItem icon={<User className="w-4 h-4 text-gray-400" />} label="Assigné à" value={incident.coeDev_fullName} />}
+                    {incident.client_firstName && <InfoItem icon={<User className="w-4 h-4 text-purple-500" />} label="Déclaré par" value={incident.client_fullName} />}
+                    {incident.application && <InfoItem icon={<Tag className="w-4 h-4 text-indigo-500" />} label="Catégorie" value={incident.application} />}
                 </div>
 
                 {incident.description && (
@@ -179,24 +153,7 @@ const HistoriquePopup = ({ incident, onClose }: Props) => {
                     </ol>
                 </div>
 
-                {incident.similarIncidents && incident.similarIncidents.length > 0 && (
-                    <div className="mb-3">
-                        <h3 className="text-sm font-semibold text-gray-800 mb-1 flex items-center gap-1">
-                            <Copy className="w-4 h-4 text-gray-600" /> Similaires
-                        </h3>
-                        <div>
-                            {incident.similarIncidents.map((similarIncident) => (
-                                <SimilarIncidentItem key={similarIncident.id} {...similarIncident} />
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                <div className="mt-3 text-center">
-                    <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold text-sm" onClick={onClose}>
-                        Fermer
-                    </button>
-                </div>
+              
             </div>
         </div>
     );

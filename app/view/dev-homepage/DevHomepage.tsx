@@ -4,7 +4,7 @@ import React from 'react';
 import HeaderBar from '@/app/view/components/HeaderBar';
 import { ClipboardList, KanbanSquare, Wrench, Bell } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Sidebar from '../SideBarComponent/Sidebar';
+import Sidebar from '../SideBarComponent/SideBar';
 
 const DevHomePage = () => {
   const router = useRouter();
@@ -13,19 +13,19 @@ const DevHomePage = () => {
     {
       title: "Mes notifications",
       icon: <Bell className="w-6 h-6 text-orange-500" />,
-      onClick: () => router.push("/core/dev-notifications"),
+      onClick: () => router.push("/view/notification-page"),
       description: "Voir les incidents qui vous ont été affectés.",
     },
     {
       title: "Listes des Incidents ",
       icon: <KanbanSquare className="w-6 h-6 text-blue-600" />,
-      onClick: () => router.push("/core/tasks-dashboard"),
+      onClick: () => router.push("/view/tasks-dashboard"),
       description: "Consulter la liste des incidents en cours.",
     },
     {
       title: "Traiter un incident",
       icon: <Wrench className="w-6 h-6 text-green-600" />,
-      onClick: () => router.push("/core/incidents-details"),
+      onClick: () => router.push("/view/incidents-details"),
       description: "Accéder à l'interface de traitement d’un incident.",
     },
   ];

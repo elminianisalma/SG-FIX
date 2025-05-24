@@ -11,9 +11,9 @@ export const getPriorityStyle = (priority?: IncidentPriority): string => {
     case IncidentPriority.MOYENNE:
       return "bg-yellow-100 text-yellow-600 border border-yellow-500";
     case IncidentPriority.ELEVEE:
-      return "bg-orange-100 text-orange-600 border border-orange-500";
+      return "bg-red-100 text-red-600 border border-orange-500";
     case IncidentPriority.CRITIQUE:
-      return "bg-red-100 text-red-600 border border-red-500";
+      return "bg-red-200 text-red-700 border border-red-500";
     default:
       return "bg-gray-100 text-gray-600 border border-gray-500";
   }
