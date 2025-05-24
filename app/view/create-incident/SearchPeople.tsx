@@ -1,6 +1,6 @@
 'use client';
 import { useState } from "react";
-import { CheckCircle, Search, AlertTriangle, Circle } from "lucide-react";
+import { CheckCircle, Search, AlertTriangle } from "lucide-react";
 
 const people = [
     {
@@ -51,11 +51,12 @@ function stringToColor(str: string) {
 }
 
 interface SearchPeopleProps {
-    onAssign: () => void;
-    onClose: () => void; // Add onClose prop
+    incidentId: string; // ID de l'incident reçu en prop
+    onAssign: (incidentId: string, personName: string) => void; // Callback avec données
+    onClose: () => void; // Fermer la popup
 }
 
-export default function SearchPeople({ onAssign, onClose }: SearchPeopleProps) {
+export default function SearchPeople({ incidentId, onAssign, onClose }: SearchPeopleProps) {
     const [search, setSearch] = useState("");
     const [selected, setSelected] = useState<string | null>(null);
 
@@ -65,9 +66,9 @@ export default function SearchPeople({ onAssign, onClose }: SearchPeopleProps) {
 
     const handleFinish = () => {
         if (selected) {
-            setSelected(null); // Reset the selected state
-            onAssign(); // Trigger the parent to handle assignment
-            onClose(); // Close the popup
+            onAssign(incidentId, selected); // Envoi l'ID et le nom sélectionné
+            setSelected(null); // Reset sélection
+            onClose();         // Ferme la popup
         }
     };
 
@@ -123,12 +124,9 @@ export default function SearchPeople({ onAssign, onClose }: SearchPeopleProps) {
 
                                 <div className="flex flex-col items-end gap-1">
                                     <div className="flex items-center gap-2">
-                                        <div className="flex items-center gap-1">
-                                          
-                                            <span className="text-sm text-gray-600">
-                                                {person.isAvailable ? "Disponible" : "Indisponible"}
-                                            </span>
-                                        </div>
+                                        <span className="text-sm text-gray-600">
+                                            {person.isAvailable ? "Disponible" : "Indisponible"}
+                                        </span>
 
                                         <div className="flex items-center gap-1">
                                             <AlertTriangle className={`w-4 h-4 ${incidentColor}`} />
@@ -142,7 +140,7 @@ export default function SearchPeople({ onAssign, onClose }: SearchPeopleProps) {
 
                                     {person.activeIncidents > 0 && (
                                         <a
-                                            href={`/core/historique-incident}`}
+                                            href={`/core/historique-incident`}
                                             onClick={(e) => e.stopPropagation()}
                                             className="text-sm text-blue-500 hover:underline"
                                         >

@@ -1,4 +1,4 @@
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import {
   User,
   FileText,
@@ -18,32 +18,39 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onAssign }
   const [showAssign, setShowAssign] = useState(false);
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
   const [selectedIncident, setSelectedIncident] = useState<IncidentDetail | null>(null);
+  const [users, setUsers] = useState([]);
 
   const handleAnswerChange = (questionId: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
   const handleAssign = () => {
+    
     setShowAssign(false);
     if (onAssign) onAssign();
   };
 
-  // Fallback si incident est undefined
+  const handleOpenAssign = (e: React.MouseEvent) => {
+  e.stopPropagation();
+  console.log("ID de l'incident:", incident.titre);
+  console.log("Nom de la personne:", incident.client_fullName || "Inconnu");
+  setShowAssign(true);
+};
+
+
   if (!incident) {
     return <div className="p-6 text-red-600">Incident data is missing. Please provide an incident object.</div>;
   }
 
   return (
-    <div 
+    <div
       className="border p-6 rounded-xl shadow-sm w-full bg-white mb-6 flex flex-col justify-between ml-13"
-      onClick={() => setSelectedIncident(selectedIncident ? null : incident)} // toggle popup au clic sur la carte
     >
       <div className="flex-1">
         <h2 className="text-3xl font-semibold mb-4">
           #{incident.id.toString()} - {incident.titre}
         </h2>
 
-        {/* Environnement, déclaré par, date de déclaration, priorité */}
         <div className="flex items-center text-base text-gray-600 mb-4 space-x-4">
           {incident.priorite && (
             <span className="flex items-center">
@@ -81,7 +88,6 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onAssign }
           </span>
         </div>
 
-        {/* Description */}
         <div className="flex items-start text-base text-gray-600 mb-4">
           <FileText className="w-5 h-5 mr-2 mt-1 text-gray-700" />
           <span className="flex-1">
@@ -105,10 +111,9 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onAssign }
           </>
         )}
 
-        {/* Bouton "Afficher plus / moins" */}
         <button
           onClick={(e) => {
-            e.stopPropagation(); // Empêche l’ouverture du popup au clic sur ce bouton
+            e.stopPropagation();
             setShowMore(!showMore);
           }}
           className="mt-3 text-blue-600 hover:underline text-base font-medium"
@@ -117,14 +122,10 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onAssign }
         </button>
       </div>
 
-      {/* Bouton "Affecter" en rouge */}
       <div className="mt-6 flex justify-end">
         <button
           className="bg-red-600 text-white px-5 py-2 rounded hover:bg-red-700 text-base"
-          onClick={(e) => {
-            e.stopPropagation(); // Empêche l’ouverture du popup au clic sur ce bouton
-            setShowAssign(true);
-          }}
+          onClick={handleOpenAssign}
         >
           Affecter
         </button>
@@ -132,28 +133,27 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onAssign }
 
       {showAssign && (
         <>
-          {/* Overlay semi-transparent */}
           <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40"
             onClick={() => setShowAssign(false)}
           />
 
-          {/* Modal AssignIncident centré */}
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="bg-white rounded-xl shadow-lg w-full max-w-2xl p-6 relative">
-              {/* Bouton de fermeture */}
               <button
                 className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
                 onClick={() => setShowAssign(false)}
               >
                 ✕
               </button>
+           <AssignIncident
+              incidentId={incident.id.toString()} // 👈 on passe l'ID ici
+              answers={answers}
+              onAnswerChange={handleAnswerChange}
+              onAssign={handleAssign}
+              onClose={() => setShowAssign(false)} // 👈 Ajoute aussi onClose si nécessaire
+            />
 
-              <AssignIncident
-                answers={answers}
-                onAnswerChange={handleAnswerChange}
-                onAssign={handleAssign}
-              />
             </div>
           </div>
         </>

@@ -1,20 +1,30 @@
 import SearchPeople from "@/app/view/create-incident/SearchPeople";
 
 interface AssignIncidentProps {
+  incidentId: string; // il faut un incidentId pour SearchPeople
   answers: { [key: string]: string };
   onAnswerChange: (questionId: string, value: string) => void;
-  onAssign: () => void;
+  onAssign: (incidentId: string, personName: string) => void; // adapter signature
+  onClose: () => void;
 }
 
-const AssignIncident: React.FC<AssignIncidentProps> = ({ answers, onAnswerChange, onAssign }) => {
+const AssignIncident: React.FC<AssignIncidentProps> = ({
+  incidentId,
+  answers,
+  onAnswerChange,
+  onClose,
+}) => {
+  const handleAssign = (incidentId: string, personName: string) => {
+    console.log("Personne sélectionnée :", personName); // 👈 Affichage dans la console
+    // Tu peux aussi faire autre chose ici, comme stocker dans un state ou appeler une API
+  };
+
   return (
     <>
       <SearchPeople
-        onAssign={onAssign}
-        onClose={() => {}}  // Ici fonction vide ou fonction de fermeture réelle
-        // Si SearchPeople doit utiliser answers et onAnswerChange, tu peux les passer ici
-        // answers={answers}
-        // onAnswerChange={onAnswerChange}
+        incidentId={incidentId}
+        onAssign={handleAssign}
+        onClose={onClose}
       />
     </>
   );
