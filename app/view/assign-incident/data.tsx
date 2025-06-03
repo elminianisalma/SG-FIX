@@ -36,7 +36,7 @@ export const initialIncidents: IncidentDetail[] = [
     id: BigInt(716),
     titre: "Timeout lors de l'ouverture d'un compte client",
     description: "Des timeouts récurrents sont observés lors de la tentative d'ouverture de comptes clients via le portail. Cette défaillance ralentit fortement l'expérience utilisateur et peut entraîner une perte de clients potentiels, nécessitant une investigation urgente.",
-    statutIncident: IncidentStatus.SOUMIS,
+    statutIncident: IncidentStatus.RESOLU,
     gravite: "Moyenne",
     priorite: IncidentPriority.MOYENNE,
     dateAttribution: "2025-05-12T09:00:00",

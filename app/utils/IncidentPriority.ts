@@ -1,8 +1,8 @@
 export enum IncidentPriority {
-    FAIBLE = "Faible",
-    MOYENNE = "Moyen",
-    ELEVEE = "Élevée",
-    CRITIQUE = "Critique",
+    FAIBLE = "FAIBLE",
+    MOYENNE = "MOYENNE",
+    ELEVEE = "ELEVEE",
+    CRITIQUE = "CRITIQUE",
 }
 export const getPriorityStyle = (priority?: IncidentPriority): string => {
   switch (priority) {

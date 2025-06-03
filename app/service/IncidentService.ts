@@ -5,20 +5,17 @@ import { Incident } from "../models/Incident";
 const API_URL = "http://localhost:8080/incident";
 
 export const IncidentService = {
-  createIncident: async (incident: Incident): Promise<any> => {
-    try {
-      const response = await axios.post(API_URL, incident, {
-        headers: {
-          "Content-Type": "application/json",
-          "X-EntityId": "incident",
-        },
-      });
-      return response.data;
-    } catch (error) {
-      console.error("Erreur lors de la création de l'incident:", error);
-      throw error;
-    }
-  },
+createIncident: async (formData: FormData): Promise<any> => {
+  try {
+    const response = await axios.post(API_URL, formData, {
+      headers: { "X-EntityId": "BF" },
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+},
+
 
   getAllIncidents: async (): Promise<IncidentDetail[]> => {
     try {
@@ -63,4 +60,5 @@ export const IncidentService = {
       throw error;
     }
   },
+  
 };

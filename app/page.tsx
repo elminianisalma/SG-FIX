@@ -10,10 +10,11 @@ import IncidentAssignment from './view/assign-incident/AssignIncident';
 import BAHomePage from './view/BA-homepage/BaHomePage';
 import DeveloperAvailability from './view/dev-disponibility/DeveloperAvailability';
 import IncidentStatutBoard from './view/incident-status-view-user/IncidentStatutBoard';
+import CommentSection from './view/incidents-details/commentSection';
 export default function Home() {
     return (
         <div>
-            <SignUpForm/>
+            <CommentSection/>
         </div>
     );
 }

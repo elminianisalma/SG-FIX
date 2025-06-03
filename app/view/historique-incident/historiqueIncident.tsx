@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import HeaderBar from '@/app/view/components/HeaderBar';
 import FilterPopup from './FilterPopup';
 import {
@@ -20,10 +20,138 @@ import {
 import HistoriquePopup from './HistoriquePopup';
 import Sidebar from '../SideBarComponent/SideBar';
 import { IncidentDetail } from '@/app/models/IncidentDetail';
-import { IncidentPriority, getPriorityStyle } from '@/app/utils/IncidentPriority';
-import { IncidentStatus } from '@/app/utils/IncidentStatus';
-import { IncidentService } from '@/app/service/IncidentService';
+import { getPriorityStyle, IncidentPriority } from '@/app/utils/IncidentPriority';
 import { KPICards } from './KpiCard';
+import { IncidentStatus } from '@/app/utils/IncidentStatus';
+import { IncidentGravity } from '@/app/utils/IncidentGravity';
+
+// Mock data for incidents
+const mockIncidents: IncidentDetail[] = [
+  {
+    id: BigInt(1),
+    titre: 'Panne du serveur principal',
+    description: 'Le serveur principal a cessé de répondre en raison d’une surcharge.',
+    statutIncident: IncidentStatus.AFFECTE,
+    gravite: IncidentGravity.MAJEUR,
+    priorite: IncidentPriority.MOYENNE,
+    dateAttribution: '2025-06-01T09:00:00Z',
+    dateResolution: '2025-06-01T15:00:00Z',
+    dateDeclaration: '2025-06-01T10:00:00Z',
+    clientSub: 'SUB123',
+    client_fullName: 'Jean Dupont',
+    client_igg: 'IGG001',
+    coeDevSub: 'DEV456',
+    environnement: 'Production',
+    application: 'Serveur A',
+    coeDev_firstName: 'Alice',
+    client_serviceName: 'Support Client',
+    coeDev_serviceName: 'Équipe Dev',
+    client_firstName: 'Jean',
+    client_role: 'Administrateur',
+    client_lastName: 'Dupont',
+    client_mail: 'jean.dupont@example.com',
+    coeDev_lastName: 'Smith',
+    coeDev_igg: 'IGG008',
+    coeDev_role: 'Développeur',
+    coeDev_fullName: 'Alice Smith',
+    coeDev_mail: 'alice.smith@example.com',
+    tags: ['serveur', 'urgence', 'surcharge'],
+    fichierJoints: ['log_serveur.txt', 'screenshot.png'],
+  },
+  {
+    id: BigInt(2),
+    titre: 'Erreur de connexion utilisateur',
+    description: 'Les utilisateurs ne peuvent pas se connecter à l’application mobile.',
+    statutIncident: IncidentStatus.AFFECTE,
+    gravite: IncidentGravity.MAJEUR,
+    priorite: IncidentPriority.MOYENNE,
+    dateAttribution: '2025-06-02T13:00:00Z',
+    dateResolution: '',
+    dateDeclaration: '2025-06-02T14:30:00Z',
+    clientSub: 'SUB124',
+    client_fullName: 'Marie Martin',
+    client_igg: 'IGG003',
+    coeDevSub: 'DEV457',
+    environnement: 'Test',
+    application: 'App Mobile',
+    coeDev_firstName: 'Bob',
+    client_serviceName: 'Support Utilisateur',
+    coeDev_serviceName: 'Équipe Mobile',
+    client_firstName: 'Marie',
+    client_role: 'Utilisateur',
+    client_lastName: 'Martin',
+    client_mail: 'marie.martin@example.com',
+    coeDev_lastName: 'Johnson',
+    coeDev_igg: 'IGG004',
+    coeDev_role: 'Développeur Mobile',
+    coeDev_fullName: 'Bob Johnson',
+    coeDev_mail: 'bob.johnson@example.com',
+    tags: ['connexion', 'mobile'],
+    fichierJoints: ['error_log.txt'],
+  },
+  {
+    id: BigInt(3),
+    titre: 'Problème de base de données',
+    description: 'La base de données ne répond pas aux requêtes complexes.',
+    statutIncident: IncidentStatus.AFFECTE,
+    gravite: IncidentGravity.MAJEUR,
+    priorite: IncidentPriority.MOYENNE,
+    dateAttribution: '2025-05-30T08:00:00Z',
+    dateResolution: '',
+    dateDeclaration: '2025-05-30T09:15:00Z',
+    clientSub: 'SUB125',
+    client_fullName: 'Paul Durand',
+    client_igg: 'IGG005',
+    coeDevSub: 'DEV458',
+    environnement: 'Production',
+    application: 'DB Serveur',
+    coeDev_firstName: 'Clara',
+    client_serviceName: 'Support DB',
+    coeDev_serviceName: 'Équipe DB',
+    client_firstName: 'Paul',
+    client_role: 'DBA',
+    client_lastName: 'Durand',
+    client_mail: 'paul.durand@example.com',
+    coeDev_lastName: 'Brown',
+    coeDev_igg: 'IGG006',
+    coeDev_role: 'Administrateur BD',
+    coeDev_fullName: 'Clara Brown',
+    coeDev_mail: 'clara.brown@example.com',
+    tags: ['database', 'performance'],
+    fichierJoints: ['query_log.sql', 'db_report.pdf'],
+  },
+  {
+    id: BigInt(4),
+    titre: 'Bug d’affichage UI',
+    description: 'L’interface utilisateur affiche des éléments mal alignés.',
+    statutIncident: IncidentStatus.AFFECTE,
+    gravite: IncidentGravity.MAJEUR,
+    priorite: IncidentPriority.MOYENNE,
+    dateAttribution: '',
+    dateResolution: '',
+    dateDeclaration: '2025-06-03T08:45:00Z',
+    clientSub: 'SUB126',
+    client_fullName: 'Sophie Lefevre',
+    client_igg: 'IGG007',
+    coeDevSub: 'DEV459',
+    environnement: 'Développement',
+    application: 'Web App',
+    coeDev_firstName: 'David',
+    client_serviceName: 'Support UI',
+    coeDev_serviceName: 'Équipe Frontend',
+    client_firstName: 'Sophie',
+    client_role: 'Testeur',
+    client_lastName: 'Lefevre',
+    client_mail: 'sophie.lefevre@example.com',
+    coeDev_lastName: 'Wilson',
+    coeDev_igg: 'IGG008',
+    coeDev_role: 'Développeur Frontend',
+    coeDev_fullName: 'David Wilson',
+    coeDev_mail: 'david.wilson@example.com',
+    tags: ['ui', 'bug'],
+    fichierJoints: ['screenshot_ui.jpg'],
+  },
+];
 
 const statusLabels: Record<string, string> = {
   SUBMITTED: 'Soumis',
@@ -40,34 +168,12 @@ export default function HistoriqueIncident() {
   const [filters, setFilters] = useState<{ status?: string }>({});
   const [sortPriority, setSortPriority] = useState<string>('');
   const [page, setPage] = useState(1);
-  const [incidents, setIncidents] = useState<IncidentDetail[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchIncidents = async () => {
-      try {
-        setLoading(true);
-        const igg = 'IGG001'; // Replace with dynamic IGG from user context/auth
-        const fetchedIncidents = await IncidentService.findMyIncidents(igg);
-        setIncidents(fetchedIncidents);
-        setError(null);
-      } catch (err) {
-        setError('Erreur lors de la récupération des incidents');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchIncidents();
-  }, []);
 
   const sortedIncidents = useMemo(() => {
-    return [...incidents].sort((a, b) =>
+    return [...mockIncidents].sort((a, b) =>
       new Date(b.dateDeclaration).getTime() - new Date(a.dateDeclaration).getTime()
     );
-  }, [incidents]);
+  }, []);
 
   const availableStatuses = useMemo(() => {
     const set = new Set(sortedIncidents.map((i) => i.statutIncident));
@@ -109,22 +215,6 @@ export default function HistoriqueIncident() {
     setSortPriority('');
   };
 
-  if (loading) {
-    return (
-      <div className="flex bg-gray-50 min-h-screen text-[17px] items-center justify-center">
-        <p className="text-gray-700">Chargement des incidents...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex bg-gray-50 min-h-screen text-[17px] items-center justify-center">
-        <p className="text-red-500">{error}</p>
-      </div>
-    );
-  }
-
   return (
     <div className="flex bg-gray-50 min-h-screen text-[17px]">
       <Sidebar />
@@ -134,9 +224,6 @@ export default function HistoriqueIncident() {
           <h1 className="text-4xl font-bold text-center text-gray-800 mb-4">
             Historique des incidents
           </h1>
-
-          <KPICards incidents={sortedIncidents} />
-
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <button
@@ -145,14 +232,12 @@ export default function HistoriqueIncident() {
               >
                 <Filter className="w-4 h-4" /> Filtrer
               </button>
-
               <button
                 onClick={() => setSortPriority(sortPriority ? '' : 'true')}
                 className="flex items-center gap-2 px-4 py-2 bg-green-100 text-green-800 rounded hover:bg-green-200"
               >
                 <ArrowUpDown className="w-4 h-4" /> Trier par priorité
               </button>
-
               <button
                 onClick={resetFilters}
                 className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200"
@@ -160,7 +245,6 @@ export default function HistoriqueIncident() {
                 Réinitialiser les filtres
               </button>
             </div>
-
             <div className="relative w-full max-w-md ml-auto">
               <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
               <input
@@ -172,7 +256,6 @@ export default function HistoriqueIncident() {
               />
             </div>
           </div>
-
           {showPopup && (
             <div className="absolute z-50 top-28 left-10">
               <FilterPopup
@@ -182,19 +265,58 @@ export default function HistoriqueIncident() {
               />
             </div>
           )}
-
-          <div className="bg-white rounded-xl shadow overflow-x-auto">
+          <div className="bg-white rounded-xl shadow overflow-x-auto ml-8 max-w-[80%]">
             <table className="min-w-full text-left text-gray-700 text-[16px]">
               <thead className="bg-gray-100 text-sm uppercase">
                 <tr>
-                  <th className="px-6 py-3 flex items-center gap-2"><ListOrdered className="w-4 h-4" /> ID</th>
-                  <th className="px-6 py-3 flex items-center gap-2"><FileText className="w-4 h-4" /> Titre</th>
-                  <th className="px-6 py-3 flex items-center gap-2"><Circle className="w-4 h-4" /> Statut</th>
-                  <th className="px-6 py-3 flex items-center gap-2"><AlertTriangle className="w-4 h-4" /> Priorité</th>
-                  <th className="px-6 py-3 flex items-center gap-2"><AlertTriangle className="w-4 h-4" /> Gravité</th>
-                  <th className="px-6 py-3 flex items-center gap-2"><Cpu className="w-4 h-4" /> Application</th>
-                  <th className="px-6 py-3 flex items-center gap-2"><User className="w-4 h-4" /> Déclaré par</th>
-                  <th className="px-6 py-3 flex items-center gap-2"><CalendarDays className="w-4 h-4" /> Date</th>
+                  <th className="px-6 py-3">
+                    <span className="inline-block align-middle">
+                      <ListOrdered className="w-4 h-4 inline-block mr-2 align-middle" />
+                      ID
+                    </span>
+                  </th>
+                  <th className="px-6 py-3">
+                    <span className="inline-block align-middle">
+                      <FileText className="w-4 h-4 inline-block mr-2 align-middle" />
+                      Titre
+                    </span>
+                  </th>
+                  <th className="px-6 py-3">
+                    <span className="inline-block align-middle">
+                      <Circle className="w-4 h-4 inline-block mr-2 align-middle" />
+                      Statut
+                    </span>
+                  </th>
+                  <th className="px-6 py-3">
+                    <span className="inline-block align-middle">
+                      <AlertTriangle className="w-4 h-4 inline-block mr-2 align-middle" />
+                      Priorité
+                    </span>
+                  </th>
+                  <th className="px-6 py-3">
+                    <span className="inline-block align-middle">
+                      <AlertTriangle className="w-4 h-4 inline-block mr-2 align-middle" />
+                      Gravité
+                    </span>
+                  </th>
+                  <th className="px-6 py-3">
+                    <span className="inline-block align-middle">
+                      <Cpu className="w-4 h-4 inline-block mr-2 align-middle" />
+                      Application
+                    </span>
+                  </th>
+                  <th className="px-6 py-3">
+                    <span className="inline-block align-middle">
+                      <User className="w-4 h-4 inline-block mr-2 align-middle" />
+                      Déclaré par
+                    </span>
+                  </th>
+                  <th className="px-6 py-3">
+                    <span className="inline-block align-middle">
+                      <CalendarDays className="w-4 h-4 inline-block mr-2 align-middle" />
+                      Date
+                    </span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -225,8 +347,7 @@ export default function HistoriqueIncident() {
               </tbody>
             </table>
           </div>
-
-          <div className="flex justify-between items-center mt-6">
+          <div className="flex justify-between items-center mt-6 ml-8 max-w-[80%]">
             <button
               onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
               disabled={page === 1}
@@ -253,7 +374,6 @@ export default function HistoriqueIncident() {
               <ChevronRight className="w-4 h-4" />
             </button>
           </div>
-
           {selectedIncident && (
             <HistoriquePopup
               incident={selectedIncident}

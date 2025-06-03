@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "../../common/Card";
 import { Button } from "../../common/Button";
 import { Avatar } from "../../common/avatar";
@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { IncidentDetail } from "@/app/models/IncidentDetail";
 import HeaderBar from "../components/HeaderBar";
-import IncidentKPIs from "./IncidentKpi";
+import { IncidentGravity } from "@/app/utils/IncidentGravity";
 
 export default function IncidentNotificationPage() {
   const [showReassignDialog, setShowReassignDialog] = useState(false);
@@ -32,14 +32,13 @@ export default function IncidentNotificationPage() {
   const [sortPriority, setSortPriority] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState('');
   const router = useRouter();
- 
   const [incidents, setIncidents] = useState<IncidentDetail[]>([
     {
       id: BigInt(1),
       titre: "Erreur critique sur l'API de messagerie",
       description: "L'envoi de messages échoue de manière aléatoire.",
       statutIncident: IncidentStatus.SOUMIS,
-      gravite: "CRITIQUE",
+      gravite: IncidentGravity.CRITIQUE,
       priorite: IncidentPriority.ELEVEE,
       dateAttribution: "2025-04-10T14:32:00",
       dateResolution: "",
@@ -62,12 +61,12 @@ export default function IncidentNotificationPage() {
       coeDev_serviceName: "Développement",
       environnement: "Production",
       application: "API Messaging",
+      base64Images: [
+        "iVBORw0KGgoAAAANSUhEUgAAASwAAABaCAYAAACCUKxVAAAAAXNSR0IArs4c6QAAAzlJREFUeF7tnT1v20AYx//PSTG0YWBjY8CggNXYEXBiZ5w2XcUhgcyyVxkKSX1urEXB3S3vFC0zCIvHEtwxRCz0fyvCmvfvINnBgAAAAAAAAAAgIOyJKq7mTRIvAIkfYVW5OwaV9MrTS9b7OitCvb6h+rTYALoYiBPnkRL6E63DZWfYBdthVuQsHzYZ+OMqovduj7PYvdqXbV3GGHrv3s66/td5ss+5vMGL7F56D4xzDkbn9hnlmBDbThQnNV7eD7CvJReXOT5wN3rpKGeHgO0MLGheqof2W3uEx2IRXQfOAZybP94n4qtgKxQF18ngS40klovrABUwOY/Fhx7QA+Be1HXKhdbi+NQK1QetAfKDlMdWXr0YvyEq6nlsHy6JzTwO5ZsBPxHf7GO+lJ9KgOvY+vSYyMg0efUO9chWgz65vIUmnEvG6EkzN7iYeRmj8oy8cTyPgxuAh/VcdMLM2AfmK6OVTwOnCNdOQn7o6KbdAsV6fXs3jHx8fbH76HTzQNVfn0vs5y3bguRx42n0EpTvm+4OXL3Oh+9xWdjUvmtHpfrxS/7PXcV2uYvkRvx6Ob9ldzkLj1OBuIjSv63W+UoF+jrqu7CVjdTzC/NiA5ZzZu68h3qD1HuN3sHLm1mWXWN1/LsMN2+ODAgAAAAAAAAAAeCr+C4KktAOKbIKNAAAAAElFTkSuQmCC"
+      ]
     },
   ]);
-    const totalIncidents = incidents.length;
-    const critiquesCount = incidents.filter((i) => i.gravite === "CRITIQUE").length;
-    const enCoursCount = incidents.filter((i) => i.statutIncident === IncidentStatus.PRIS_EN_CHARGE).length;
-
+  const [isLoading, setIsLoading] = useState<{ [key: string]: boolean }>({});
 
   const getRandomAvatarUrl = (name: string) =>
     `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}`;
@@ -88,6 +87,31 @@ export default function IncidentNotificationPage() {
     }, 500);
   };
 
+  // Simuler une requête au backend pour récupérer l'image en base64
+  const fetchImageFromBackend = async (incidentId: BigInt) => {
+    setIsLoading((prev) => ({ ...prev, [incidentId.toString()]: true }));
+    try {
+      // Simuler un délai de requête (remplacez par votre vrai appel API)
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Ici, vous feriez un appel API comme :
+      // const response = await fetch(`/api/incident/${incidentId}/image`);
+      // const data = await response.json();
+      // const base64Image = data.base64; // Supposons que le backend renvoie l'image en base64
+      // Pour cet exemple, on utilise l'image déjà dans l'état
+      setIsLoading((prev) => ({ ...prev, [incidentId.toString()]: false }));
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'image:", error);
+      setIsLoading((prev) => ({ ...prev, [incidentId.toString()]: false }));
+    }
+  };
+
+  // Appeler la fonction de récupération au montage du composant pour chaque incident
+  useEffect(() => {
+    incidents.forEach((incident) => {
+     
+    });
+  }, [incidents]);
+
   const resetFilters = () => {
     setSearchTerm('');
     setSortPriority(false);
@@ -99,54 +123,46 @@ export default function IncidentNotificationPage() {
       <Sidebar />
       <div className="flex-1 flex flex-col">
         <HeaderBar />
-      
-
         <main className="p-6 max-w-7xl mx-auto w-full">
           <h2 className="text-3xl font-bold mb-4 text-center text-gray-800">Incidents à traiter</h2>
-            <IncidentKPIs total={totalIncidents} critiques={critiquesCount} enCours={enCoursCount} />
 
-          {/* Zone de recherche et boutons */}
-        <div className="flex flex-wrap md:flex-nowrap items-center mb-6 gap-4">
-        {/* Barre de recherche : prend tout l'espace possible */}
-        <div className="relative flex-grow min-w-0">
-            <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
-            <input
-            type="text"
-            placeholder="Rechercher par titre ou ID..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md min-w-0"
-            />
-        </div>
+          <div className="flex flex-wrap md:flex-nowrap items-center mb-6 gap-4">
+            <div className="relative flex-grow min-w-0">
+              <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Rechercher par titre ou ID..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 w-full border border-gray-300 rounded-md min-w-0"
+              />
+            </div>
+            <div className="flex gap-2 justify-end flex-shrink-0">
+              <button
+                onClick={() => setShowFilter(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-400 rounded hover:bg-red-200 whitespace-nowrap"
+              >
+                <SlidersHorizontal size={16} />
+                Filter
+              </button>
 
-        {/* Groupe de boutons : largeur fixe, ne rétrécit pas */}
-        <div className="flex gap-2 justify-end flex-shrink-0">
-            <button
-            onClick={() => setShowFilter(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-400 rounded hover:bg-red-200 whitespace-nowrap"
-            >
-            <SlidersHorizontal size={16} />
-            Filter
-            </button>
+              <button
+                onClick={() => setSortPriority((prev) => !prev)}
+                className="flex items-center gap-2 px-4 py-2 bg-green-200 text-gray-800 rounded hover:bg-green-300 whitespace-nowrap"
+              >
+                <ArrowUpDown className="w-4 h-4" />
+                Trier par priorité
+              </button>
 
-            <button
-            onClick={() => setSortPriority((prev) => !prev)}
-            className="flex items-center gap-2 px-4 py-2 bg-green-200 text-gray-800 rounded hover:bg-green-300 whitespace-nowrap"
-            >
-            <ArrowUpDown className="w-4 h-4" />
-            Trier par priorité
-            </button>
+              <button
+                onClick={resetFilters}
+                className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 whitespace-nowrap"
+              >
+                Réinitialiser les filtres
+              </button>
+            </div>
+          </div>
 
-            <button
-            onClick={resetFilters}
-            className="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 whitespace-nowrap"
-            >
-            Réinitialiser les filtres
-            </button>
-        </div>
-        </div>
-
-                  {/* Liste des incidents */}
           {incidents.map((incident) => (
             <Card
               key={incident.id.toString()}
@@ -168,9 +184,7 @@ export default function IncidentNotificationPage() {
                     <div className="space-y-1">
                       <div className="flex justify-between items-center">
                         <p className="text-xl font-semibold text-gray-800">{incident.titre}</p>
-                        <div
-                          className={`flex items-center px-2 py-1 rounded-md ${getPriorityStyle(incident.priorite)}`}
-                        >
+                        <div className={`flex items-center px-2 py-1 rounded-md ${getPriorityStyle(incident.priorite)}`}>
                           <span className="text-base font-bold">{incident.priorite}</span>
                         </div>
                       </div>
@@ -188,7 +202,8 @@ export default function IncidentNotificationPage() {
 
                     <p className="text-base text-gray-700">{incident.description}</p>
 
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-600">
+
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-600 mt-4">
                       <div className="flex items-center gap-2">
                         <User size={16} className="text-blue-500" />
                         <span><strong>Déclaré par :</strong> {incident.client_fullName}</span>
@@ -213,17 +228,16 @@ export default function IncidentNotificationPage() {
                         <Eye className="w-4 h-4 text-blue-500" />
                         Voir Détails
                       </Button>
-                    <Button
+                      <Button
                         size="lg"
                         variant="default"
                         className="flex items-center gap-2 bg-red-500 text-white hover:bg-red-600"
                         disabled={incident.statutIncident === IncidentStatus.PRIS_EN_CHARGE}
                         onClick={() => handleTakeCharge(incident.id)}
-                        >
+                      >
                         <CheckCircle className="w-4 h-4 text-white" />
                         Prendre en charge
-                        </Button>
-
+                      </Button>
                     </div>
                   </div>
                 </div>

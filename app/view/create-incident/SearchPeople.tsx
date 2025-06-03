@@ -51,8 +51,8 @@ function stringToColor(str: string) {
 }
 
 interface SearchPeopleProps {
-    incidentId: string; // ID de l'incident reçu en prop
-    onAssign: (incidentId: string, personName: string) => void; // Callback avec données
+    incidentId: BigInt; // ID de l'incident reçu en prop
+    onAssign: (incidentId: BigInt, personName: string) => void; // Callback avec données
     onClose: () => void; // Fermer la popup
 }
 

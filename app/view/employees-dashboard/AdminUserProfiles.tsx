@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { FaCheckCircle, FaTimesCircle, FaUserCircle } from "react-icons/fa";
 import {dividerClasses} from "@mui/material";
-import Sidebar from "../SideBarComponent/Sidebar";
+import Sidebar from "../SideBarComponent/SideBar";
 
 const userProfiles = [
     {

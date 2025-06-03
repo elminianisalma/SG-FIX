@@ -1,8 +1,8 @@
 "use client";
 import React, { useState } from "react";
-import Sidebar from "../SideBarComponent/Sidebar";
 import HeaderBar from "../components/HeaderBar";
 import { Code, Mail, User, Briefcase, Building, AlertTriangle, Search, SlidersHorizontal } from "lucide-react";
+import Sidebar from "../SideBarComponent/SideBar";
 
 interface Developer {
   id: number;

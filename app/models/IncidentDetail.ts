@@ -1,14 +1,15 @@
 // TS_IncidentDetail.ts
 
+import { IncidentGravity } from "../utils/IncidentGravity";
 import { IncidentPriority } from "../utils/IncidentPriority";
 import { IncidentStatus } from "../utils/IncidentStatus";
 
 export interface IncidentDetail {
-  id: BigInt; // Identifiant de l'incident, de type BigInt pour gérer les grands nombres
+  id: bigint; // Identifiant de l'incident, de type BigInt pour gérer les grands nombres
   titre: string; // Titre de l'incident
   description: string; // Description de l'incident
   statutIncident: IncidentStatus; // Statut de l'incident (par exemple, "EN_COURS", "RESOLU")
-  gravite: string; // Gravité de l'incident
+  gravite: IncidentGravity; // Gravité de l'incident
   priorite: IncidentPriority; // Priorité de l'incident
   dateAttribution: string; // Date d'attribution de l'incident
   dateResolution: string; // Date de résolution de l'incident
@@ -30,5 +31,8 @@ export interface IncidentDetail {
   coeDev_igg: string; // Identifiant global du développeur
   coeDev_role: string; // Rôle du développeur
   coeDev_fullName: string; // Nom complet du développeur
-  coeDev_mail: string; // Email du développeur
+  coeDev_mail: string; 
+  tags:string[];
+    fichierJoints?: string[]; // <-- Ajouté ici
+
 }

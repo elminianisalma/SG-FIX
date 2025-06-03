@@ -32,7 +32,6 @@ const IncidentForm = () => {
   const [afficherPopup, setAfficherPopup] = useState(false);
   const [champErreur, setChampErreur] = useState<string[]>([]);
   const [dateRapport] = useState(new Date().toLocaleString());
-
   const refs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const [transformedAnswers, setTransformedAnswers] = useState<{ [key: string]: string }>({});
 
@@ -97,86 +96,86 @@ const IncidentForm = () => {
 
   useEffect(() => {
     const gravite = réponses["gravité"] as string;
-
     if (gravite) {
       const prioritéMap: Record<string, IncidentPriority> = {
-        "CRITIQUE": IncidentPriority.CRITIQUE,
-        "MAJEUR": IncidentPriority.ELEVEE,
-        "MINEUR": IncidentPriority.MOYENNE
+        "Critique": IncidentPriority.CRITIQUE,
+        "Majeur": IncidentPriority.ELEVEE,
+        "Mineur": IncidentPriority.MOYENNE
       };
-      const gravite = réponses["gravité"] as string;
-
-
       const nouvellePriorité = prioritéMap[gravite];
       setPriorité(nouvellePriorité);
-      console.log('priorite:',nouvellePriorité);
       const slaMap: Record<IncidentPriority, string> = {
         [IncidentPriority.MOYENNE]: "8 heures",
         [IncidentPriority.ELEVEE]: "4 heures",
         [IncidentPriority.CRITIQUE]: "2 heures",
         [IncidentPriority.FAIBLE]: "24 heures"
       };
-
       setSla(slaMap[nouvellePriorité]);
     }
   }, [réponses["gravité"]]);
 
- const handleSubmitClick = async () => {
-  const champsManquants = questionsIncident.filter((q) => {
-    const val = réponses[q.id];
-    if (q.type === "file") return !(val as FileList)?.length;
-    if (q.type === "multitag") return !(val as string[])?.length;
-    return !val;
-  });
+  const handleSubmitClick = async () => {
+    const champsManquants = questionsIncident.filter((q) => {
+      const val = réponses[q.id];
+      if (q.type === "file") return !(val as FileList)?.length;
+      if (q.type === "multitag") return !(val as string[])?.length;
+      return !val;
+    });
 
-  if (champsManquants.length > 0) {
-    const ids = champsManquants.map((q) => q.id);
-    setChampErreur(ids);
-    const firstId = ids[0];
-    refs.current[firstId]?.scrollIntoView({ behavior: "smooth", block: "center" });
-    toast.error("Veuillez remplir tous les champs.");
-    return;
-  }
-
-  const transformed: { [key: string]: string } = {};
-  for (const [key, val] of Object.entries(réponses)) {
-    if (typeof val === "string") {
-      transformed[key] = val;
-    } else if (val instanceof FileList) {
-      transformed[key] = Array.from(val).map((f) => f.name).join(", ");
-    } else if (Array.isArray(val)) {
-      transformed[key] = val.join(", ");
+    if (champsManquants.length > 0) {
+      const ids = champsManquants.map((q) => q.id);
+      setChampErreur(ids);
+      const firstId = ids[0];
+      refs.current[firstId]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      toast.error("Veuillez remplir tous les champs.");
+      return;
     }
-  }
 
-  // ✅ Mettre à jour l'état avant de montrer le popup
-  setTransformedAnswers(transformed);
+    const transformed: { [key: string]: string } = {};
+    for (const [key, val] of Object.entries(réponses)) {
+      if (typeof val === "string") {
+        transformed[key] = val;
+      } else if (val instanceof FileList) {
+        transformed[key] = Array.from(val).map((f) => f.name).join(", ");
+      } else if (Array.isArray(val)) {
+        transformed[key] = val.join(", ");
+      }
+    }
 
-  const incidentBody: Incident = {
-    titre: transformed.shortDescription || "",
-    description: transformed.details || "",
-    gravite: transformed.gravité || "",
-    priorite: priorité || "",
-    clientIgg: "BHAHAH",
-    coeDevIgg: null,
-    environnement: transformed.environment || "",
-    tags: (réponses.tags as string[]) || [],
-    application: transformed.application || ""
+    setTransformedAnswers(transformed);
+
+    try {
+      const formData = new FormData();
+      formData.append("titre", transformed.shortDescription || "");
+      formData.append("description", transformed.details || "");
+      formData.append("gravite", transformed.gravité || "");
+      formData.append("priorite", priorité || "");
+      formData.append("clientIgg", localStorage.getItem("clientIgg") || "");
+      formData.append("environnement", transformed.environment || "");
+      formData.append("application", transformed.application || "");
+
+      if (Array.isArray(réponses.tags)) {
+        réponses.tags.forEach((tag) => {
+          formData.append("tags[]", tag);
+        });
+      }
+
+      const fichiers = réponses["attachments"] as FileList;
+      if (fichiers && fichiers.length > 0) {
+        Array.from(fichiers).forEach((file) => {
+          formData.append("files", file);
+        });
+      }
+
+      await IncidentService.createIncident(formData);
+      toast.success("Incident créé avec succès !");
+      setAfficherPopup(true);
+      setRéponses({});
+    } catch (error) {
+      console.error("Erreur lors de la création de l'incident :", error);
+      toast.error("Erreur lors de la création de l'incident.");
+    }
   };
-
-  try {
-    const response = await IncidentService.createIncident(incidentBody);
-    toast.success("Incident créé avec succès !");
-    setAfficherPopup(true); // ✅ Le popup affichera maintenant les bonnes données
-    setRéponses({});
-  } catch (error) {
-    console.error("Erreur lors de la création de l'incident :", error);
-    toast.error("Erreur lors de la création de l'incident.");
-  }
-
-  console.log("reponse:", incidentBody);
-};
-
 
   return (
     <div className="flex bg-gray-100 min-h-screen">
@@ -194,7 +193,6 @@ const IncidentForm = () => {
                 errorFields={champErreur}
                 refs={refs}
               />
-
               {sla && (
                 <div className="text-right text-sm text-gray-600 font-medium mt-4">
                   ⏱️ SLA attribué : <span className="text-black font-bold">{sla}</span>
@@ -205,7 +203,6 @@ const IncidentForm = () => {
                   📌 Priorité calculée : <span className="text-black font-bold">{priorité}</span>
                 </div>
               )}
-
               <div className="mt-6 text-center">
                 <button
                   onClick={handleSubmitClick}
@@ -218,15 +215,14 @@ const IncidentForm = () => {
           </div>
         </div>
 
-    <IncidentSummaryPopup
-        visible={afficherPopup}
-        onClose={() => setAfficherPopup(false)}
-        answers={transformedAnswers}
-        sla={sla}
-        priorité={priorité}
-        reportDate={dateRapport}
+        <IncidentSummaryPopup
+          visible={afficherPopup}
+          onClose={() => setAfficherPopup(false)}
+          answers={transformedAnswers}
+          sla={sla}
+          priorité={priorité}
+          reportDate={dateRapport}
         />
-
 
         <ToastContainer />
       </div>

@@ -19,33 +19,32 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onAssign }
   const [answers, setAnswers] = useState<{ [key: string]: string }>({});
   const [selectedIncident, setSelectedIncident] = useState<IncidentDetail | null>(null);
   const [users, setUsers] = useState([]);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null); // État pour l'image sélectionnée
 
   const handleAnswerChange = (questionId: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [questionId]: value }));
   };
 
   const handleAssign = () => {
-    
     setShowAssign(false);
     if (onAssign) onAssign();
   };
 
   const handleOpenAssign = (e: React.MouseEvent) => {
-  e.stopPropagation();
-  console.log("ID de l'incident:", incident.titre);
-  console.log("Nom de la personne:", incident.client_fullName || "Inconnu");
-  setShowAssign(true);
-};
-
+    e.stopPropagation();
+    console.log("ID de l'incident:", incident.titre);
+    console.log("Nom de la personne:", incident.client_fullName || "Inconnu");
+    setShowAssign(true);
+  };
 
   if (!incident) {
     return <div className="p-6 text-red-600">Incident data is missing. Please provide an incident object.</div>;
   }
 
+  const fichierJoints = incident.fichierJoints || []; // Assurez-vous que fichierJoints existe dans incident
+
   return (
-    <div
-      className="border p-6 rounded-xl shadow-sm w-full bg-white mb-6 flex flex-col justify-between ml-13"
-    >
+    <div className="border p-6 rounded-xl shadow-sm w-full bg-white mb-6 flex flex-col justify-between ml-13">
       <div className="flex-1">
         <h2 className="text-3xl font-semibold mb-4">
           #{incident.id.toString()} - {incident.titre}
@@ -93,6 +92,22 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onAssign }
           <span className="flex-1">
             Description : {incident.description || "Aucune description fournie"}
           </span>
+          {/* Affichage des images à droite de la description */}
+          {fichierJoints && fichierJoints.length > 0 ? (
+            <div className="flex flex-wrap gap-4 ml-4">
+              {fichierJoints.map((base64String, index) => (
+                <img
+                  key={index}
+                  src={`data:image/png;base64,${base64String}`}
+                  alt={`Capture ${index + 1}`}
+                  className="w-32 h-32 object-cover rounded-md border cursor-pointer"
+                  onClick={() => setSelectedImage(base64String)}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 ml-4">Aucun fichier disponible pour le moment.</p>
+          )}
         </div>
 
         {showMore && (
@@ -131,6 +146,20 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onAssign }
         </button>
       </div>
 
+      {/* Modal plein écran pour l'image */}
+      {selectedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-80 flex justify-center items-center z-50"
+          onClick={() => setSelectedImage(null)}
+        >
+          <img
+            src={`data:image/png;base64,${selectedImage}`}
+            alt="Full screen"
+            className="max-w-full max-h-full object-contain rounded shadow-lg"
+          />
+        </div>
+      )}
+
       {showAssign && (
         <>
           <div
@@ -146,14 +175,13 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onAssign }
               >
                 ✕
               </button>
-           <AssignIncident
-              incidentId={incident.id.toString()} // 👈 on passe l'ID ici
-              answers={answers}
-              onAnswerChange={handleAnswerChange}
-              onAssign={handleAssign}
-              onClose={() => setShowAssign(false)} // 👈 Ajoute aussi onClose si nécessaire
-            />
-
+              <AssignIncident
+                incidentId={incident.id}
+                answers={answers}
+                onAnswerChange={handleAnswerChange}
+                onAssign={handleAssign}
+                onClose={() => setShowAssign(false)}
+              />
             </div>
           </div>
         </>

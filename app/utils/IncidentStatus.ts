@@ -1,9 +1,9 @@
 export enum IncidentStatus {
-  SOUMIS = "Déclaré",
-  AFFECTE = "Affecté",
-  PRIS_EN_CHARGE = "En cours d’analyse",
-  TRANSFERE = "Transféré",
-  RESOLU = "Résolu",
+  SOUMIS = "SOUMIS",
+  AFFECTE = "AFFECTE",
+  PRIS_EN_CHARGE = "PRIS_EN_CHARGE",
+  TRANSFERE = "TRANSFERE",
+  RESOLU = "RESOLU",
 }
 
 export const getStatusStyle = (status: IncidentStatus): string => {
@@ -13,7 +13,7 @@ export const getStatusStyle = (status: IncidentStatus): string => {
     case IncidentStatus.AFFECTE:
       return 'bg-blue-100 text-blue-600 border border-blue-500';
     case IncidentStatus.PRIS_EN_CHARGE:
-      return 'bg-purple-100 text-purple-600 border border-purple-500';
+      return 'bg-pink-100 text-pink-600 border border-purple-500';
     case IncidentStatus.TRANSFERE:
       return 'bg-pink-100 text-pink-600 border border-pink-500';
     case IncidentStatus.RESOLU:
