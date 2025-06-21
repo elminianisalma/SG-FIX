@@ -44,7 +44,7 @@ export const IncidentCard: React.FC<IncidentCardProps> = ({ incident, onAssign }
   const fichierJoints = incident.fichierJoints || []; // Assurez-vous que fichierJoints existe dans incident
 
   return (
-    <div className="border p-6 rounded-xl shadow-sm w-full bg-white mb-6 flex flex-col justify-between ml-13">
+<div className="border p-6 rounded-xl shadow-sm w-full bg-white mb-6 flex flex-col justify-between">
       <div className="flex-1">
         <h2 className="text-3xl font-semibold mb-4">
           #{incident.id.toString()} - {incident.titre}

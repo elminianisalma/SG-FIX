@@ -90,19 +90,14 @@ export default function SearchPeople({ incidentId, onAssign, onClose }: SearchPe
             <div className="max-h-64 overflow-y-auto pt-2">
                 {filteredPeople.map((person, idx) => {
                     const isSelected = selected === person.name;
-                    const incidentColor =
-                        person.activeIncidents === 0
-                            ? "text-gray-500"
-                            : person.activeIncidents <= 3
-                            ? "text-orange-500"
-                            : "text-red-500";
+                
 
                     return (
                         <div
                             key={idx}
                             onClick={() => setSelected(person.name)}
                             className={`flex flex-col gap-2 px-3 py-3 cursor-pointer transition-all duration-200 ${
-                                isSelected ? "bg-blue-50" : "hover:bg-gray-50"
+                                isSelected ? "bg-red-50" : "hover:bg-gray-50"
                             }`}
                         >
                             <div className="flex items-start justify-between">
@@ -129,8 +124,8 @@ export default function SearchPeople({ incidentId, onAssign, onClose }: SearchPe
                                         </span>
 
                                         <div className="flex items-center gap-1">
-                                            <AlertTriangle className={`w-4 h-4 ${incidentColor}`} />
-                                            <span className={`text-sm ${incidentColor}`}>
+                                            <AlertTriangle className={`w-4 h-4 `} />
+                                            <span className={`text-sm`}>
                                                 {person.activeIncidents}
                                             </span>
                                         </div>

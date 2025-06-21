@@ -25,6 +25,7 @@ const IncidentAssignment: React.FC = () => {
   const [filterPriority, setFilterPriority] = useState<IncidentPriority | ''>('');
   const [filterDate, setFilterDate] = useState<string>("");
   const [isSortedByPriority, setIsSortedByPriority] = useState<boolean>(false);
+   const [isLoading, setIsLoading] = useState(true);
 
   // Fonction pour obtenir la valeur numérique de la priorité (pour le tri)
   const priorityValue = (p?: IncidentPriority): number => {
@@ -38,6 +39,15 @@ const IncidentAssignment: React.FC = () => {
     setSelectedIncident(incident);
     setAssignee(incident.client_firstName || "");
   };
+  React.useEffect(() => {
+  // Simuler le chargement pendant 1 seconde (1000 ms)
+  const timer = setTimeout(() => {
+    setIsLoading(false);
+  }, 1000);
+
+  return () => clearTimeout(timer); // nettoyage
+}, []);
+
 
   const handleSortByPriority = () => {
     const sorted = [...incidents].sort((a, b) =>
@@ -47,29 +57,6 @@ const IncidentAssignment: React.FC = () => {
     setIsSortedByPriority(true);
   };
 
-  const handleSubmitAssignment = () => {
-    if (selectedIncident && assignee.trim() !== "") {
-      setIncidents(incidents.map(inc =>
-        inc.id === selectedIncident.id ? { ...inc, assignedTo: assignee } : inc
-      ));
-      toast.success(`Incident "${selectedIncident.titre}" affecté à ${assignee} avec succès !`, {
-        position: "bottom-center",
-        autoClose: 4000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "light",
-      });
-      setSelectedIncident(null);
-      setAssignee("");
-    } else {
-      toast.error("Veuillez saisir un nom valide pour l'assigné.", {
-        position: "bottom-center",
-        autoClose: 4000,
-      });
-    }
-  };
 
   // Pagination
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -100,13 +87,10 @@ const IncidentAssignment: React.FC = () => {
         <div className="w-4/5 p-4 -ml-11">
           <div className="flex justify-between items-center mb-6">
             <div className="text-center w-full">
-              <h2 className="text-4xl font-bold mb-1 -pl-2">Affectation des incidents</h2>
+              <h2 className="text-4xl font-bold mb-1 -pl-6 ml-4">Affectation des incidents</h2>
               <p className="text-gray-600 text-lg">Assignez les incidents aux membres de l'équipe</p>
             </div>
-            <button className="bg-gray-200 px-4 py-2 rounded flex items-center space-x-2">
-              <Download className="w-4 h-4" />
-              <span>Exporter</span>
-            </button>
+            
           </div>
 
           {/* Barre de recherche et filtres */}
@@ -165,37 +149,45 @@ const IncidentAssignment: React.FC = () => {
             </div>
           </div>
 
-          {/* Liste des incidents */}
-          <div className="ml-2 space-y-4">
-            {paginatedIncidents.map((incident) => (
-              <IncidentCard
-                key={incident.id}
-                incident={incident}
-                onAssign={() => handleAssign(incident)}
-              />
-            ))}
+            <div className="ml-2 space-y-4">
+  {isLoading ? (
+    <div className="flex justify-center items-center h-48">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-4 border-green-600 border-opacity-50"></div>
+      <span className="ml-4 text-gray-600 text-lg">Chargement des incidents...</span>
+    </div>
+  ) : (
+    <>
+      {paginatedIncidents.map((incident) => (
+        <IncidentCard
+          key={incident.id}
+          incident={incident}
+          onAssign={() => handleAssign(incident)}
+        />
+      ))}
 
-            {/* Pagination */}
-            <div className="flex justify-center space-x-4 mt-4">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-              >
-                Précédent
-              </button>
-              <span className="px-4 py-2 text-gray-700 font-semibold">
-                Page {currentPage} sur {totalPages}
-              </span>
-              <button
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
-              >
-                Suivant
-              </button>
-            </div>
-          </div>
+      {/* Pagination */}
+      <div className="flex justify-center space-x-4 mt-4">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+        >
+          Précédent
+        </button>
+        <span className="px-4 py-2 text-gray-700 font-semibold">
+          Page {currentPage} sur {totalPages}
+        </span>
+        <button
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 disabled:opacity-50"
+        >
+          Suivant
+        </button>
+      </div>
+    </>
+  )}
+              </div>
 
       
 

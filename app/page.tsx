@@ -11,10 +11,11 @@ import BAHomePage from './view/BA-homepage/BaHomePage';
 import DeveloperAvailability from './view/dev-disponibility/DeveloperAvailability';
 import IncidentStatutBoard from './view/incident-status-view-user/IncidentStatutBoard';
 import CommentSection from './view/incidents-details/commentSection';
+import TaskList from './view/incident-declare/IncidentDeclare';
 export default function Home() {
     return (
         <div>
-            <CommentSection/>
+            <SignUpForm/>
         </div>
     );
 }

@@ -6,179 +6,114 @@ import KPIPage from './KPIPage';
 import DashboardPage from './DashboardPage';
 import { FaSearch } from 'react-icons/fa';
 import Sidebar from '../SideBarComponent/SideBar';
-
-const palette = {
-    lightRed: '#F5E6E6',
-    darkGray: '#808080',
-    mediumGray: '#A9A9A9',
-    tan: '#D2B48C',
-    darkRed: '#8B0000',
-    lightPurple: '#E6E6FA',
-};
+import { IncidentPriority } from '@/app/utils/IncidentPriority';
+import { ArrowUpDown, Search, SlidersHorizontal } from 'lucide-react';
 
 const theme = {
-    textPrimary: 'text-black',
-    accent: 'text-gray-300',
-    subtleText: 'text-gray-400',
-    border: 'border-gray-300',
-    shadow: 'shadow-lg',
-    glass: 'bg-white/10 backdrop-blur-md',
-    hover: 'hover:shadow-xl transition-all duration-300',
-    whiteContainer: 'bg-white rounded-lg p-4 shadow-md',
+  textPrimary: 'text-black',
+  subtleText: 'text-gray-400',
+  whiteContainer: 'bg-white rounded-lg p-4 shadow-md',
 };
 
 const MainDashboard = () => {
-    const [searchQuery, setSearchQuery] = useState('');
-    const [startDate, setStartDate] = useState('');
-    const [endDate, setEndDate] = useState('');
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearchQuery(e.target.value);
+  
+    const [searchTerm, setSearchTerm] = useState<string>("");
+    const [showFilter, setShowFilter] = useState<boolean>(false);
+    const [filterPriority, setFilterPriority] = useState<IncidentPriority | ''>('');
+    const [filterDate, setFilterDate] = useState<string>("");
+    const [isSortedByPriority, setIsSortedByPriority] = useState<boolean>(false);
+     const [isLoading, setIsLoading] = useState(true);
+  
+    // Fonction pour obtenir la valeur numérique de la priorité (pour le tri)
+    const priorityValue = (p?: IncidentPriority): number => {
+      if (p === IncidentPriority.ELEVEE) return 3;
+      if (p === IncidentPriority.MOYENNE) return 2;
+      if (p === IncidentPriority.FAIBLE) return 1;
+      return 0;
     };
+ 
+  
 
-    const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setStartDate(e.target.value);
-    };
+  return (
+    <div className="flex min-h-screen bg-white">
+      {/* Sidebar fixée à gauche (48px) */}
+      <Sidebar />
 
-    const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEndDate(e.target.value);
-    };
+      {/* Contenu principal décalé à droite */}
+      <div className="flex-1 ml-[48px] flex flex-col">
+        <HeaderBar />
 
-    const applyFilters = () => {
-        console.log('Applying Filters - Search Query:', searchQuery, 'Start Date:', startDate, 'End Date:', endDate);
-        // Add your filter logic here (e.g., update DashboardPage data)
-    };
+        <main className="flex-1 p-6 md:p-8 bg-gray-50 overflow-auto">
+          {/* Titre */}
+          <div className="text-center mb-8">
+            <h2 className="text-xl md:text-2xl font-semibold text-black mb-1">Tableau de bord</h2>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-black">Suivi des incidents</h1>
+          </div>
 
-    const handleResetFilters = () => {
-        setSearchQuery('');
-        setStartDate('');
-        setEndDate('');
-    };
+          {/* KPI */}
+          <KPIPage />
 
-    useEffect(() => {
-        applyFilters();
-    }, [searchQuery, startDate, endDate]);
-
-    return (
-        <div className="flex min-h-screen bg-white">
-            {/* Sidebar */}
-            <Sidebar />
-
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col">
-                {/* Header */}
-                <HeaderBar />
-
-                {/* Page Content */}
-                <main className="flex-1 p-6 md:p-10 overflow-auto flex justify-center">
-                    <div className="max-w-5xl w-full">
-                        {/* Titre principal */}
-                        <div className="text-center mb-8">
-                            <h2 className={`text-xl md:text-2xl font-semibold ${theme.textPrimary} mb-1`}>
-                                Tableau de bord
-                            </h2>
-                            <h1 className={`text-3xl md:text-4xl font-extrabold ${theme.textPrimary}`}>
-                                Suivi des incidents
-                            </h1>
-                        </div>
-
-                        {/* KPI Section */}
-                        <KPIPage />
-
-                        {/* Search and Date Range Filter */}
-                        <div className={`${theme.whiteContainer} mb-8`}>
-                            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-                                {/* Search Bar with External Icon */}
-                                <div className="flex items-center w-full md:w-1/2 gap-2">
-                                    <div className={theme.subtleText}>
-                                        <FaSearch className="h-5 w-5" />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        placeholder="Rechercher par mot-clé, ID ou texte..."
-                                        className="w-full p-2 rounded-md border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-gray-400"
-                                        value={searchQuery}
-                                        onChange={handleSearchChange}
-                                    />
-                                </div>
-
-                                {/* Date Range Filter */}
-                                <div className="flex items-center w-full md:w-1/2 gap-2">
-                                    <div className="flex-1">
-                                        <label className="text-sm text-gray-600 mr-2">Du:</label>
-                                        <input
-                                            type="date"
-                                            value={startDate}
-                                            onChange={handleStartDateChange}
-                                            className="w-full p-2 rounded-md border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-gray-400"
-                                        />
-                                    </div>
-                                    <div className="flex-1">
-                                        <label className="text-sm text-gray-600 mr-2">Au:</label>
-                                        <input
-                                            type="date"
-                                            value={endDate}
-                                            onChange={handleEndDateChange}
-                                            className="w-full p-2 rounded-md border border-gray-300 text-black focus:outline-none focus:ring-2 focus:ring-gray-400"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Search and Reset Buttons */}
-                            <div className="flex justify-end gap-3 mt-4">
-                                <button
-                                    onClick={applyFilters}
-                                    style={{
-                                        backgroundColor: '#bb0d0d',
-                                        color: 'white',
-                                        padding: '8px 16px',
-                                        borderRadius: '6px',
-                                        fontWeight: 'bold',
-                                        transition: 'background-color 0.2s ease'
-                                    }}
-                                   
-                               onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-                                    (e.target as HTMLButtonElement).style.backgroundColor = '#0056b3';
-                                }}
-
-                               onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                                    (e.target as HTMLButtonElement).style.backgroundColor = '#007bff';
-                                }}
-
-                                >
-                                    Rechercher
-                                </button>
-                                <button
-                                    onClick={handleResetFilters}
-                                    style={{
-                                        backgroundColor: '#6c757d',
-                                        color: 'white',
-                                        padding: '8px 16px',
-                                        borderRadius: '6px',
-                                        fontWeight: 'bold',
-                                        transition: 'background-color 0.2s ease'
-                                    }}
-                                    onMouseEnter={(e: React.MouseEvent<HTMLButtonElement>) => {
-    (e.target as HTMLButtonElement).style.backgroundColor = '#0056b3';
-}}
-
-                                    onMouseLeave={(e: React.MouseEvent<HTMLButtonElement>) => {
-                                          (e.target as HTMLButtonElement).style.backgroundColor= '#6c757d';
-                                    }}
-                                >
-                                    Réinitialiser
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Dashboard Section */}
-                        <DashboardPage />
-                    </div>
-                </main>
+          {/* Filtres */}
+            <div className="flex space-x-4 mb-4 relative">
+            <div className="relative flex items-center w-full  ml-52 w-[calc(100vw-48px)]">
+              <Search className="absolute left-3  text-gray-500" size={20} />
+              <input
+                type="text"
+                placeholder="Rechercher un incident..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 pr-4 py-3 border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-black-500"
+              />
             </div>
-        </div>
-    );
+            <div className="ml-auto flex items-center space-x-4 relative">
+              <button
+                className="flex items-center gap-2 px-3 py-3 ml-4 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-100 text-gray-700 text-lg font-medium"
+              >
+                <ArrowUpDown size={16} />
+                Trier
+              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setShowFilter(!showFilter)}
+                  className="flex items-center gap-2 px-3 py-3 bg-white border border-black-600 rounded-md shadow-sm hover:bg-gray-100 text-black-600 text-lg font-medium"
+                >
+                  <SlidersHorizontal size={16} />
+                  Filtres
+                </button>
+
+                {showFilter && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white p-4 border border-gray-300 rounded-md shadow-lg z-20">
+                    <label className="block mb-2 text-sm font-medium text-gray-700">Priorité</label>
+                    <select
+                      value={filterPriority}
+                      onChange={(e) => setFilterPriority(e.target.value as IncidentPriority)}
+                      className="w-full p-2 mb-4 border border-gray-300 rounded-md"
+                    >
+                      <option value="">Toutes</option>
+                      <option value={IncidentPriority.ELEVEE}>Élevée</option>
+                      <option value={IncidentPriority.MOYENNE}>Moyenne</option>
+                      <option value={IncidentPriority.FAIBLE}>Faible</option>
+                    </select>
+
+                    <label className="block mb-2 text-sm font-medium text-gray-700">Date de déclaration</label>
+                    <input
+                      type="date"
+                      value={filterDate}
+                      onChange={(e) => setFilterDate(e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded-md"
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Dashboard avec graphes élargis */}
+          <DashboardPage />
+        </main>
+      </div>
+    </div>
+  );
 };
 
 export default MainDashboard;

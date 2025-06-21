@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
 import { useState, useRef, useEffect } from "react";
-import { Bell, UserCircle, LogOut } from "lucide-react";
+import { Bell, LogOut } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -9,7 +9,8 @@ const HeaderBar = () => {
     const router = useRouter();
     const hasNotification = true;
     const [open, setOpen] = useState(false);
-    const menuRef = useRef(null);
+    // Typage explicite de useRef comme HTMLDivElement
+    const menuRef = useRef<HTMLDivElement>(null);
 
     const user = {
         name: "Omar Bari",
@@ -17,9 +18,20 @@ const HeaderBar = () => {
         role: "Admin"
     };
 
+    // Extraire les deux premières lettres pour l'avatar avec types explicites
+    const getInitials = (name: string): string => {
+        return name
+            .split(" ")
+            .map((word: string) => word[0])
+            .join("")
+            .slice(0, 2)
+            .toUpperCase();
+    };
+
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (menuRef.current && !menuRef.current.contains(event.target)) {
+        const handleClickOutside = (event: MouseEvent) => {
+            // Vérification si menuRef.current existe avant d'appeler contains
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
                 setOpen(false);
             }
         };
@@ -32,21 +44,20 @@ const HeaderBar = () => {
     }, [open]);
 
     return (
-        // CHANGEMENT ICI: py-2 -> py-3 pour un peu plus de hauteur
-        <header className="bg-white shadow-md px-6 py-3 flex items-center justify-between text-black">
+        <header className="bg-white shadow-md px-6 py-3 flex items-center justify-between text-black ">
             {/* Left */}
             <div className="flex-1" />
-
             {/* Center: Logo (un peu plus grand) */}
-            <div className="flex justify-center flex-1">
-                <Image
-                    src="/images/logoImage.png"
-                    alt="Logo SG-FIX"
-                    width={220}  // <<< CHANGEMENT
-                    height={70}   // <<< CHANGEMENT
-                    priority
-                />
-            </div>
+       <div className="flex justify-center flex-1 mr-9" style={{ marginLeft: '28px' }}>
+                    <Image
+                        src="/images/logoImage.png"
+                        alt="Logo SG-FIX"
+                        width={220}
+                        height={70}
+                        priority
+                    />
+                    </div>
+
 
             {/* Right: Icons (un peu plus grands) */}
             <div className="flex justify-end flex-1 items-center gap-5 relative">
@@ -54,23 +65,32 @@ const HeaderBar = () => {
                     className="relative cursor-pointer"
                     onClick={() => router.push("/core/notification-page")}
                 >
-                    <Bell className="h-8 w-8 text-black" /> {/* <<< CHANGEMENT */}
+                    <Bell className="h-8 w-8 text-black" />
                     {hasNotification && (
                         <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-red-500 border-2 border-white" />
                     )}
                 </div>
 
                 <div className="relative" ref={menuRef}>
-                    <UserCircle
-                        className="h-8 w-8 cursor-pointer text-black transition" // <<< CHANGEMENT
-                        onClick={() => setOpen((v) => !v)}
-                    />
+                    {/* Avatar cliquable avec nom en dessous */}
+                    <div className="flex flex-col items-center cursor-pointer">
+                        <div
+                            className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-base font-semibold cursor-pointer hover:bg-gray-400 transition"
+                            onClick={() => setOpen((v) => !v)}
+                        >
+                            {getInitials(user.name)}
+                        </div>
+                        <span className="text-sm font-medium text-gray-700 mt-1">{user.name}</span>
+                    </div>
+
                     {open && (
                         <div className="absolute right-0 mt-4 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 animate-fade-in-down py-3 px-4">
                             <div className="flex flex-col items-center pb-3 border-b border-gray-200">
-                                {/* Correction de la couleur de l'icône ici */}
-                                <UserCircle className="h-12 w-12 text-gray-500 mb-1" />
-                                <div className="font-semibold">{user.name}</div>
+                                {/* Avatar avec initiales dans le menu déroulant */}
+                                <div className="w-12 h-12 bg-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold mb-1">
+                                    {getInitials(user.name)}
+                                </div>
+                                <div className="font-semibold text-lg">{user.name}</div>
                                 <div className="text-sm text-gray-500">{user.email}</div>
                                 <div className="text-xs text-gray-400">{user.role}</div>
                             </div>

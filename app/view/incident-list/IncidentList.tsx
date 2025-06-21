@@ -11,6 +11,7 @@ import KpiDashboard from './KpiDashboard';
 import { Incident, IncidentStatus } from '../../utils/TypeIncident';
 import { calculatePriority } from '../../utils/calculatePriority';
 import Sidebar from '../SideBarComponent/SideBar';
+import HeaderBar from '../components/HeaderBar';
 
 export default function IncidentList() {
   const [incidents] = useState<Incident[]>([
@@ -69,7 +70,9 @@ export default function IncidentList() {
   return (
     <div className="flex max-h-screen bg-gray-50">
       <Sidebar />
-      <div className="flex-1 p-4 sm:p-8 max-w-6xl mx-auto relative">
+        <div className="flex-1 flex flex-col">
+        <HeaderBar />
+    <div className="flex-1 p-4 sm:p-8 ml-52 max-w-[80%] relative">
         <h1 className="text-2xl font-bold mb-6 text-gray-800 text-center">
           Liste des incidents
         </h1>
@@ -79,29 +82,33 @@ export default function IncidentList() {
         <div className="flex justify-end mb-3 z-10 relative">
           <div className="flex items-center gap-3 w-full">
             {/* 🔧 Barre de recherche élargie */}
-            <div className="relative flex-grow flex items-center">
-              <Search className="absolute left-3 text-gray-500" size={16} />
-              <input
-                type="text"
-                placeholder="Rechercher un incident..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
+             <div className="relative flex items-center w-full">
+                         <Search className="absolute left-3 text-gray-500" size={20} />
+                         <input
+                           type="text"
+                           placeholder="Rechercher un incident..."
+                           value={searchTerm}
+                           onChange={(e) => setSearchTerm(e.target.value)}
+                           className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-md text-base shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                         />
+                       </div>
             {/* Bouton Sort by */}
-            <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-100 text-gray-700 text-sm font-medium">
-              <ArrowUpDown size={16} />
-              Sort by
-            </button>
+              <button
+                className="flex items-center gap-2 px-3 py-3 ml-4 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-100 text-gray-700 text-lg font-medium"
+              >
+                <ArrowUpDown size={16} />
+                Trier
+              </button>
             {/* Bouton Filter */}
-            <button
-              onClick={() => setShowFilter(!showFilter)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-white border border-green-600 rounded-md shadow-sm hover:bg-gray-100 text-green-600 text-sm font-medium"
-            >
+          <div className="relative">
+                <button
+                  onClick={() => setShowFilter(!showFilter)}
+                  className="flex items-center gap-2 px-3 py-3 bg-white border rounded-md shadow-sm hover:bg-gray-100 text-black-600 text-lg font-medium"
+                >
               <SlidersHorizontal size={16} />
               Filter
             </button>
+            </div>
           </div>
         </div>
 
@@ -172,10 +179,9 @@ export default function IncidentList() {
           </div>
         )}
 
-        <div className="overflow-x-auto z-0">
           <IncidentTable incidents={filteredIncidents} />
-        </div>
       </div>
     </div>
+        </div>
   );
 }

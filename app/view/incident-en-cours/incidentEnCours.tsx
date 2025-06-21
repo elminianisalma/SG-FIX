@@ -1,4 +1,5 @@
 'use client';
+
 import React, { useState, useMemo, useEffect } from 'react';
 import HeaderBar from '@/app/view/components/HeaderBar';
 import { Search, ArrowUpDown, SlidersHorizontal, User, Shield, Network, CalendarDays, AlertTriangle } from 'lucide-react';
@@ -28,7 +29,7 @@ export default function IncidentsEnCoursDeTraitement() {
     const [sortPriority, setSortPriority] = useState<'asc' | 'desc' | ''>('');
     const [priorityFilter, setPriorityFilter] = useState<string | ''>('');
     const [showFilter, setShowFilter] = useState<boolean>(false);
-        const [searchTerm, setSearchTerm] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
 
     const [selectedIncident, setSelectedIncident] = useState<IncidentDetail | null>(null);
     const [incidents, setIncidents] = useState<Incident[]>([]);
@@ -127,20 +128,7 @@ export default function IncidentsEnCoursDeTraitement() {
         setPriorityFilter('');
     };
 
-    if (loading) {
-        return (
-            <div className="flex bg-gray-50 min-h-screen text-[17px] relative">
-                <Sidebar />
-                <div className="flex-1 flex flex-col">
-                    <HeaderBar />
-                    <main className="p-6 max-w-7xl mx-auto w-full">
-                        <p className="text-center text-gray-500">Chargement...</p>
-                    </main>
-                </div>
-            </div>
-        );
-    }
-
+   
     if (error) {
         return (
             <div className="flex bg-gray-50 min-h-screen text-[17px] relative">
@@ -175,7 +163,7 @@ export default function IncidentsEnCoursDeTraitement() {
             <Sidebar />
             <div className="flex-1 flex flex-col">
                 <HeaderBar />
-                <main className="p-6 max-w-7xl mx-auto w-full">
+                 <main className="p-6 w-full">
                     <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">
                         Incidents en cours de traitement
                     </h1>

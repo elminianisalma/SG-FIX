@@ -9,16 +9,17 @@ export enum IncidentStatus {
 export const getStatusStyle = (status: IncidentStatus): string => {
   switch (status) {
     case IncidentStatus.SOUMIS:
-      return 'bg-yellow-100 text-yellow-600 border border-yellow-500';
+      return 'bg-amber-50 text-amber-700 border border-amber-300'; // doux jaune pastel
     case IncidentStatus.AFFECTE:
-      return 'bg-blue-100 text-blue-600 border border-blue-500';
-    case IncidentStatus.PRIS_EN_CHARGE:
-      return 'bg-pink-100 text-pink-600 border border-purple-500';
+      return 'bg-blue-50 text-blue-700 border border-blue-300'; // bleu clair pastel
+  case IncidentStatus.PRIS_EN_CHARGE:
+  return 'bg-orange-50 text-orange-700 border border-orange-300'; // orange pastel
+// rose doux
     case IncidentStatus.TRANSFERE:
-      return 'bg-pink-100 text-pink-600 border border-pink-500';
+      return 'bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-300'; // violet doux
     case IncidentStatus.RESOLU:
-      return 'bg-green-100 text-green-600 border border-green-500';
+      return 'bg-emerald-50 text-emerald-700 border border-emerald-300'; // vert pastel
     default:
-      return 'bg-gray-100 text-gray-600 border border-gray-500';
+      return 'bg-gray-50 text-gray-700 border border-gray-300'; // neutre
   }
 };

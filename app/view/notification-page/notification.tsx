@@ -1,9 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from "react";
-import { Card, CardContent } from "../../common/Card";
-import { Button } from "../../common/Button";
-import { Avatar } from "../../common/avatar";
 import ReassignModal from "./ReaffectModal";
 import { useRouter } from "next/navigation";
 import { getPriorityStyle, IncidentPriority } from "@/app/utils/IncidentPriority";
@@ -24,6 +21,9 @@ import {
 import { IncidentDetail } from "@/app/models/IncidentDetail";
 import HeaderBar from "../components/HeaderBar";
 import { IncidentGravity } from "@/app/utils/IncidentGravity";
+import { Card, CardContent } from "@/app/common/Card";
+import { Avatar } from "@/app/common/Avatar";
+import { Button } from "@/app/common/Button";
 
 export default function IncidentNotificationPage() {
   const [showReassignDialog, setShowReassignDialog] = useState(false);

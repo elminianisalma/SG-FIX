@@ -1,80 +1,98 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
-    FaSearch,
-    FaCalendarCheck,
-    FaBell,
-    FaServer,
-    FaChartPie,
-    FaTasks,
-    FaUsers,
-    FaQuestionCircle,
-    FaCloudSun
-} from 'react-icons/fa';
-import Image from 'next/image';
-import logo from '/public/images/logoo.jpg';
-import HeaderBar from '../components/HeaderBar';
+  FaSearch,
+  FaCalendarCheck,
+  FaBell,
+  FaServer,
+  FaChartPie,
+  FaTasks,
+  FaUsers,
+  FaQuestionCircle,
+  FaCloudSun,
+  FaSignOutAlt,
+} from "react-icons/fa";
+
+// Définir les rôles possibles
+const ROLES = {
+  API_USER: "apiUser",
+  BUSINESS_ANALYST: "ba",
+  DEVELOPER: "developer",
+  ADMIN: "admin",
+};
+
+// Définir les permissions comme une liste de chaînes
+const rolePermissions = {
+  [ROLES.API_USER]: ["Search", "Incidents", "Follow Status", "Notifications", "API Weather"],
+  [ROLES.BUSINESS_ANALYST]: ["Search", "Incidents", "Assign Incident", "Follow Status", "Notifications", "Employees"],
+  [ROLES.DEVELOPER]: ["Incidents", "Take Charge", "Update Status", "Notifications"],
+  [ROLES.ADMIN]: ["Search", "Incidents", "Manage Roles", "Dashboard", "Notifications"],
+};
+
+// Mapping des labels aux icônes et chemins (statique pour simplicité)
+const labelToIconPath = {
+  Search: { icon: <FaSearch size={20} />, path: "/view/incidents-details" },
+  Incidents: { icon: <FaTasks size={20} />, path: "/view/incident-list" },
+  "Follow Status": { icon: <FaCalendarCheck size={20} />, path: "/view/status-tracking" },
+  Notifications: { icon: <FaBell size={20} />, path: "/view/notification-page" },
+  "Assign Incident": { icon: <FaServer size={20} />, path: "/view/assign-incident" },
+  Employees: { icon: <FaUsers size={20} />, path: "/view/employees-dashboard" },
+  "Take Charge": { icon: <FaCalendarCheck size={20} />, path: "/view/take-charge" },
+  "Update Status": { icon: <FaServer size={20} />, path: "/view/update-status" },
+  "Manage Roles": { icon: <FaUsers size={20} />, path: "/view/manage-roles" },
+  Dashboard: { icon: <FaChartPie size={20} />, path: "/view/dashboards" },
+  "API Weather": { icon: <FaCloudSun size={20} />, path: "/view/api-meteo" },
+};
 
 export default function Sidebar() {
-    const [isHovered, setIsHovered] = useState(false);
-    const router = useRouter();
+  const router = useRouter();
+  const [userRole, setUserRole] = useState<string | null>(null);
 
-    return (
-        <>
+  useEffect(() => {
+    const role = localStorage.getItem("userRole") || ROLES.API_USER;
+    setUserRole(role);
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("userRole");
+    router.push("/login");
+  };
+
+  const handleNavigation = (path: string) => {
+    router.push(path);
+  };
+
+  const permissions = userRole ? rolePermissions[userRole] : [];
+
+  return (
+    <div className="bg-red-600 fixed top-0 left-0 z-10 text-white h-screen w-48 flex flex-col justify-between p-4">
+      <nav className="flex flex-col space-y-6 mt-24">
+        {permissions.map((label, index) => {
+          const { icon, path } =  { icon: null, path: "#" };
+          return (
             <div
-                className={`bg-red-600 fixed top-0 left-0 z-10 text-white h-screen p-4 
-                            transition-all duration-300 overflow-hidden 
-                            ${isHovered ? 'w-48' : 'w-16'}`}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+              key={index}
+              onClick={() => handleNavigation(path)}
+              className="flex items-center space-x-3 text-white cursor-pointer hover:scale-105 transition-all"
             >
-
-                <div className="flex justify-center mb-8">
-                    <Image
-                        src={logo}
-                        alt="Logo"
-                        width={80}
-                        height={80}
-                        className="w-[80px] h-[80px] object-contain transition-all duration-300"
-                    />
-                </div>
-
-                <nav className="flex flex-col space-y-6">
-                    <SidebarIcon icon={<FaSearch size={27} />} label="Search" isHovered={isHovered} onClick={() => router.push('/view/incidents-details')} />
-                    <SidebarIcon icon={<FaTasks size={27} />} label="Incidents" isHovered={isHovered} onClick={() => router.push('/view/incident-list')} />
-                    <SidebarIcon icon={<FaBell size={27} />} label="Notifications" isHovered={isHovered} onClick={() => router.push('/view/notification-page')} />
-                    <SidebarIcon icon={<FaServer size={27} />} label="Database" isHovered={isHovered} />
-                    <SidebarIcon icon={<FaChartPie size={27} />} label="Dashboard" isHovered={isHovered} onClick={() => router.push('/view/Dashboards')} />
-                    <SidebarIcon icon={<FaCalendarCheck size={27} />} label="Tasks" isHovered={isHovered} onClick={() => router.push('/view/tasks-dashboard')} />
-                    <SidebarIcon icon={<FaUsers size={27} />} label="Employees" isHovered={isHovered} onClick={() => router.push('/view/employees-dashboard')} />
-                    <SidebarIcon icon={<FaCloudSun size={27} />} label="API Weather" isHovered={isHovered} onClick={() => router.push('/view/api-meteo')}/>
-                    <SidebarIcon icon={<FaQuestionCircle size={27} />} label="Help" isHovered={isHovered} />
-                </nav>
+              <div>{icon}</div>
+              <span className="text-[16px]">{label}</span>
             </div>
-        </>
-    );
-}
+          );
+        })}
+      </nav>
 
-function SidebarIcon({
-                         icon,
-                         label,
-                         onClick,
-                         isHovered
-                     }: {
-    icon: React.ReactNode;
-    label: string;
-    onClick?: () => void;
-    isHovered: boolean;
-}) {
-    return (
+      <div className="mt-6">
         <div
-            onClick={onClick}
-            className="flex items-center text-white cursor-pointer space-x-3 transition-all hover:scale-105"
+          onClick={handleLogout}
+          className="flex items-center space-x-3 text-white cursor-pointer hover:scale-105 transition-all"
         >
-            <div>{icon}</div>
-            {isHovered && <span className="text-[18px]">{label}</span>}
+          <div><FaSignOutAlt size={20} /></div>
+          <span className="text-[16px]">Logout</span>
         </div>
-    );
+      </div>
+    </div>
+  );
 }

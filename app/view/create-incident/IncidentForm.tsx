@@ -40,43 +40,43 @@ const IncidentForm = () => {
       id: "application",
       text: "Quel application est concerné par l’incident ?",
       type: "select",
-      options: ["BILL_PAYMENT", "Bankup", "Interop", "OpenR", "Cockpit"]
+      options: ["BILL_PAYMENT", "Bankup", "Interop", "OpenR", "Cockpit"],
     },
     {
       id: "environment",
       text: "Quel est l’environnement affecté ?",
       type: "radio",
-      options: ["Dev", "HF", "HT", "Stabilisation"]
+      options: ["Dev", "HF", "HT", "Stabilisation"],
     },
     {
       id: "gravité",
       text: "Quel est l’effet ou les conséquences de l’incident ? (impact)",
       type: "radio",
-      options: ["Mineur", "Majeur", "Critique"]
+      options: ["Mineur", "Majeur", "Critique"],
     },
     {
       id: "tags",
       text: "Quels tags correspondent à cet incident ?",
       type: "multitag",
-      options: ["Bridge", "Transfert", "Elevy", "Account", "E-tax", "Guce"]
+      options: ["Bridge", "Transfert", "Elevy", "Account", "E-tax", "Guce"],
     },
     {
       id: "shortDescription",
       text: "Quel est l’objet principal de l’incident ?",
       type: "text",
-      placeholder: "Exemple : Échec de l’authentification via SSO"
+      placeholder: "Exemple : Échec de l’authentification via SSO",
     },
     {
       id: "details",
       text: "Décrivez les détails techniques de l’incident",
       type: "textarea",
-      placeholder: "Expliquez les étapes, erreurs rencontrées et conséquences fonctionnelles"
+      placeholder: "Expliquez les étapes, erreurs rencontrées et conséquences fonctionnelles",
     },
     {
       id: "attachments",
       text: "Ajoutez les fichiers nécessaires (logs, captures d’écran, etc.)",
-      type: "file"
-    }
+      type: "file",
+    },
   ];
 
   const totalQuestions = questionsIncident.length;
@@ -100,7 +100,7 @@ const IncidentForm = () => {
       const prioritéMap: Record<string, IncidentPriority> = {
         "Critique": IncidentPriority.CRITIQUE,
         "Majeur": IncidentPriority.ELEVEE,
-        "Mineur": IncidentPriority.MOYENNE
+        "Mineur": IncidentPriority.MOYENNE,
       };
       const nouvellePriorité = prioritéMap[gravite];
       setPriorité(nouvellePriorité);
@@ -108,7 +108,7 @@ const IncidentForm = () => {
         [IncidentPriority.MOYENNE]: "8 heures",
         [IncidentPriority.ELEVEE]: "4 heures",
         [IncidentPriority.CRITIQUE]: "2 heures",
-        [IncidentPriority.FAIBLE]: "24 heures"
+        [IncidentPriority.FAIBLE]: "24 heures",
       };
       setSla(slaMap[nouvellePriorité]);
     }
@@ -167,8 +167,30 @@ const IncidentForm = () => {
         });
       }
 
-      await IncidentService.createIncident(formData);
-      toast.success("Incident créé avec succès !");
+      // Simuler une réponse avec un ID d'incident (remplacez par la vraie réponse de l'API)
+      const response = await IncidentService.createIncident(formData);
+      const incidentId = response.id || BigInt(123); // Supposons que l'API renvoie un ID
+
+      toast.success(
+        <div>
+          Incident créé avec référence avec succès !{" "}
+          <a
+            href={`/incident/${incidentId}`}
+            onClick={(e) => {
+              e.preventDefault();
+              router.push(`/incident/${incidentId}`);
+              toast.dismiss(); // Ferme le toast après redirection
+            }}
+            className="text-blue-500 underline hover:text-blue-700"
+          >
+            Voir l'incident
+          </a>
+        </div>,
+        {
+          autoClose: 5000, // Ferme automatiquement après 5 secondes
+        }
+      );
+
       setAfficherPopup(true);
       setRéponses({});
     } catch (error) {

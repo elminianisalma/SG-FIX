@@ -1,0 +1,36 @@
+export interface IncidentDetailed {
+    id: number;
+    titre: string;
+    description: string;
+    statutIncident: string;
+    gravite: string;
+    priorite: string;
+    dateAttribution: Date;
+    dateResolution: Date;
+    dateDeclaration: Date;
+    clientSub: string;
+    Client_firstName: string;
+    Client_lastName: string;
+    client_fullName: string;
+    client_igg: string;
+    Client_role: Set<string>;
+    Client_mail: string;
+    Client_serviceName: string;
+    coeDevSub: string;
+    CoeDev_FirstName: string;
+    CoeDev_lastName: string;
+    CoeDev_fullName: string;
+    CoeDev_igg: string;
+    CoeDev_role: Set<string>;
+    CoeDev_mail: string;
+    CoeDev_serviceName: string;
+    tags: string[];
+    fichier_Joints: string[];
+    environnement: string;
+    application: string;
+    titreDocumentation: string;
+    RootCause: string;
+    actions_correctives: string;
+    etapeResolution: string;
+    mesuresPreventives: string;
+}

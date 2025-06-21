@@ -9,14 +9,16 @@ import {
   FaFilePdf,
   FaImage,
   FaCalendarAlt,
+  FaFileDownload,
 } from "react-icons/fa";
 import HeaderBar from "../components/HeaderBar";
 import Sidebar from "../SideBarComponent/SideBar";
 import { IncidentDetail } from "@/app/models/IncidentDetail";
-import { IncidentStatus } from "@/app/utils/IncidentStatus";
+import { getStatusStyle, IncidentStatus } from "@/app/utils/IncidentStatus";
 import { IncidentGravity } from "@/app/utils/IncidentGravity";
 import { IncidentPriority } from "@/app/utils/IncidentPriority";
 import CommentSection from "./commentSection";
+import IncidentReport from "../rapport-generation/RapportGenerated";
 
 const currentIncident: IncidentDetail = {
   id: BigInt(1238957),
@@ -29,7 +31,7 @@ const currentIncident: IncidentDetail = {
   gravite: IncidentGravity.CRITIQUE,
   priorite: IncidentPriority.ELEVEE,
   dateAttribution: "2025-04-01T09:00:00Z",
-  dateResolution: "", // À remplir lorsqu'une date est disponible
+  dateResolution: "",
   dateDeclaration: "2025-04-01T09:00:00Z",
   clientSub: "xyzcorp_sub_001",
   client_fullName: "El Mehdi BOUHLAOUI",
@@ -50,22 +52,7 @@ const currentIncident: IncidentDetail = {
   environnement: "DEV",
   application: "Open R",
   tags: ["Sécurité", "Urgent", "Confidentiel"],
-  base64Images: [] // ou avec des images encodées en base64 si disponible
-};
-
-const getStatusStyle = (status: string) => {
-  switch (status) {
-    case "EN ATTENTE":
-      return "bg-blue-100 text-blue-700";
-    case "EN COURS":
-      return "bg-yellow-100 text-yellow-700";
-    case "RÉSOLU":
-      return "bg-green-100 text-green-700";
-    case "ANNULÉ":
-      return "bg-red-100 text-red-700";
-    default:
-      return "bg-gray-100 text-gray-700";
-  }
+  fichierJoints: []
 };
 
 export default function DetailedIncidentInfo() {
@@ -77,6 +64,7 @@ export default function DetailedIncidentInfo() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
   const [status, setStatus] = useState(currentIncident.statutIncident);
+  const reportRef = useRef<{ generatePDF: () => void }>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -101,6 +89,12 @@ export default function DetailedIncidentInfo() {
     setSelectedFiles([]);
   };
 
+  const handleGenerateReport = () => {
+    if (reportRef.current) {
+      reportRef.current.generatePDF();
+    }
+  };
+
   const isImage = (file: File) => file.type.startsWith("image/");
 
   const images = savedFiles.filter(isImage);
@@ -109,7 +103,7 @@ export default function DetailedIncidentInfo() {
   return (
     <div className="flex min-h-screen bg-gray-100 text-base">
       <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col ml-48"> {/* Added ml-48 to match sidebar width */}
         <div className="w-full">
           <HeaderBar />
           <div className="text-center py-4 px-4">
@@ -120,10 +114,9 @@ export default function DetailedIncidentInfo() {
         </div>
 
         <div className="flex-1 p-8">
-          <div className="w-full max-w-7xl mx-auto">
-            <div className="bg-white p-6 rounded-lg shadow-md mb-6">
+          <div className="w-full mx-auto min-h-screen">
+            <div className="bg-white p-6 rounded-lg shadow-md mb-6 min-h-[700px]"> {/* Removed ml-14 */}
               <div className="flex justify-between items-start flex-wrap gap-4">
-                {/* Gauche - Titre, date, champs */}
                 <div className="flex-1 min-w-[300px]">
                   <h1 className="text-3xl font-bold text-gray-900 flex items-center flex-wrap gap-2">
                     {currentIncident.titre} –{" "}
@@ -156,7 +149,6 @@ export default function DetailedIncidentInfo() {
                   </div>
                 </div>
 
-                {/* Droite - Infos client avec hover */}
                 <div className="relative group">
                   <div className="flex items-center gap-2">
                     <Avatar className="bg-blue-500" sx={{ width: 40, height: 40 }}>
@@ -171,33 +163,18 @@ export default function DetailedIncidentInfo() {
                       <p className="text-sm font-semibold text-gray-800">
                         {currentIncident.client_fullName}
                       </p>
-                      <p className="text-sm text-gray-600">
-                        <strong>Sub :</strong> {currentIncident.clientSub}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <strong>IGG :</strong> {currentIncident.client_igg}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <strong>Prénom :</strong> {currentIncident.client_firstName}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <strong>Nom :</strong> {currentIncident.client_lastName}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <strong>Email :</strong> {currentIncident.client_mail}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <strong>Rôle :</strong> {currentIncident.client_role}
-                      </p>
-                      <p className="text-sm text-gray-600">
-                        <strong>Service :</strong> {currentIncident.client_serviceName}
-                      </p>
+                      <p className="text-sm text-gray-600"><strong>Sub :</strong> {currentIncident.clientSub}</p>
+                      <p className="text-sm text-gray-600"><strong>IGG :</strong> {currentIncident.client_igg}</p>
+                      <p className="text-sm text-gray-600"><strong>Prénom :</strong> {currentIncident.client_firstName}</p>
+                      <p className="text-sm text-gray-600"><strong>Nom :</strong> {currentIncident.client_lastName}</p>
+                      <p className="text-sm text-gray-600"><strong>Email :</strong> {currentIncident.client_mail}</p>
+                      <p className="text-sm text-gray-600"><strong>Rôle :</strong> {currentIncident.client_role}</p>
+                      <p className="text-sm text-gray-600"><strong>Service :</strong> {currentIncident.client_serviceName}</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Onglets */}
               <div className="flex mt-4 border-b border-gray-200">
                 {["details", "timeline", "fichiers", "commentaires"].map((tab) => (
                   <button
@@ -220,52 +197,34 @@ export default function DetailedIncidentInfo() {
                 ))}
               </div>
 
-              {/* Contenu des onglets */}
               <div className="mt-6">
                 {activeTab === "details" && (
                   <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                      Description de l'incident
-                    </h3>
-                    <p className="whitespace-pre-line text-gray-700">
-                      {currentIncident.description}
-                    </p>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Description de l'incident</h3>
+                    <p className="whitespace-pre-line text-gray-700">{currentIncident.description}</p>
                   </div>
                 )}
                 {activeTab === "timeline" && (
                   <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                      Chronologie de l'incident
-                    </h3>
-                    <p className="text-gray-500">
-                      Aucune chronologie disponible pour le moment.
-                    </p>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Chronologie de l'incident</h3>
+                    <p className="text-gray-500">Aucune chronologie disponible pour le moment.</p>
                   </div>
                 )}
                 {activeTab === "fichiers" && (
                   <div className="bg-white p-6 rounded-lg shadow-md">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                      Fichiers et Captures d'écran
-                    </h3>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-4">Fichiers et Captures d'écran</h3>
                     {savedFiles.length === 0 ? (
-                      <p className="text-gray-500">
-                        Aucun fichier ou capture d'écran ajouté pour le moment.
-                      </p>
+                      <p className="text-gray-500">Aucun fichier ou capture d'écran ajouté pour le moment.</p>
                     ) : (
                       <div className="space-y-6">
                         <div>
-                          <h4 className="text-lg font-medium text-gray-800 mb-2">
-                            Documents
-                          </h4>
+                          <h4 className="text-lg font-medium text-gray-800 mb-2">Documents</h4>
                           {documents.length === 0 ? (
                             <p className="text-gray-500">Aucun document ajouté.</p>
                           ) : (
                             <ul className="space-y-2">
                               {documents.map((file, index) => (
-                                <li
-                                  key={index}
-                                  className="flex items-center gap-3 p-2 border rounded-lg"
-                                >
+                                <li key={index} className="flex items-center gap-3 p-2 border rounded-lg">
                                   <FaFilePdf className="text-red-600" />
                                   <span className="text-gray-700">{file.name}</span>
                                   <span className="text-gray-500 text-sm">
@@ -277,13 +236,9 @@ export default function DetailedIncidentInfo() {
                           )}
                         </div>
                         <div>
-                          <h4 className="text-lg font-medium text-gray-800 mb-2">
-                            Captures d'écran
-                          </h4>
+                          <h4 className="text-lg font-medium text-gray-800 mb-2">Captures d'écran</h4>
                           {images.length === 0 ? (
-                            <p className="text-gray-500">
-                              Aucune capture d'écran ajoutée.
-                            </p>
+                            <p className="text-gray-500">Aucune capture d'écran ajoutée.</p>
                           ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                               {images.map((file, index) => (
@@ -313,7 +268,6 @@ export default function DetailedIncidentInfo() {
                 )}
               </div>
 
-              {/* Boutons en bas */}
               <div className="flex flex-row flex-wrap gap-4 justify-end mt-6">
                 <div className="relative">
                   <button
@@ -341,20 +295,28 @@ export default function DetailedIncidentInfo() {
                   )}
                 </div>
                 <button
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items-center"
+                  className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 flex items- center"
                   onClick={() => setIsPopupOpen(true)}
                 >
                   <FaFileAlt className="mr-2" />
                   Ajouter Documentation
                 </button>
+                <button
+                  className="px-4 py-2 bg-red-900 text-white rounded-lg hover:bg-red-900 flex items-center"
+                  onClick={handleGenerateReport}
+                >
+                  <FaFileDownload className="mr-2" />
+                  Générer Rapport
+                </button>
               </div>
             </div>
+
+            <IncidentReport ref={reportRef} incidentData={currentIncident} />
           </div>
         </div>
 
-        {/* Popup Ajouter Documentation */}
         {isPopupOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          < div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white w-full max-w-md p-6 rounded-lg shadow-lg relative">
               <button
                 className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
